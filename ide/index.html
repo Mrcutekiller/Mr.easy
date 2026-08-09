@@ -488,6 +488,12 @@ html, body {
     </div>
   </div>
   <div class="topbar-right">
+    <button class="btn-icon" onclick="openTemplateModal()" title="Choose pre-made template">
+      <i class="fa fa-cubes"></i> Templates
+    </button>
+    <button class="btn-icon" onclick="openCliModal()" title="Terminal CLI commands">
+      <i class="fa fa-terminal"></i> CLI Guide
+    </button>
     <button class="btn-icon" onclick="clearCode()" title="Start from 0 (Clear Editor)">
       <i class="fa fa-trash-can"></i> Start 0
     </button>
@@ -824,7 +830,12 @@ const EXAMPLES = [
 window.addEventListener('DOMContentLoaded', () => {
   initEditor();
   setViewMode('split');
-  setTimeout(() => compileAndPreview(), 100);
+  const saved = localStorage.getItem('mreasy_code');
+  if (saved && saved.trim()) {
+    setSourceCode(saved);
+  } else {
+    setTimeout(() => compileAndPreview(), 100);
+  }
 });
 
 function getSourceCode() {
@@ -1509,6 +1520,58 @@ function openGuideModal(type) {
 function closeGuideModal() {
   const modal = document.getElementById('guide-modal');
   if (modal) modal.classList.remove('open');
+}
+
+function openTemplateModal() {
+  const modal = document.getElementById('guide-modal');
+  const title = document.getElementById('modal-title');
+  const body  = document.getElementById('modal-body');
+  if (!modal || !body) return;
+
+  title.innerHTML = '<i class="fa fa-cubes"></i> Choose Starter Template';
+  body.innerHTML = `
+<div class="guide-section">
+  <p class="guide-desc" style="margin-bottom:12px;">Click any template to load it into your editor:</p>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px;">
+    ${EXAMPLES.map(ex => `
+      <div onclick="loadExample('${ex.key}'); closeGuideModal();" style="background:var(--bg3); border:1px solid var(--border2); border-radius:8px; padding:14px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border2)'">
+        <div style="color:var(--primary2); font-size:1.2rem; margin-bottom:6px;"><i class="fa ${ex.icon}"></i></div>
+        <div style="font-weight:600; font-size:0.88rem; color:var(--text); margin-bottom:4px;">${ex.label}</div>
+        <div style="font-size:0.75rem; color:var(--muted);">Click to load ${ex.label} template</div>
+      </div>
+    `).join('')}
+  </div>
+</div>
+`;
+  modal.classList.add('open');
+}
+
+function openCliModal() {
+  const modal = document.getElementById('guide-modal');
+  const title = document.getElementById('modal-title');
+  const body  = document.getElementById('modal-body');
+  if (!modal || !body) return;
+
+  title.innerHTML = '<i class="fa fa-terminal"></i> MR.easy Terminal CLI Commands';
+  body.innerHTML = `
+<div class="guide-section">
+  <h3>📦 1. Install CLI</h3>
+  <div class="guide-code">npm install -g mreasy</div>
+</div>
+<div class="guide-section">
+  <h3>⚡ 2. Start Dev Live Server</h3>
+  <div class="guide-code">mreasy dev index.mreasy</div>
+</div>
+<div class="guide-section">
+  <h3>🏗️ 3. Build HTML Output</h3>
+  <div class="guide-code">mreasy build index.mreasy</div>
+</div>
+<div class="guide-section">
+  <h3>✨ 4. Create New Project</h3>
+  <div class="guide-code">mreasy new my-awesome-website</div>
+</div>
+`;
+  modal.classList.add('open');
 }
 
 function markUnsaved() {
