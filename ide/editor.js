@@ -230,24 +230,28 @@ function buildSidebar() {
 
 // ── Compile & Preview ─────────────────────────────────────────────────────────
 function compileAndPreview() {
-  const source = editor.getValue();
+  const source = editor ? editor.getValue() : '';
   const chars  = source.length;
-  document.getElementById('sb-chars').textContent = `${chars} chars`;
+  const charEl = document.getElementById('char-count');
+  if (charEl) charEl.textContent = `${chars} chars`;
 
   try {
-    const html = browserCompile(source);
+    const html  = browserCompile(source);
     const frame = document.getElementById('preview-frame');
-    frame.srcdoc = html;
-    document.getElementById('preview-status').textContent = 'Live Preview ✓';
-    document.getElementById('status-dot').style.background = '#22c55e';
-    document.getElementById('status-dot').style.boxShadow = '0 0 6px #22c55e';
-    document.getElementById('sb-errors').textContent = '';
+    if (frame) frame.srcdoc = html;
+    
+    const dot = document.getElementById('status-dot');
+    if (dot) {
+      dot.style.background = '#22c55e';
+      dot.style.boxShadow  = '0 0 6px #22c55e';
+    }
     markSaved();
   } catch (err) {
-    document.getElementById('preview-status').textContent = 'Error';
-    document.getElementById('status-dot').style.background = '#ef4444';
-    document.getElementById('status-dot').style.boxShadow = '0 0 6px #ef4444';
-    document.getElementById('sb-errors').textContent = '⚠ ' + err.message.slice(0, 60);
+    const dot = document.getElementById('status-dot');
+    if (dot) {
+      dot.style.background = '#ef4444';
+      dot.style.boxShadow  = '0 0 6px #ef4444';
+    }
   }
 }
 
@@ -684,9 +688,27 @@ function decreaseFontSize() {
 }
 
 // ── Guide Modal ────────────────────────────────────────────────────────────────
-function showGuide() {
-  const content = document.getElementById('guide-content');
-  content.innerHTML = `
+function openGuideModal(type) {
+  const modal = document.getElementById('guide-modal');
+  const title = document.getElementById('modal-title');
+  const body  = document.getElementById('modal-body');
+  if (!modal || !body) return;
+
+  if (type === 'cheat') {
+    title.innerHTML = '<i class="fa fa-list-check"></i> MR.easy Cheatsheet';
+    body.innerHTML = `
+<div class="guide-section">
+  <h3>⚡ Declarations & Layout</h3>
+  <div class="guide-row"><div class="guide-code">Mr.easy "Title"</div><div class="guide-desc">Required header</div></div>
+  <div class="guide-row"><div class="guide-code">nav</div><div class="guide-desc">Navigation bar</div></div>
+  <div class="guide-row"><div class="guide-code">hero</div><div class="guide-desc">Hero section</div></div>
+  <div class="guide-row"><div class="guide-code">section "name"</div><div class="guide-desc">Named container</div></div>
+  <div class="guide-row"><div class="guide-code">grid cols:3</div><div class="guide-desc">Responsive columns</div></div>
+</div>
+`;
+  } else {
+    title.innerHTML = '<i class="fa fa-book"></i> MR.easy Language Reference';
+    body.innerHTML = `
 <div class="guide-section">
   <h3>🚀 Every MR.easy File Starts With:</h3>
   <div class="guide-code">Mr.easy "Your Page Title"</div>
@@ -719,32 +741,19 @@ function showGuide() {
     ['input type:email placeholder:"Email"', 'Input field'],
   ].map(([c,d]) => `<div class="guide-row"><div class="guide-code">${c}</div><div class="guide-desc">${d}</div></div>`).join('')}
 </div>
-<div class="guide-section">
-  <h3>🎨 Style Modifiers (add after any element)</h3>
-  <div class="guide-row">
-    <div class="guide-code">big / medium / small / tiny</div><div class="guide-desc">Size</div>
-  </div>
-  <div class="guide-row">
-    <div class="guide-code">glow / shadow / rounded / glass</div><div class="guide-desc">Visual effects</div>
-  </div>
-  <div class="guide-row">
-    <div class="guide-code">blue / red / green / purple / orange / pink</div><div class="guide-desc">Color</div>
-  </div>
-  <div class="guide-row">
-    <div class="guide-code">center / left / right</div><div class="guide-desc">Alignment</div>
-  </div>
-</div>
 `;
-  document.getElementById('guide-modal').classList.add('open');
+  }
+  modal.classList.add('open');
 }
 
-function showCheatsheet() {
-  showGuide();
+function closeGuideModal() {
+  const modal = document.getElementById('guide-modal');
+  if (modal) modal.classList.remove('open');
 }
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
+function showGuide() { openGuideModal('ref'); }
+function showCheatsheet() { openGuideModal('cheat'); }
+function closeModal() { closeGuideModal(); }
 
 // ── Saved Indicator ────────────────────────────────────────────────────────────
 function markUnsaved() {

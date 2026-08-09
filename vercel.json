@@ -3,6 +3,7 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/ide", "destination": "/ide/index.html" }
+    { "source": "/ide", "destination": "/ide/index.html" },
+    { "source": "/ide/", "destination": "/ide/index.html" }
   ]
 }
