@@ -487,14 +487,14 @@ html, body {
     <button class="btn-icon" onclick="formatCode()" title="Format Code">
       <i class="fa fa-wand-magic-sparkles"></i> Format
     </button>
-    <button class="btn-icon" onclick="copyHTML()" title="Copy HTML Output">
-      <i class="fa fa-copy"></i> Copy
+    <button class="btn-icon" onclick="copyHTML()" title="Copy Compiled Output">
+      <i class="fa fa-copy"></i> Copy Output
     </button>
     <button class="btn-icon" onclick="downloadSource()" title="Save .mreasy source file">
       <i class="fa fa-file-arrow-down"></i> .mreasy
     </button>
-    <button class="btn-icon" onclick="downloadHTML()" title="Download HTML">
-      <i class="fa fa-download"></i> HTML
+    <button class="btn-icon" onclick="downloadHTML()" title="Export Website">
+      <i class="fa fa-download"></i> Export Web
     </button>
     <button class="btn-run" onclick="runCode()">
       <i class="fa fa-play"></i> Run
@@ -1143,25 +1143,25 @@ function wrapPage(title, body) {
 :root{--mr-primary:#C8963A;--mr-secondary:#E8B45A;--mr-accent:#4A7A2E;--mr-dark:#09080A;--mr-dark2:#141214;--mr-text:#F2EAD8;--mr-muted:#9A9180;--mr-border:rgba(200,150,58,0.25);--mr-glass:rgba(255,255,255,0.05);--mr-radius:12px;--mr-shadow:0 25px 50px rgba(0,0,0,0.4);--mr-font:'Inter',system-ui,sans-serif}
 html{scroll-behavior:smooth}
 body{font-family:var(--mr-font);background:var(--mr-dark);color:var(--mr-text);line-height:1.6;min-height:100vh;overflow-x:hidden}
-.mr-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;position:sticky;top:0;z-index:1000;background:rgba(9,8,10,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--mr-border)}
-.mr-nav-logo{font-size:1.5rem;font-weight:800;color:var(--mr-text)}
-.mr-nav-links{display:flex;gap:32px;align-items:center}
-.mr-nav-item{color:var(--mr-muted);text-decoration:none;font-weight:500;transition:color 0.2s;cursor:pointer}
+.mr-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;position:sticky;top:0;z-index:1000;background:rgba(9,8,10,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--mr-border);flex-wrap:wrap;gap:12px}
+.mr-nav-logo{font-size:1.35rem;font-weight:800;color:var(--mr-text)}
+.mr-nav-links{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.mr-nav-item{color:var(--mr-muted);text-decoration:none;font-weight:500;transition:color 0.2s;cursor:pointer;font-size:0.9rem}
 .mr-nav-item:hover{color:var(--mr-text)}
-.mr-hero{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px;min-height:85vh;position:relative;overflow:hidden}
-.mr-hero-inner{position:relative;z-index:1}
-.mr-section{padding:80px 60px;max-width:1200px;margin:0 auto}
-.mr-header{padding:60px;text-align:center}
-.mr-footer{padding:60px;text-align:center;border-top:1px solid var(--mr-border);color:var(--mr-muted);background:var(--mr-dark2)}
-.mr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
-.mr-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
-.mr-column{display:flex;flex-direction:column;gap:16px}
-.mr-card{background:var(--mr-dark2);border:1px solid var(--mr-border);border-radius:var(--mr-radius);padding:32px;backdrop-filter:blur(10px);transition:transform 0.3s}
+.mr-hero{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:54px 20px;min-height:55vh;position:relative;overflow:hidden}
+.mr-hero-inner{position:relative;z-index:1;width:100%}
+.mr-section{padding:40px 20px;max-width:1200px;margin:0 auto;width:100%}
+.mr-header{padding:40px 20px;text-align:center}
+.mr-footer{padding:40px 20px;text-align:center;border-top:1px solid var(--mr-border);color:var(--mr-muted);background:var(--mr-dark2)}
+.mr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;width:100%}
+.mr-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.mr-column{display:flex;flex-direction:column;gap:12px}
+.mr-card{background:var(--mr-dark2);border:1px solid var(--mr-border);border-radius:var(--mr-radius);padding:24px;backdrop-filter:blur(10px);transition:transform 0.3s;width:100%;box-sizing:border-box}
 .mr-card:hover{transform:translateY(-4px);border-color:var(--mr-primary)}
-.mr-title{font-weight:700;line-height:1.1;letter-spacing:-1px;color:var(--mr-text);margin-bottom:16px}
-.mr-title-size-big,.mr-title.big{font-size:3.5rem!important}
-.mr-title-size-medium,.mr-title.medium{font-size:2.25rem!important}
-.mr-title-size-small,.mr-title.small{font-size:1.5rem!important}
+.mr-title{font-weight:700;line-height:1.15;letter-spacing:-0.5px;color:var(--mr-text);margin-bottom:12px;word-break:break-word}
+.mr-title-size-big,.mr-title.big{font-size:clamp(2rem, 5vw, 3.2rem)!important}
+.mr-title-size-medium,.mr-title.medium{font-size:clamp(1.4rem, 3.5vw, 2.2rem)!important}
+.mr-title-size-small,.mr-title.small{font-size:clamp(1.05rem, 2.5vw, 1.4rem)!important}
 .mr-glow{color:var(--mr-secondary);text-shadow:0 0 20px rgba(200,150,58,0.4)}
 .mr-subtitle{font-size:1.15rem;color:var(--mr-muted);font-weight:400;line-height:1.7;max-width:640px;margin-bottom:16px}
 .mr-text{font-size:1rem;color:var(--mr-muted);line-height:1.8;margin-bottom:12px}
