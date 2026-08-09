@@ -380,10 +380,17 @@ html, body {
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
 .preview-actions { display: flex; align-items: center; gap: 8px; }
 
-.viewport-switcher {
+.zoom-switcher, .viewport-switcher {
   display: flex; background: var(--bg3); border: 1px solid var(--border2);
   border-radius: 5px; padding: 2px; gap: 2px;
 }
+.zoom-btn {
+  background: transparent; border: none; color: var(--muted);
+  padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-family: var(--mono);
+  cursor: pointer; transition: all 0.15s;
+}
+.zoom-btn.active, .zoom-btn:hover { color: var(--primary2); background: var(--surface); }
+
 .vp-btn {
   background: transparent; border: none; color: var(--muted);
   width: 22px; height: 22px; border-radius: 4px; font-size: 0.7rem;
@@ -548,6 +555,9 @@ html, body {
         <div class="example-item" onclick="loadExample('landing')">
           <i class="fa fa-rocket"></i> Product Landing
         </div>
+        <div class="example-item" onclick="loadExample('buna')">
+          <i class="fa fa-mug-hot"></i> Buna Café Lounge
+        </div>
         <div class="example-item" onclick="loadExample('simple')">
           <i class="fa fa-feather"></i> Minimal Starter
         </div>
@@ -607,8 +617,14 @@ html, body {
         <span id="preview-status">Live Preview</span>
       </div>
       <div class="preview-actions">
+        <button class="mini-btn" onclick="togglePreviewTheme()" title="Toggle Preview Light/Dark Mode"><i class="fa fa-moon" id="theme-icon"></i></button>
         <button class="mini-btn" onclick="refreshPreview()" title="Refresh"><i class="fa fa-rotate-right"></i></button>
         <button class="mini-btn" onclick="openInNewTab()" title="Open in New Tab"><i class="fa fa-arrow-up-right-from-square"></i></button>
+        <div class="zoom-switcher">
+          <button class="zoom-btn" onclick="setZoom(100)" id="zoom-100" title="Full size (100%)">100%</button>
+          <button class="zoom-btn active" onclick="setZoom(80)" id="zoom-80" title="Scaled Desktop (80%)">80%</button>
+          <button class="zoom-btn" onclick="setZoom(65)" id="zoom-65" title="Compact Desktop (65%)">65%</button>
+        </div>
         <div class="viewport-switcher">
           <button class="vp-btn active" onclick="setViewport('desktop')" title="Desktop"><i class="fa fa-desktop"></i></button>
           <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet"><i class="fa fa-tablet-screen-button"></i></button>
@@ -797,6 +813,7 @@ const SNIPPETS = [
 const EXAMPLES = [
   { icon: 'fa-globe',    label: 'Landing Page', key: 'landing',  code: `Mr.easy "Awesome Landing"\n\nnav\n  logo "ACME"\n  links Home Pricing About\n\nhero\n  title "The Future Is Here" big glow\n  subtitle "We build next-generation solutions for modern businesses"\n  spacer size:24\n  row center\n    button "Start Free Trial" blue big\n    button "Watch Demo" outline\n\nsection "features"\n  title "Everything You Need" medium center\n  spacer\n  grid cols:3\n    card shadow\n      icon rocket\n      title "Lightning Fast" small\n      text "Deploy in seconds, not hours"\n    card shadow\n      icon lock\n      title "Secure by Default" small\n      text "Enterprise-grade security built in"\n    card shadow\n      icon globe\n      title "Global Scale" small\n      text "Reach users anywhere in the world"\n\nfooter\n  text "© 2024 ACME Corp. All rights reserved."\n` },
   { icon: 'fa-user',     label: 'Portfolio',   key: 'portfolio',code: `Mr.easy "John's Portfolio"\n\nnav\n  logo "John Doe"\n  links Work About Contact\n\nhero\n  title "Hello, I'm John" big glow\n  subtitle "Full-stack developer & designer creating beautiful digital experiences"\n  spacer size:20\n  button "See My Work" blue big\n\nsection "work"\n  title "My Projects" medium center\n  spacer\n  grid cols:3\n    card shadow\n      title "Project One" small\n      text "A beautiful web application built with modern tech"\n      spacer size:12\n      button "View Project" outline small\n    card shadow\n      title "Project Two" small\n      text "Mobile app with 100k+ downloads"\n      spacer size:12\n      button "View Project" outline small\n    card shadow\n      title "Project Three" small\n      text "Open-source tool used by thousands"\n      spacer size:12\n      button "View Project" outline small\n\nfooter\n  text "✉️ john@example.com"\n` },
+  { icon: 'fa-mug-hot',  label: 'Buna Café Lounge', key: 'buna',  code: `Mr.easy "Buna Ethiopian Coffee & Lounge"\n\nnav\n  logo "Buna Coffee ☕"\n  links Menu Story Contact\n\nhero\n  title "Authentic Ethiopian Coffee" big glow\n  subtitle "Savor roasted traditional Sidama & Yirgacheffe beans in a modern atmosphere"\n  spacer size:20\n  row center\n    button "Order Online" blue big\n    button "Find Location" outline\n\nsection "menu"\n  title "Our Specials" medium center\n  spacer\n  grid cols:3\n    card shadow\n      icon fire\n      title "Jebena Buna" small\n      text "Traditional clay pot coffee brewed over hot coals"\n      spacer size:12\n      button "50 ETB" outline small\n    card shadow\n      icon heart\n      title "Special Macchiato" small\n      text "Layered espresso with steamed fresh milk"\n      spacer size:12\n      button "70 ETB" outline small\n    card shadow\n      icon star\n      title "Pastry & Spris" small\n      text "Freshly baked Sambusa & layered avocado juice"\n      spacer size:12\n      button "60 ETB" outline small\n\nfooter\n  text "📍 Addis Ababa, Ethiopia — IG @mrcute_killer 🇪🇹"\n` },
   { icon: 'fa-feather',  label: 'Minimal Starter', key: 'simple', code: `Mr.easy "Simple Starter"\n\nhero\n  title "Hello World" big glow\n  subtitle "Built with MR.easy"\n  button "Get Started" blue big\n` },
 ];
 
@@ -1210,6 +1227,42 @@ function setViewport(vp) {
   const wrapper = document.getElementById('preview-wrapper');
   if (frame) frame.className = vp === 'desktop' ? '' : vp;
   if (wrapper) wrapper.className = `preview-frame-wrapper ${vp === 'desktop' ? '' : vp}`;
+  setZoom(currentZoom);
+}
+
+let currentZoom = 80;
+let isDarkTheme = true;
+
+function setZoom(level) {
+  currentZoom = level;
+  document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById(`zoom-${level}`);
+  if (btn) btn.classList.add('active');
+
+  const frame = document.getElementById('preview-frame');
+  if (frame) {
+    if (level === 100) {
+      frame.style.transform = 'none';
+      frame.style.width = '100%';
+      frame.style.height = '100%';
+    } else {
+      const scale = level / 100;
+      const widthPct = (100 / scale).toFixed(1);
+      const heightPct = (100 / scale).toFixed(1);
+      frame.style.transform = `scale(${scale})`;
+      frame.style.transformOrigin = 'top left';
+      frame.style.width = `${widthPct}%`;
+      frame.style.height = `${heightPct}%`;
+    }
+  }
+}
+
+function togglePreviewTheme() {
+  isDarkTheme = !isDarkTheme;
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.className = isDarkTheme ? 'fa fa-moon' : 'fa fa-sun';
+  compileAndPreview();
+  showToast(`Preview switched to ${isDarkTheme ? 'Dark' : 'Light'} Mode`);
 }
 
 function insertSnippet(type) {
