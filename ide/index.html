@@ -27,18 +27,21 @@
   </div>
   <div class="topbar-center">
     <div class="tab-bar">
-      <div class="tab active" onclick="switchTab('editor')">
+      <div class="tab" onclick="switchTab('editor')">
         <i class="fa fa-code"></i> Editor
       </div>
       <div class="tab" onclick="switchTab('preview')">
         <i class="fa fa-eye"></i> Preview
       </div>
-      <div class="tab" onclick="switchTab('split')">
+      <div class="tab active" onclick="switchTab('split')">
         <i class="fa fa-table-columns"></i> Split
       </div>
     </div>
   </div>
   <div class="topbar-right">
+    <button class="btn-icon" onclick="clearCode()" title="Start from 0 (Clear Editor)">
+      <i class="fa fa-trash-can"></i> Start 0
+    </button>
     <button class="btn-icon" onclick="formatCode()" title="Format Code">
       <i class="fa fa-wand-magic-sparkles"></i>
     </button>

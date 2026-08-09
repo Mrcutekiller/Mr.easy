@@ -78,7 +78,11 @@ CodeMirror.defineMode('mreasy', function() {
 const STARTER = `Mr.easy "My Amazing Website"
 
 # 👋 Welcome to MR.easy!
-# Simple as writing a list. Just type and build!
+# Rule 1: Every file MUST start with: Mr.easy "Page Title"
+# Rule 2: No brackets {}, no semicolons ;, no HTML tags needed!
+# Rule 3: Indent with 2 spaces to nest elements inside sections!
+
+# 💡 Follow developer for more tips: IG @mrcute_killer
 
 nav
   logo "MyBrand"
@@ -86,7 +90,7 @@ nav
 
 hero
   title "Build Websites Fast" big glow
-  subtitle "MR.easy is the simplest way to make beautiful websites"
+  subtitle "MR.easy is the simplest language to make beautiful websites"
   spacer size:24
   row center
     button "Get Started" blue big
@@ -120,7 +124,7 @@ section "contact"
     button "Send Message" blue
 
 footer
-  text "Made with ❤️ using Mr.easy"
+  text "Made with ❤️ using Mr.easy — IG @mrcute_killer 🇪🇹"
 `;
 
 // ── IDE State ─────────────────────────────────────────────────────────────────
@@ -652,6 +656,14 @@ function copyHTML() {
     const html = browserCompile(source);
     navigator.clipboard.writeText(html).then(() => showToast('📋 HTML copied to clipboard!'));
   } catch (err) { showToast('❌ ' + err.message); }
+}
+
+function clearCode() {
+  if (confirm('Start from 0? This will clear your current code.')) {
+    editor.setValue('Mr.easy "New Website"\n\n# IG @mrcute_killer\n\nhero\n  title "My New Site" big glow\n  button "Click Me" blue big\n');
+    compileAndPreview();
+    showToast('✨ Started fresh from 0');
+  }
 }
 
 function formatCode() {

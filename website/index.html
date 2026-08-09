@@ -191,6 +191,47 @@
     .s-title { font-size: clamp(1.75rem, 3.8vw, 3rem); font-weight: 300; letter-spacing: -0.025em; line-height: 1.15; color: var(--text); margin-bottom: 12px; }
     .s-desc  { font-size: 0.9rem; color: var(--text2); line-height: 1.85; max-width: 520px; }
 
+    /* ─── LIVE PREVIEW DEMO SHOWCASE ──────────────────────────────────────── */
+    #live-demo { padding: 90px 0; border-top: 1px solid var(--line); }
+    .demo-window {
+      background: var(--bg2);
+      border: 1px solid var(--line-g);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 40px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+    .demo-bar {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .demo-dots { display: flex; gap: 6px; }
+    .demo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bg4); }
+    .demo-tabs { display: flex; gap: 16px; font-family: var(--mono); font-size: 0.76rem; color: var(--text2); }
+    .demo-tab.active { color: var(--gold); font-weight: 500; }
+    .demo-split {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: 380px;
+    }
+    .demo-code-pane {
+      background: #0d0c0e;
+      border-right: 1px solid var(--line);
+      padding: 24px;
+      font-family: var(--mono); font-size: 0.8rem; line-height: 1.8;
+      overflow-x: auto;
+    }
+    .demo-preview-pane {
+      background: #0a090b;
+      padding: 32px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center;
+    }
+    .demo-prev-title { font-size: 1.8rem; font-weight: 700; color: #fff; margin-bottom: 8px; background: linear-gradient(135deg,#fff,#C8963A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .demo-prev-sub { font-size: 0.9rem; color: #9A9180; margin-bottom: 20px; }
+    .demo-prev-btn { background: #C8963A; color: #080706; padding: 10px 24px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; border: none; cursor: pointer; }
+
     /* ─── HOW IT WORKS ────────────────────────────────────────────────────── */
     #how { padding: 90px 0; }
     .how-steps {
@@ -204,7 +245,7 @@
     .step-d { font-size: 0.81rem; color: var(--text2); line-height: 1.75; }
     .step-code { margin-top: 14px; font-family: var(--mono); font-size: 0.73rem; color: var(--text2); background: var(--bg4); border: 1px solid var(--line); border-radius: 5px; padding: 8px 10px; word-break: break-all; }
 
-    /* ─── SYNTAX ──────────────────────────────────────────────────────────── */
+    /* ─── SYNTAX & RULES ─────────────────────────────────────────────────── */
     #syntax { padding: 90px 0; border-top: 1px solid var(--line); }
     .syntax-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; margin-top: 48px; }
     .syntax-editor { background: var(--bg2); border: 1px solid var(--line-g); border-radius: 10px; overflow: hidden; font-family: var(--mono); font-size: 0.79rem; line-height: 1.9; }
@@ -288,7 +329,7 @@
       .hero-title { font-size: clamp(2rem, 8vw, 3.6rem); }
       .how-steps { grid-template-columns: 1fr; border: none; gap: 12px; }
       .how-step { border: 1px solid var(--line) !important; border-radius: 10px; }
-      .syntax-layout, .about-layout { grid-template-columns: 1fr; gap: 32px; }
+      .syntax-layout, .about-layout, .demo-split { grid-template-columns: 1fr; gap: 32px; }
       .install-grid { grid-template-columns: 1fr; border: none; gap: 12px; }
       .install-col { border: 1px solid var(--line) !important; border-radius: 10px; }
       .footer-top { flex-direction: column; gap: 32px; }
@@ -319,10 +360,11 @@
 
   <ul class="nav-links">
     <li><a href="#how">How it works</a></li>
-    <li><a href="#syntax">Syntax</a></li>
+    <li><a href="#live-demo">Live Preview</a></li>
+    <li><a href="#syntax">Syntax Rules</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#install">Install</a></li>
-    <li><a href="ide/index.html" class="nav-btn">Open IDE</a></li>
+    <li><a href="ide/index.html" target="_blank" class="nav-btn">Open IDE ↗</a></li>
   </ul>
 </nav>
 
@@ -330,7 +372,7 @@
 <div class="ticker-wrap">
   <div class="ticker-move" id="ticker">
     <span class="ticker-item"><span class="ticker-star">★</span> Born in Ethiopia 🇪🇹</span>
-    <span class="ticker-item"><span class="ticker-star">★</span> No brackets. No semicolons.</span>
+    <span class="ticker-item"><span class="ticker-star">★</span> IG Developer: @mrcute_killer</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Starts with Mr.easy "Title"</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Real-time Live Preview</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Pure HTML/CSS Output</span>
@@ -338,10 +380,9 @@
     <span class="ticker-item"><span class="ticker-star">★</span> Free & Open Source</span>
     <!-- Repeat for infinite marquee -->
     <span class="ticker-item"><span class="ticker-star">★</span> Born in Ethiopia 🇪🇹</span>
-    <span class="ticker-item"><span class="ticker-star">★</span> No brackets. No semicolons.</span>
+    <span class="ticker-item"><span class="ticker-star">★</span> IG Developer: @mrcute_killer</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Starts with Mr.easy "Title"</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Real-time Live Preview</span>
-    <span class="ticker-item"><span class="ticker-star">★</span> Pure HTML/CSS Output</span>
   </div>
 </div>
 
@@ -370,8 +411,49 @@
   </div>
 
   <div class="hero-actions">
-    <a href="ide/index.html" class="btn-gold">Try Web IDE</a>
-    <a href="#how" class="btn-outline">How it works</a>
+    <a href="ide/index.html" target="_blank" class="btn-gold">Open Web IDE ↗</a>
+    <a href="#live-demo" class="btn-outline">See Live Preview</a>
+  </div>
+</section>
+
+<!-- ─── LIVE CODE & PREVIEW DEMO SECTION ───────────────────────────────────── -->
+<section id="live-demo">
+  <div class="container">
+    <div class="s-label">Interactive Demonstration</div>
+    <h2 class="s-title">Code on Left. Live Website on Right.</h2>
+    <p class="s-desc">This is how MR.easy code compiles into a real, modern dark-mode website instantly.</p>
+
+    <div class="demo-window">
+      <div class="demo-bar">
+        <div class="demo-dots">
+          <div class="demo-dot"></div><div class="demo-dot"></div><div class="demo-dot"></div>
+        </div>
+        <div class="demo-tabs">
+          <span class="demo-tab active">index.mreasy → Live Preview</span>
+        </div>
+      </div>
+      <div class="demo-split">
+        <div class="demo-code-pane">
+          <div><span class="dc">Mr.easy</span> <span class="st">"My Demo Site"</span></div>
+          <div><br></div>
+          <div><span class="cm"># IG: @mrcute_killer</span></div>
+          <div><span class="kd">hero</span></div>
+          <div>&nbsp;&nbsp;<span class="kd">title</span> <span class="st">"Hello World"</span> <span class="md">big glow</span></div>
+          <div>&nbsp;&nbsp;<span class="kd">subtitle</span> <span class="st">"Built with Mr.easy"</span></div>
+          <div>&nbsp;&nbsp;<span class="kd">button</span> <span class="st">"Get Started"</span> <span class="md">blue big</span></div>
+          <div><br></div>
+          <div><span class="kd">section</span> <span class="st">"features"</span></div>
+          <div>&nbsp;&nbsp;<span class="kd">grid</span> <span class="pr">cols:2</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">card</span> <span class="md">shadow</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">title</span> <span class="st">"Simple"</span> <span class="md">small</span></div>
+        </div>
+        <div class="demo-preview-pane">
+          <div class="demo-prev-title">Hello World</div>
+          <div class="demo-prev-sub">Built with Mr.easy</div>
+          <button class="demo-prev-btn">Get Started</button>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -410,11 +492,11 @@
   </div>
 </section>
 
-<!-- ─── SYNTAX ────────────────────────────────────────────────────────────────── -->
+<!-- ─── SYNTAX & RULES ─────────────────────────────────────────────────── -->
 <section id="syntax">
   <div class="container">
-    <div class="s-label">Language Guide</div>
-    <h2 class="s-title">No semicolons.<br>No brackets. Just words.</h2>
+    <div class="s-label">Language Rules</div>
+    <h2 class="s-title">The 3 Essential Rules of Mr.easy</h2>
 
     <div class="syntax-layout">
       <div class="syntax-editor">
@@ -425,37 +507,49 @@
         <div class="editor-body">
           <div><span class="ln">1</span><span class="dc">Mr.easy</span> <span class="st">"Biruk's Portfolio"</span></div>
           <div><span class="ln">2</span></div>
-          <div><span class="ln">3</span><span class="cm"># Navigation bar</span></div>
+          <div><span class="ln">3</span><span class="cm"># IG: @mrcute_killer</span></div>
           <div><span class="ln">4</span><span class="kd">nav</span></div>
           <div><span class="ln">5</span>&nbsp;&nbsp;<span class="kd">logo</span> <span class="st">"Biruk"</span></div>
           <div><span class="ln">6</span>&nbsp;&nbsp;<span class="kd">links</span> <span class="md">Home Work Contact</span></div>
           <div><span class="ln">7</span></div>
-          <div><span class="ln">8</span><span class="cm"># Big hero section</span></div>
+          <div><span class="ln">8</span><span class="cm"># Hero section</span></div>
           <div><span class="ln">9</span><span class="kd">hero</span></div>
           <div><span class="ln">10</span>&nbsp;&nbsp;<span class="kd">title</span> <span class="st">"Hello, I'm Biruk"</span> <span class="md">big glow</span></div>
           <div><span class="ln">11</span>&nbsp;&nbsp;<span class="kd">subtitle</span> <span class="st">"I build for the web"</span></div>
           <div><span class="ln">12</span>&nbsp;&nbsp;<span class="kd">button</span> <span class="st">"View Work"</span> <span class="md">blue big</span></div>
           <div><span class="ln">13</span></div>
-          <div><span class="ln">14</span><span class="cm"># 3-column project grid</span></div>
+          <div><span class="ln">14</span><span class="cm"># Grid layout</span></div>
           <div><span class="ln">15</span><span class="kd">section</span> <span class="st">"work"</span></div>
           <div><span class="ln">16</span>&nbsp;&nbsp;<span class="kd">grid</span> <span class="pr">cols:3</span></div>
           <div><span class="ln">17</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">card</span> <span class="md">shadow</span></div>
           <div><span class="ln">18</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">title</span> <span class="st">"Project"</span> <span class="md">small</span></div>
-          <div><span class="ln">19</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">text</span> <span class="st">"Description"</span></div>
-          <div><span class="ln">20</span></div>
-          <div><span class="ln">21</span><span class="kd">footer</span></div>
-          <div><span class="ln">22</span>&nbsp;&nbsp;<span class="kd">text</span> <span class="st">"Made with Mr.easy 🇪🇹"</span></div>
+          <div><span class="ln">19</span></div>
+          <div><span class="ln">20</span><span class="kd">footer</span></div>
+          <div><span class="ln">21</span>&nbsp;&nbsp;<span class="kd">text</span> <span class="st">"Made with Mr.easy 🇪🇹"</span></div>
         </div>
       </div>
 
       <div class="syntax-ref">
-        <div class="ref-item"><code class="ref-kw">Mr.easy "Title"</code><div class="ref-desc"><strong>Required first line.</strong> Like &lt;!DOCTYPE html&gt; — every .mreasy file must begin with this.</div></div>
-        <div class="ref-item"><code class="ref-kw">nav / hero / section</code><div class="ref-desc">Layout containers. Indent inside with 2 spaces to add content.</div></div>
-        <div class="ref-item"><code class="ref-kw">title "Text" big glow</code><div class="ref-desc">Heading. Add <strong>big medium small</strong> for size; <strong>glow</strong> for gradient effect.</div></div>
-        <div class="ref-item"><code class="ref-kw">button "Label" blue</code><div class="ref-desc">Button. Color with <strong>blue red green purple orange</strong>. Add <strong>outline</strong> for ghost style.</div></div>
-        <div class="ref-item"><code class="ref-kw">grid cols:3</code><div class="ref-desc">Responsive grid. Set columns with the <strong>cols:</strong> property.</div></div>
-        <div class="ref-item"><code class="ref-kw">card shadow glass</code><div class="ref-desc">Content card. <strong>shadow</strong> adds depth; <strong>glass</strong> adds frosted effect.</div></div>
-        <div class="ref-item"><code class="ref-kw">repeat 3 times</code><div class="ref-desc">Loop block. Use <strong>{index}</strong> inside to get iteration number.</div></div>
+        <div class="ref-item">
+          <code class="ref-kw">Rule 1: Signature</code>
+          <div class="ref-desc"><strong>Every file MUST start with:</strong> <code style="color:var(--gold2)">Mr.easy "Title"</code>. This tells the compiler it's a valid Mr.easy document.</div>
+        </div>
+        <div class="ref-item">
+          <code class="ref-kw">Rule 2: Plain Words</code>
+          <div class="ref-desc"><strong>No brackets {} or semicolons ; needed.</strong> Write keywords directly like <code style="color:var(--text)">hero</code>, <code style="color:var(--text)">title</code>, <code style="color:var(--text)">button</code>.</div>
+        </div>
+        <div class="ref-item">
+          <code class="ref-kw">Rule 3: Indentation</code>
+          <div class="ref-desc"><strong>Indent with 2 spaces to nest elements.</strong> Place cards inside grids, and titles inside hero blocks cleanly.</div>
+        </div>
+        <div class="ref-item">
+          <code class="ref-kw">button "Label" blue</code>
+          <div class="ref-desc">Button element. Style with color modifiers: <strong>blue red green purple orange</strong>.</div>
+        </div>
+        <div class="ref-item">
+          <code class="ref-kw">grid cols:3</code>
+          <div class="ref-desc">Responsive grid system. Set column count with <code style="color:var(--text)">cols:</code> property.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -474,7 +568,7 @@
         <div class="about-role">Creator · Mr.easy Programming Language</div>
         <div class="about-tags">
           <span class="tag">Addis Ababa, Ethiopia 🇪🇹</span>
-          <span class="tag">Language Designer</span>
+          <span class="tag" style="border-color:var(--gold); color:var(--gold)">IG: @mrcute_killer 📸</span>
           <span class="tag">Developer</span>
           <span class="tag">2026</span>
         </div>
@@ -485,13 +579,13 @@
 
       <div>
         <p style="font-size:0.91rem; color:var(--text2); line-height:1.88; margin-bottom:32px">
-          Mr.easy was created in <strong style="color:var(--text)">2026</strong> in <strong style="color:var(--text)">Addis Ababa, Ethiopia</strong> by Biruk — a developer who wanted to give everyone the power to build beautiful websites.
+          Mr.easy was created in <strong style="color:var(--text)">2026</strong> in <strong style="color:var(--text)">Addis Ababa, Ethiopia</strong> by Biruk (<strong style="color:var(--gold)">IG: @mrcute_killer</strong>) — a developer who wanted to give everyone the power to build beautiful websites.
         </p>
 
         <div class="timeline">
           <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Jan 2026</div><div class="tl-t">The Idea</div><div class="tl-d">Inspired by Adwa's spirit — making coding accessible to all.</div></div></div>
           <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Mar 2026</div><div class="tl-t">First Compiler</div><div class="tl-d">Building the lexer, parser, and HTML compiler.</div></div></div>
-          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Jul 2026</div><div class="tl-t">Web IDE</div><div class="tl-d">Browser IDE with live real-time preview.</div></div></div>
+          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Jul 2026</div><div class="tl-t">Web IDE</div><div class="tl-d">Browser IDE with live real-time split preview.</div></div></div>
           <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div></div><div><div class="tl-date">Aug 2026</div><div class="tl-t">Public Launch</div><div class="tl-d">Mr.easy v1.0 released to the world.</div></div></div>
         </div>
       </div>
@@ -538,7 +632,7 @@
           <div class="i-step"><div class="i-n">3.</div><div class="i-content"><div class="i-lbl">Download output</div><div class="i-cmd"><span>Click ⬇ Download HTML</span></div></div></div>
         </div>
         <div style="margin-top:20px">
-          <a href="ide/index.html" class="btn-gold" style="font-size:0.83rem; padding:10px 18px; width:100%; text-align:center">Open Web IDE →</a>
+          <a href="ide/index.html" target="_blank" class="btn-gold" style="font-size:0.83rem; padding:10px 18px; width:100%; text-align:center">Open Web IDE ↗</a>
         </div>
       </div>
     </div>
@@ -550,16 +644,16 @@
   <div class="footer-top">
     <div class="footer-brand">
       <div class="footer-logo">Mr<span>.</span>easy</div>
-      <div class="footer-tagline">A programming language born in Ethiopia. Simple, powerful, and free for everyone.</div>
+      <div class="footer-tagline">A programming language born in Ethiopia. Simple, powerful, and free for everyone. Follow IG: @mrcute_killer</div>
     </div>
     <div class="footer-cols">
       <div class="footer-col">
         <h5>Language</h5>
         <ul>
-          <li><a href="#syntax">Syntax guide</a></li>
+          <li><a href="#syntax">Syntax rules</a></li>
           <li><a href="#how">How it works</a></li>
-          <li><a href="examples/hello-world.mreasy">Examples</a></li>
-          <li><a href="ide/index.html">Web IDE</a></li>
+          <li><a href="#live-demo">Live Preview</a></li>
+          <li><a href="ide/index.html" target="_blank">Web IDE ↗</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -573,14 +667,14 @@
       <div class="footer-col">
         <h5>About</h5>
         <ul>
-          <li><a href="#about">The Creator</a></li>
+          <li><a href="#about">Creator (@mrcute_killer)</a></li>
           <li><a href="README.md">README</a></li>
         </ul>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 Mr.easy — Created by Biruk</span>
+    <span>© 2026 Mr.easy — Created by Biruk (IG: @mrcute_killer)</span>
     <div>🇪🇹 Made in Ethiopia · Spirit of Adwa · Free & Open Source</div>
   </div>
   <div class="eth-pattern" style="bottom:0"></div>
@@ -632,7 +726,7 @@
   tick();
 })();
 
-const phrases = ["Like writing words.", "Without brackets.", "Without semicolons.", "In plain language."];
+const phrases = ["Like writing words.", "Without brackets.", "Without semicolons.", "Follow IG @mrcute_killer."];
 let phraseIdx = 0, charIdx = 0, isDeleting = false;
 const targetEl = document.getElementById('typewriter-target');
 
