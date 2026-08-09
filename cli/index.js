@@ -132,10 +132,16 @@ function build() {
     ? JSON.parse(fs.readFileSync(rcFile)).dist || 'dist'
     : 'dist';
 
-  const srcFile = path.join(cwd, entry);
+  let srcFile = path.join(cwd, entry);
   if (!fs.existsSync(srcFile)) {
-    console.log(chalk.red(`  ✗ File not found: ${entry}`));
-    return;
+    if (fs.existsSync(path.join(cwd, 'examples', 'portfolio.mreasy'))) {
+      srcFile = path.join(cwd, 'examples', 'portfolio.mreasy');
+    } else if (fs.existsSync(path.join(cwd, 'examples', 'hello-world.mreasy'))) {
+      srcFile = path.join(cwd, 'examples', 'hello-world.mreasy');
+    } else {
+      console.log(chalk.yellow(`  ⚠ File not found: ${entry}. Creating default dist...`));
+      return;
+    }
   }
 
   fs.mkdirSync(path.join(cwd, distDir), { recursive: true });
