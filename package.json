@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node cli/index.js run",
-    "build": "node cli/index.js build",
+    "build": "node scripts/build-site.js",
     "ide": "node cli/ide-server.js"
   },
   "keywords": ["mreasy", "language", "web", "compiler", "html"],
