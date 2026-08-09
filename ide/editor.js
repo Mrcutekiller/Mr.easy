@@ -19,6 +19,10 @@ const STYLE_WORDS = ['big','medium','small','tiny','glow','shadow','rounded','ou
   'blue','red','green','purple','orange','pink','yellow','white','black','gray',
   'on','off','float','autoplay','required','ordered'];
 
+const COLOR_MAP = { blue:'#3b82f6', purple:'#8b5cf6', green:'#22c55e', red:'#ef4444', orange:'#f97316', pink:'#ec4899', yellow:'#eab308', white:'#fff', black:'#0f172a', gray:'#6b7280', cyan:'#06b6d4' };
+const ICON_MAP  = { star:'fa-star', heart:'fa-heart', rocket:'fa-rocket', bolt:'fa-bolt', globe:'fa-globe', lock:'fa-lock', home:'fa-house', user:'fa-user', mail:'fa-envelope', check:'fa-check', code:'fa-code', fire:'fa-fire', diamond:'fa-gem', moon:'fa-moon', sun:'fa-sun', phone:'fa-phone', settings:'fa-gear', download:'fa-download', upload:'fa-upload', share:'fa-share-nodes', chat:'fa-comments', info:'fa-circle-info', warn:'fa-triangle-exclamation' };
+const SIZE_MAP  = ['big','medium','small','tiny'];
+
 // ── CodeMirror Custom Mode ─────────────────────────────────────────────────────
 CodeMirror.defineMode('mreasy', function() {
   return {

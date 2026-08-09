@@ -301,10 +301,32 @@ html, body {
 .mini-btn:hover { color: var(--text); background: var(--bg4); border-color: var(--border); }
 .font-size-label { font-size: 0.76rem; color: var(--muted); font-family: var(--mono); min-width: 28px; text-align: center; }
 
+.quick-tags-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; background: var(--bg3);
+  border-bottom: 1px solid var(--border2);
+  overflow-x: auto; flex-shrink: 0;
+}
+.quick-tag-label { font-size: 0.68rem; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-right: 4px; }
+.quick-chip {
+  background: var(--bg4); border: 1px solid var(--border2);
+  color: var(--primary2); font-size: 0.72rem; font-family: var(--mono);
+  padding: 3px 8px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.quick-chip:hover { background: var(--surface); border-color: var(--border); color: var(--text); }
+
 #codemirror-container {
   flex: 1;
   overflow: hidden;
-  height: calc(100% - 36px);
+  height: calc(100% - 70px);
+  position: relative;
+}
+
+#code-textarea {
+  width: 100%; height: 100%; background: var(--bg);
+  color: var(--text); font-family: var(--mono); font-size: 14px;
+  line-height: 1.75; border: none; outline: none; padding: 16px;
+  resize: none; white-space: pre; overflow-wrap: normal;
 }
 
 /* CodeMirror Overrides */
@@ -468,8 +490,11 @@ html, body {
     <button class="btn-icon" onclick="copyHTML()" title="Copy HTML Output">
       <i class="fa fa-copy"></i> Copy
     </button>
+    <button class="btn-icon" onclick="downloadSource()" title="Save .mreasy source file">
+      <i class="fa fa-file-arrow-down"></i> .mreasy
+    </button>
     <button class="btn-icon" onclick="downloadHTML()" title="Download HTML">
-      <i class="fa fa-download"></i> Download
+      <i class="fa fa-download"></i> HTML
     </button>
     <button class="btn-run" onclick="runCode()">
       <i class="fa fa-play"></i> Run
@@ -551,12 +576,24 @@ html, body {
         <span class="lang-badge">MR.easy</span>
       </div>
       <div class="editor-actions">
-        <button class="mini-btn" onclick="decreaseFontSize()"><i class="fa fa-minus"></i></button>
+        <button class="mini-btn" onclick="decreaseFontSize()" title="Decrease font size"><i class="fa fa-minus"></i></button>
         <span class="font-size-label" id="font-size-label">14px</span>
-        <button class="mini-btn" onclick="increaseFontSize()"><i class="fa fa-plus"></i></button>
+        <button class="mini-btn" onclick="increaseFontSize()" title="Increase font size"><i class="fa fa-plus"></i></button>
       </div>
     </div>
-    <div id="codemirror-container"></div>
+    <div class="quick-tags-bar">
+      <span class="quick-tag-label">Insert:</span>
+      <button class="quick-chip" onclick="insertSnippet('hero')">+ hero</button>
+      <button class="quick-chip" onclick="insertSnippet('nav')">+ nav</button>
+      <button class="quick-chip" onclick="insertSnippet('grid')">+ grid</button>
+      <button class="quick-chip" onclick="insertSnippet('card')">+ card</button>
+      <button class="quick-chip" onclick="insertSnippet('button')">+ button</button>
+      <button class="quick-chip" onclick="insertSnippet('form')">+ form</button>
+      <button class="quick-chip" onclick="insertSnippet('footer')">+ footer</button>
+    </div>
+    <div id="codemirror-container">
+      <textarea id="code-textarea" spellcheck="false"></textarea>
+    </div>
   </div>
 
   <!-- ── DIVIDER ── -->
@@ -635,6 +672,10 @@ const STYLE_WORDS = ['big','medium','small','tiny','glow','shadow','rounded','ou
   'bold','italic','dark','light','gradient','glass','center','left','right',
   'blue','red','green','purple','orange','pink','yellow','white','black','gray',
   'on','off','float','autoplay','required','ordered'];
+
+const COLOR_MAP = { blue:'#3b82f6', purple:'#8b5cf6', green:'#22c55e', red:'#ef4444', orange:'#f97316', pink:'#ec4899', yellow:'#eab308', white:'#fff', black:'#0f172a', gray:'#6b7280', cyan:'#06b6d4' };
+const ICON_MAP  = { star:'fa-star', heart:'fa-heart', rocket:'fa-rocket', bolt:'fa-bolt', globe:'fa-globe', lock:'fa-lock', home:'fa-house', user:'fa-user', mail:'fa-envelope', check:'fa-check', code:'fa-code', fire:'fa-fire', diamond:'fa-gem', moon:'fa-moon', sun:'fa-sun', phone:'fa-phone', settings:'fa-gear', download:'fa-download', upload:'fa-upload', share:'fa-share-nodes', chat:'fa-comments', info:'fa-circle-info', warn:'fa-triangle-exclamation' };
+const SIZE_MAP  = ['big','medium','small','tiny'];
 
 if (typeof CodeMirror !== 'undefined') {
   CodeMirror.defineMode('mreasy', function() {
@@ -765,13 +806,31 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => compileAndPreview(), 100);
 });
 
+function getSourceCode() {
+  if (editor) return editor.getValue();
+  const txt = document.getElementById('code-textarea');
+  return txt ? txt.value : STARTER;
+}
+
+function setSourceCode(code) {
+  if (editor) {
+    editor.setValue(code);
+  } else {
+    const txt = document.getElementById('code-textarea');
+    if (txt) txt.value = code;
+  }
+  compileAndPreview();
+}
+
 function initEditor() {
   const container = document.getElementById('codemirror-container');
-  if (!container) return;
+  const txtArea   = document.getElementById('code-textarea');
+  if (!container || !txtArea) return;
   
+  txtArea.value = STARTER;
+
   if (typeof CodeMirror !== 'undefined') {
-    editor = CodeMirror(container, {
-      value: STARTER,
+    editor = CodeMirror.fromTextArea(txtArea, {
       mode: 'mreasy',
       theme: 'default',
       lineNumbers: true,
@@ -795,7 +854,7 @@ function initEditor() {
 
     editor.on('change', () => {
       clearTimeout(previewTimeout);
-      previewTimeout = setTimeout(compileAndPreview, 120);
+      previewTimeout = setTimeout(compileAndPreview, 100);
       markUnsaved();
     });
 
@@ -804,11 +863,18 @@ function initEditor() {
       const lineEl = document.getElementById('line-col');
       if (lineEl) lineEl.textContent = `Ln ${cur.line + 1}, Col ${cur.ch + 1}`;
     });
+  } else {
+    // Fallback textarea event listener for instant preview without CodeMirror
+    txtArea.addEventListener('input', () => {
+      clearTimeout(previewTimeout);
+      previewTimeout = setTimeout(compileAndPreview, 100);
+      markUnsaved();
+    });
   }
 }
 
 function compileAndPreview() {
-  const source = editor ? editor.getValue() : '';
+  const source = getSourceCode();
   const chars  = source.length;
   const charEl = document.getElementById('char-count');
   if (charEl) charEl.textContent = `${chars} chars`;
@@ -833,14 +899,18 @@ function compileAndPreview() {
       dot.style.boxShadow  = '0 0 6px #ef4444';
     }
     const statusText = document.getElementById('preview-status');
-    if (statusText) statusText.textContent = 'Error';
+    if (statusText) statusText.textContent = 'Syntax Notice';
   }
 }
 
 function browserCompile(source) {
+  if (!source || !source.trim()) {
+    return wrapPage('MR.easy Studio', '<div class="mr-hero"><h1 class="mr-title big mr-glow">Start Writing MR.easy Code</h1><p class="mr-subtitle">Every document starts with: Mr.easy "Title"</p></div>');
+  }
+
   const trimmed = source.trimStart();
   if (!trimmed.startsWith('Mr.easy')) {
-    throw new Error('File must start with: Mr.easy "Your Title"');
+    return wrapPage('MR.easy Studio', '<div class="mr-hero" style="min-height:60vh"><h2 class="mr-title medium" style="color:#ef4444">⚠ Declaration Required</h2><p class="mr-subtitle">Please add <code style="color:#C8963A; font-weight:bold">Mr.easy "Your Page Title"</code> at line 1.</p></div>');
   }
 
   const lines  = source.split('\n');
@@ -893,8 +963,6 @@ function compileLines(lines) {
     return renderInline(kw, tokens.slice(1), vars) + '\n';
   }
 
-  body = parseSectionLines(0);
-
   function tokenizeLine(line) {
     const tokens = [];
     let s = line.trim();
@@ -924,10 +992,6 @@ function compileLines(lines) {
   function hasMod(tokens, ...mods) {
     return mods.some(m => tokens.map(t => t.toLowerCase()).includes(m));
   }
-
-  const COLOR_MAP = { blue:'#3b82f6', purple:'#8b5cf6', green:'#22c55e', red:'#ef4444', orange:'#f97316', pink:'#ec4899', yellow:'#eab308', white:'#fff', black:'#0f172a', gray:'#6b7280', cyan:'#06b6d4' };
-  const ICON_MAP  = { star:'fa-star', heart:'fa-heart', rocket:'fa-rocket', bolt:'fa-bolt', globe:'fa-globe', lock:'fa-lock', home:'fa-house', user:'fa-user', mail:'fa-envelope', check:'fa-check', code:'fa-code', fire:'fa-fire', diamond:'fa-gem', moon:'fa-moon', sun:'fa-sun', phone:'fa-phone', settings:'fa-gear', download:'fa-download', upload:'fa-upload', share:'fa-share-nodes', chat:'fa-comments', info:'fa-circle-info', warn:'fa-triangle-exclamation' };
-  const SIZE_MAP  = ['big','medium','small','tiny'];
 
   function btnColor(tokens) {
     const colors = ['blue','purple','green','red','orange','pink','yellow','cyan'];
@@ -1061,6 +1125,7 @@ function compileLines(lines) {
     return `void 0`;
   }
 
+  body = parseSectionLines(0);
   return { title, body };
 }
 
@@ -1150,22 +1215,15 @@ function setViewport(vp) {
 function insertSnippet(type) {
   const snip = SNIPPETS.find(s => s.tag === type || s.label.toLowerCase().includes(type));
   const code = snip ? snip.code : `${type}\n`;
-  if (editor) {
-    const cursor = editor.getCursor();
-    const line   = editor.getLine(cursor.line);
-    const indent = line.match(/^(\s*)/)[1];
-    const indented = code.split('\n').map((l, i) => i === 0 ? l : indent + l).join('\n');
-    editor.replaceRange('\n' + indented, { line: cursor.line, ch: line.length });
-    editor.focus();
-    setTimeout(compileAndPreview, 100);
-  }
+  const current = getSourceCode();
+  setSourceCode(current + '\n' + code);
+  showToast(`✨ Inserted ${type}`);
 }
 
 function loadExample(key) {
   const ex = EXAMPLES.find(e => e.key === key || e.label.toLowerCase().includes(key));
-  if (ex && editor) {
-    editor.setValue(ex.code);
-    compileAndPreview();
+  if (ex) {
+    setSourceCode(ex.code);
     showToast(`✨ Loaded ${ex.label}`);
   }
 }
@@ -1181,7 +1239,7 @@ function refreshPreview() {
 }
 
 function openInNewTab() {
-  const source = editor ? editor.getValue() : '';
+  const source = getSourceCode();
   try {
     const html   = browserCompile(source);
     const blob   = new Blob([html], { type: 'text/html' });
@@ -1193,7 +1251,7 @@ function openInNewTab() {
 }
 
 function downloadHTML() {
-  const source = editor ? editor.getValue() : '';
+  const source = getSourceCode();
   try {
     const html = browserCompile(source);
     const blob = new Blob([html], { type: 'text/html' });
@@ -1207,8 +1265,18 @@ function downloadHTML() {
   }
 }
 
+function downloadSource() {
+  const source = getSourceCode();
+  const blob   = new Blob([source], { type: 'text/plain' });
+  const a      = document.createElement('a');
+  a.href       = URL.createObjectURL(blob);
+  a.download   = 'index.mreasy';
+  a.click();
+  showToast('⬇️ Downloaded index.mreasy');
+}
+
 function copyHTML() {
-  const source = editor ? editor.getValue() : '';
+  const source = getSourceCode();
   try {
     const html = browserCompile(source);
     navigator.clipboard.writeText(html).then(() => showToast('📋 HTML copied to clipboard!'));
@@ -1217,8 +1285,7 @@ function copyHTML() {
 
 function clearCode() {
   if (confirm('Start from 0? This will clear your current code.')) {
-    if (editor) editor.setValue('Mr.easy "New Website"\n\n# IG @mrcute_killer\n\nhero\n  title "My New Site" big glow\n  button "Click Me" blue big\n');
-    compileAndPreview();
+    setSourceCode('Mr.easy "New Website"\n\n# IG @mrcute_killer\n\nhero\n  title "My New Site" big glow\n  button "Click Me" blue big\n');
     showToast('✨ Started fresh from 0');
   }
 }
@@ -1231,6 +1298,8 @@ function increaseFontSize() {
   fontSize = Math.min(fontSize + 2, 28);
   const cm = document.querySelector('.CodeMirror');
   if (cm) cm.style.fontSize = fontSize + 'px';
+  const txt = document.getElementById('code-textarea');
+  if (txt) txt.style.fontSize = fontSize + 'px';
   const fontEl = document.getElementById('font-size-label');
   if (fontEl) fontEl.textContent = fontSize + 'px';
 }
@@ -1239,6 +1308,8 @@ function decreaseFontSize() {
   fontSize = Math.max(fontSize - 2, 10);
   const cm = document.querySelector('.CodeMirror');
   if (cm) cm.style.fontSize = fontSize + 'px';
+  const txt = document.getElementById('code-textarea');
+  if (txt) txt.style.fontSize = fontSize + 'px';
   const fontEl = document.getElementById('font-size-label');
   if (fontEl) fontEl.textContent = fontSize + 'px';
 }
