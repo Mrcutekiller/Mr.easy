@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Mr.easy — Built in Ethiopia. For Everyone.</title>
   <meta name="description" content="Mr.easy is an Ethiopian-born programming language for building beautiful websites. Simple, powerful, and free.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,7 +40,7 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; font-size: 16px; }
     body {
       font-family: var(--font);
       background: var(--bg);
@@ -73,81 +73,71 @@
       position: fixed; top: 0; left: 0; right: 0;
       z-index: 100; height: 64px;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 56px;
+      padding: 0 48px;
       background: rgba(9,8,10,0.92);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--line);
     }
 
     .brand-logo {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 10px;
       text-decoration: none; color: var(--text);
-      cursor: pointer;
     }
-    .brand-svg {
-      width: 32px; height: 32px;
-      transition: transform 0.4s var(--ease);
-    }
+    .brand-svg { width: 32px; height: 32px; transition: transform 0.4s var(--ease); }
     .brand-logo:hover .brand-svg { transform: rotate(180deg) scale(1.05); }
     .brand-text { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.3px; }
     .brand-text span { color: var(--gold); }
-    .brand-flag { font-size: 0.85rem; margin-left: 2px; }
 
-    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
     .nav-links a { color: var(--text2); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
     .nav-links a:hover { color: var(--text); }
     .nav-btn {
       background: var(--gold) !important;
       color: #080706 !important;
-      padding: 8px 20px; border-radius: 6px;
+      padding: 8px 18px; border-radius: 6px;
       font-weight: 500 !important; font-size: 0.84rem !important;
       transition: all 0.2s !important;
     }
     .nav-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-    /* ─── SCROLLING MARQUEE TICKER ────────────────────────────────────────── */
+    /* ─── MARQUEE TICKER ANIMATION ────────────────────────────────────────── */
     .ticker-wrap {
       width: 100%; overflow: hidden;
       background: var(--bg2);
       border-top: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
-      padding: 12px 0;
-      white-space: nowrap;
-      position: relative; z-index: 1;
+      padding: 12px 0; white-space: nowrap;
+      position: relative; z-index: 1; margin-top: 64px;
     }
-    .ticker-move {
-      display: inline-block;
-      animation: marquee 28s linear infinite;
-    }
+    .ticker-move { display: inline-block; animation: marquee 28s linear infinite; }
     .ticker-item {
-      display: inline-flex; align-items: center; gap: 14px;
+      display: inline-flex; align-items: center; gap: 12px;
       font-family: var(--mono); font-size: 0.78rem; color: var(--text2);
-      margin-right: 48px; letter-spacing: 0.05em;
+      margin-right: 40px; letter-spacing: 0.05em;
     }
     .ticker-star { color: var(--gold); font-size: 0.9rem; }
     @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
     /* ─── HERO ────────────────────────────────────────────────────────────── */
     section, .wrap { position: relative; z-index: 1; }
-    .container { max-width: 1080px; margin: 0 auto; padding: 0 56px; }
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 48px; }
 
     #hero {
-      min-height: 92vh;
+      min-height: 88vh;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 120px 48px 80px;
+      text-align: center; padding: 80px 24px 60px;
     }
 
     .hero-origin {
       display: inline-flex; align-items: center; gap: 10px;
       font-size: 0.72rem; font-weight: 500; color: var(--gold);
-      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 36px;
+      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 28px;
     }
     .origin-line { width: 32px; height: 1px; background: var(--gold); opacity: 0.5; }
 
-    /* Text reveal animation target */
     .hero-title {
-      font-size: clamp(3rem, 7vw, 6.2rem);
-      font-weight: 300; line-height: 1.06; letter-spacing: -0.04em;
+      font-size: clamp(2.2rem, 6.5vw, 5.5rem);
+      font-weight: 300; line-height: 1.08; letter-spacing: -0.03em;
       color: var(--text); margin-bottom: 16px;
     }
     .hero-title .serif-em {
@@ -161,62 +151,77 @@
     }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
+    /* 3D Mascot Character Banner in Hero */
+    .hero-mascot-img-wrap {
+      margin: 28px auto 20px;
+      width: 220px; height: 220px;
+      position: relative; display: flex; align-items: center; justify-content: center;
+    }
+    .hero-mascot-img {
+      width: 100%; height: 100%; object-fit: contain;
+      filter: drop-shadow(0 15px 35px rgba(200,150,58,0.3));
+      animation: floatMascot 4s ease-in-out infinite;
+    }
+    @keyframes floatMascot {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%       { transform: translateY(-10px) rotate(2deg); }
+    }
+
     .hero-desc {
-      font-size: 1rem; color: var(--text2); max-width: 500px;
-      line-height: 1.8; margin-bottom: 48px;
+      font-size: 0.95rem; color: var(--text2); max-width: 480px;
+      line-height: 1.8; margin-bottom: 36px;
     }
 
     .hero-install {
       display: flex; align-items: center; gap: 0;
       background: var(--bg3); border: 1px solid var(--line-g);
       border-radius: 7px; font-family: var(--mono); font-size: 0.82rem;
-      color: var(--text2); max-width: 380px; overflow: hidden; margin-bottom: 28px;
+      color: var(--text2); width: 100%; max-width: 380px; overflow: hidden; margin-bottom: 24px;
     }
-    .hero-install-prompt { padding: 14px 16px; color: var(--gold); opacity: 0.8; border-right: 1px solid var(--line); user-select: none; }
-    .hero-install-cmd { padding: 14px 16px; color: var(--text); flex: 1; text-align: left; }
+    .hero-install-prompt { padding: 12px 14px; color: var(--gold); opacity: 0.8; border-right: 1px solid var(--line); user-select: none; }
+    .hero-install-cmd { padding: 12px 14px; color: var(--text); flex: 1; text-align: left; overflow-x: auto; white-space: nowrap; }
     .hero-install-copy {
-      padding: 14px 16px; cursor: pointer; color: var(--text3);
+      padding: 12px 14px; cursor: pointer; color: var(--text3);
       border-left: 1px solid var(--line); background: none; border: none;
       font-family: var(--mono); font-size: 0.82rem; transition: color 0.2s;
     }
     .hero-install-copy:hover { color: var(--gold); }
 
-    .hero-actions { display: flex; gap: 14px; justify-content: center; }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; width: 100%; }
     .btn-gold {
-      display: inline-flex; align-items: center; gap: 8px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       background: var(--gold); color: #080706;
-      padding: 12px 32px; border-radius: 6px; font-size: 0.875rem;
+      padding: 12px 28px; border-radius: 6px; font-size: 0.875rem;
       font-weight: 500; text-decoration: none; border: none; cursor: pointer;
       transition: opacity 0.2s var(--ease);
     }
     .btn-gold:hover { opacity: 0.88; }
     .btn-outline {
-      display: inline-flex; align-items: center; gap: 8px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       background: transparent; color: var(--text2);
-      padding: 12px 32px; border-radius: 6px; font-size: 0.875rem;
+      padding: 12px 28px; border-radius: 6px; font-size: 0.875rem;
       font-weight: 400; text-decoration: none; border: 1px solid var(--line2);
       cursor: pointer; transition: all 0.2s var(--ease);
     }
     .btn-outline:hover { color: var(--text); border-color: rgba(200,150,58,0.3); }
 
-    /* ─── INTERACTIVE MASCOT CHARACTER WITH ANIMATED TALKING MOUTH ────────── */
+    /* ─── INTERACTIVE MASCOT COMPANION WITH ANIMATED MOUTH ────────── */
     .mascot-widget {
-      position: fixed; bottom: 28px; right: 28px; z-index: 999;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
+      position: fixed; bottom: 20px; right: 20px; z-index: 999;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
     }
 
     .mascot-speech {
-      background: var(--bg2);
-      border: 1px solid var(--line-g);
-      border-radius: 12px; padding: 12px 18px;
-      font-size: 0.82rem; color: var(--text);
-      max-width: 240px; box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+      background: var(--bg2); border: 1px solid var(--line-g);
+      border-radius: 12px; padding: 12px 16px;
+      font-size: 0.8rem; color: var(--text);
+      max-width: 220px; box-shadow: 0 16px 40px rgba(0,0,0,0.5);
       position: relative; opacity: 0; transform: translateY(10px) scale(0.95);
       transition: all 0.4s var(--ease); pointer-events: none;
     }
     .mascot-speech.active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
     .mascot-speech::after {
-      content: ''; position: absolute; bottom: -6px; right: 24px;
+      content: ''; position: absolute; bottom: -6px; right: 20px;
       width: 10px; height: 10px; background: var(--bg2);
       border-right: 1px solid var(--line-g); border-bottom: 1px solid var(--line-g);
       transform: rotate(45deg);
@@ -225,29 +230,20 @@
     .speech-tag  { font-family: var(--mono); font-size: 0.68rem; color: var(--gold); margin-top: 4px; display: block; }
 
     .mascot-avatar-container {
-      width: 72px; height: 72px;
-      background: var(--bg2);
-      border: 2px solid var(--gold);
-      border-radius: 50%;
-      cursor: pointer; position: relative;
-      box-shadow: 0 10px 30px rgba(200,150,58,0.25);
+      width: 64px; height: 64px;
+      background: var(--bg2); border: 2px solid var(--gold);
+      border-radius: 50%; cursor: pointer; position: relative;
+      box-shadow: 0 8px 25px rgba(200,150,58,0.3);
       display: flex; align-items: center; justify-content: center;
       animation: floatCharacter 4s ease-in-out infinite;
-      overflow: visible;
     }
     @keyframes floatCharacter {
       0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-8px); }
+      50%       { transform: translateY(-6px); }
     }
 
-    /* SVG Character with Animated Mouth */
-    .mascot-svg { width: 56px; height: 56px; }
-    
-    /* Mouth Talking animation keyframes */
-    .mascot-mouth {
-      transform-origin: center center;
-      transition: d 0.15s ease;
-    }
+    .mascot-svg { width: 50px; height: 50px; }
+    .mascot-mouth { transform-origin: center center; transition: d 0.15s ease; }
     .mascot-avatar-container.talking .mascot-mouth {
       animation: talkMouth 0.22s ease-in-out infinite alternate;
     }
@@ -256,48 +252,41 @@
       100% { transform: scaleY(1.6) scaleX(1.1); }
     }
 
-    /* Blink eyes animation */
-    .mascot-eye {
-      animation: eyeBlink 4s infinite;
-      transform-origin: center center;
-    }
+    .mascot-eye { animation: eyeBlink 4s infinite; transform-origin: center center; }
     @keyframes eyeBlink {
       0%, 95%, 100% { transform: scaleY(1); }
       97%           { transform: scaleY(0.1); }
     }
 
     /* ─── SECTION LABELS & TEXT ───────────────────────────────────────────── */
-    .s-label { font-size: 0.7rem; font-weight: 500; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; }
-    .s-title { font-size: clamp(1.9rem, 3.8vw, 3rem); font-weight: 300; letter-spacing: -0.025em; line-height: 1.15; color: var(--text); margin-bottom: 14px; }
-    .s-desc  { font-size: 0.92rem; color: var(--text2); line-height: 1.85; max-width: 520px; }
+    .s-label { font-size: 0.7rem; font-weight: 500; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; }
+    .s-title { font-size: clamp(1.75rem, 3.8vw, 3rem); font-weight: 300; letter-spacing: -0.025em; line-height: 1.15; color: var(--text); margin-bottom: 12px; }
+    .s-desc  { font-size: 0.9rem; color: var(--text2); line-height: 1.85; max-width: 520px; }
 
     /* ─── HOW IT WORKS ────────────────────────────────────────────────────── */
-    #how { padding: 120px 0; }
+    #how { padding: 80px 0; }
     .how-steps {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-      border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 56px;
+      border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 48px;
     }
-    .how-step {
-      padding: 40px 28px; background: var(--bg2); transition: background 0.3s;
-      position: relative;
-    }
+    .how-step { padding: 32px 24px; background: var(--bg2); transition: background 0.3s; position: relative; }
     .how-step:hover { background: var(--bg3); }
-    .step-n { font-family: var(--mono); font-size: 0.68rem; color: var(--gold); opacity: 0.7; margin-bottom: 24px; }
-    .step-icon { width: 34px; height: 34px; border: 1px solid var(--line-g); border-radius: 7px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
-    .step-t { font-size: 0.92rem; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+    .step-n { font-family: var(--mono); font-size: 0.68rem; color: var(--gold); opacity: 0.7; margin-bottom: 20px; }
+    .step-icon { width: 34px; height: 34px; border: 1px solid var(--line-g); border-radius: 7px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .step-t { font-size: 0.92rem; font-weight: 500; color: var(--text); margin-bottom: 8px; }
     .step-d { font-size: 0.81rem; color: var(--text2); line-height: 1.75; }
-    .step-code { margin-top: 14px; font-family: var(--mono); font-size: 0.73rem; color: var(--text2); background: var(--bg4); border: 1px solid var(--line); border-radius: 5px; padding: 9px 12px; }
+    .step-code { margin-top: 14px; font-family: var(--mono); font-size: 0.73rem; color: var(--text2); background: var(--bg4); border: 1px solid var(--line); border-radius: 5px; padding: 8px 10px; word-break: break-all; }
 
     /* ─── SYNTAX ──────────────────────────────────────────────────────────── */
-    #syntax { padding: 120px 0; border-top: 1px solid var(--line); }
-    .syntax-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; margin-top: 56px; }
+    #syntax { padding: 80px 0; border-top: 1px solid var(--line); }
+    .syntax-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; margin-top: 48px; }
     .syntax-editor { background: var(--bg2); border: 1px solid var(--line-g); border-radius: 10px; overflow: hidden; font-family: var(--mono); font-size: 0.79rem; line-height: 1.9; }
     .editor-bar { background: var(--bg3); border-bottom: 1px solid var(--line); padding: 11px 16px; display: flex; align-items: center; gap: 10px; }
     .dots { display: flex; gap: 6px; }
     .dot  { width: 9px; height: 9px; border-radius: 50%; background: var(--bg4); }
     .fname{ font-size: 0.7rem; color: var(--text3); margin-left: 6px; }
-    .editor-body { padding: 22px; }
-    .ln { color: var(--text3); margin-right: 18px; font-size: 0.68rem; display: inline-block; min-width: 16px; text-align: right; }
+    .editor-body { padding: 18px; overflow-x: auto; }
+    .ln { color: var(--text3); margin-right: 14px; font-size: 0.68rem; display: inline-block; min-width: 16px; text-align: right; }
     .dc { color: var(--gold2); font-weight: 500; }
     .kd { color: #B8A888; }
     .st { color: #8FA898; }
@@ -306,70 +295,91 @@
     .cm { color: #3a3530; }
 
     .syntax-ref { display: flex; flex-direction: column; }
-    .ref-item { display: flex; align-items: flex-start; gap: 18px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .ref-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
     .ref-item:last-child { border-bottom: none; }
-    .ref-kw { font-family: var(--mono); font-size: 0.73rem; color: var(--text2); background: var(--bg3); border: 1px solid var(--line); border-radius: 4px; padding: 4px 10px; white-space: nowrap; min-width: 155px; flex-shrink: 0; }
-    .ref-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.65; padding-top: 4px; }
+    .ref-kw { font-family: var(--mono); font-size: 0.73rem; color: var(--text2); background: var(--bg3); border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; white-space: nowrap; min-width: 140px; flex-shrink: 0; }
+    .ref-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.65; padding-top: 2px; }
 
-    /* ─── ABOUT & MASCOT SHOWCASE ─────────────────────────────────────────── */
-    #about { padding: 120px 0; border-top: 1px solid var(--line); }
-    .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; margin-top: 56px; }
-    .about-card { background: var(--bg2); border: 1px solid var(--line-g); border-radius: 12px; padding: 44px 36px; position: relative; overflow: hidden; }
-    .about-avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--bg4); border: 1px solid var(--line-g); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.4rem; color: var(--gold); margin-bottom: 20px; }
-    .about-name { font-size: 1.25rem; font-weight: 400; color: var(--text); margin-bottom: 3px; }
-    .about-role { font-size: 0.79rem; color: var(--gold); margin-bottom: 24px; }
-    .about-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 24px; }
-    .tag { background: rgba(200,150,58,0.08); border: 1px solid rgba(200,150,58,0.2); color: var(--text2); font-size: 0.71rem; padding: 4px 12px; border-radius: 100px; }
-    .about-quote { font-family: var(--serif); font-size: 0.92rem; color: var(--text2); line-height: 1.85; border-left: 2px solid rgba(200,150,58,0.4); padding-left: 16px; font-style: italic; }
+    /* ─── ABOUT ───────────────────────────────────────────────────────────── */
+    #about { padding: 80px 0; border-top: 1px solid var(--line); }
+    .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; margin-top: 48px; }
+    .about-card { background: var(--bg2); border: 1px solid var(--line-g); border-radius: 12px; padding: 36px 28px; position: relative; overflow: hidden; }
+    .about-avatar { width: 54px; height: 54px; border-radius: 50%; background: var(--bg4); border: 1px solid var(--line-g); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.3rem; color: var(--gold); margin-bottom: 16px; }
+    .about-name { font-size: 1.2rem; font-weight: 400; color: var(--text); margin-bottom: 3px; }
+    .about-role { font-size: 0.78rem; color: var(--gold); margin-bottom: 20px; }
+    .about-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+    .tag { background: rgba(200,150,58,0.08); border: 1px solid rgba(200,150,58,0.2); color: var(--text2); font-size: 0.7rem; padding: 3px 10px; border-radius: 100px; }
+    .about-quote { font-family: var(--serif); font-size: 0.88rem; color: var(--text2); line-height: 1.8; border-left: 2px solid rgba(200,150,58,0.4); padding-left: 14px; font-style: italic; }
 
-    .timeline { display: flex; flex-direction: column; gap: 32px; }
-    .tl-item  { display: flex; gap: 18px; }
+    .timeline { display: flex; flex-direction: column; gap: 24px; }
+    .tl-item  { display: flex; gap: 16px; }
     .tl-left  { display: flex; flex-direction: column; align-items: center; }
     .tl-dot   { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); opacity: 0.5; margin-top: 6px; flex-shrink: 0; }
     .tl-line  { width: 1px; flex: 1; background: var(--line); margin-top: 6px; }
     .tl-item:last-child .tl-line { display: none; }
-    .tl-date  { font-family: var(--mono); font-size: 0.68rem; color: var(--gold); opacity: 0.7; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+    .tl-date  { font-family: var(--mono); font-size: 0.68rem; color: var(--gold); opacity: 0.7; text-transform: uppercase; margin-bottom: 2px; }
     .tl-t     { font-size: 0.88rem; font-weight: 500; color: var(--text); margin-bottom: 4px; }
     .tl-d     { font-size: 0.8rem; color: var(--text2); line-height: 1.7; }
 
     /* ─── INSTALL ──────────────────────────────────────────────────────────── */
-    #install { padding: 120px 0; border-top: 1px solid var(--line); }
-    .install-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 56px; }
-    .install-col  { padding: 40px 30px; background: var(--bg2); }
+    #install { padding: 80px 0; border-top: 1px solid var(--line); }
+    .install-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 48px; }
+    .install-col  { padding: 32px 24px; background: var(--bg2); }
     .install-col:not(:last-child) { border-right: 1px solid var(--line); }
-    .install-tag  { font-size: 0.68rem; font-weight: 500; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 18px; }
-    .install-t    { font-size: 1rem; font-weight: 400; color: var(--text); margin-bottom: 8px; }
-    .install-s    { font-size: 0.8rem; color: var(--text2); margin-bottom: 28px; line-height: 1.65; }
-    .i-steps      { display: flex; flex-direction: column; gap: 13px; }
-    .i-step       { display: flex; gap: 10px; align-items: flex-start; }
+    .install-tag  { font-size: 0.68rem; font-weight: 500; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+    .install-t    { font-size: 0.95rem; font-weight: 400; color: var(--text); margin-bottom: 6px; }
+    .install-s    { font-size: 0.78rem; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
+    .i-steps      { display: flex; flex-direction: column; gap: 12px; }
+    .i-step       { display: flex; gap: 8px; align-items: flex-start; }
     .i-n          { font-family: var(--mono); font-size: 0.67rem; color: var(--text3); margin-top: 2px; flex-shrink: 0; width: 14px; }
     .i-content    { flex: 1; }
-    .i-lbl        { font-size: 0.73rem; color: var(--text3); margin-bottom: 5px; }
-    .i-cmd        { background: var(--bg3); border: 1px solid var(--line); border-radius: 5px; padding: 8px 12px; font-family: var(--mono); font-size: 0.74rem; color: var(--text2); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .i-lbl        { font-size: 0.73rem; color: var(--text3); margin-bottom: 4px; }
+    .i-cmd        { background: var(--bg3); border: 1px solid var(--line); border-radius: 5px; padding: 8px 10px; font-family: var(--mono); font-size: 0.74rem; color: var(--text2); display: flex; align-items: center; justify-content: space-between; gap: 8px; word-break: break-all; }
     .i-copy       { color: var(--text3); background: none; border: none; cursor: pointer; font-size: 0.7rem; padding: 0; flex-shrink: 0; transition: color 0.2s; }
     .i-copy:hover { color: var(--gold); }
 
     /* ─── FOOTER ───────────────────────────────────────────────────────────── */
-    footer { border-top: 1px solid var(--line); padding: 60px 56px 40px; position: relative; z-index: 1; }
-    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 56px; }
+    footer { border-top: 1px solid var(--line); padding: 48px 24px 32px; position: relative; z-index: 1; }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
     .footer-brand { max-width: 260px; }
-    .footer-logo { font-size: 1rem; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+    .footer-logo { font-size: 1rem; font-weight: 500; color: var(--text); margin-bottom: 8px; }
     .footer-logo .dot { color: var(--gold); }
-    .footer-tagline { font-size: 0.8rem; color: var(--text2); line-height: 1.75; }
-    .footer-cols { display: flex; gap: 56px; }
-    .footer-col h5 { font-size: 0.68rem; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; opacity: 0.7; }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .footer-col a { font-size: 0.82rem; color: var(--text2); text-decoration: none; transition: color 0.2s; }
+    .footer-tagline { font-size: 0.78rem; color: var(--text2); line-height: 1.7; }
+    .footer-cols { display: flex; gap: 40px; }
+    .footer-col h5 { font-size: 0.68rem; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; opacity: 0.7; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .footer-col a { font-size: 0.8rem; color: var(--text2); text-decoration: none; transition: color 0.2s; }
     .footer-col a:hover { color: var(--text); }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text3); }
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text3); }
 
-    @media (max-width: 960px) {
-      nav { padding: 0 24px; }
+    /* ─── MOBILE RESPONSIVE MEDIA QUERIES ─────────────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
       .nav-links { display: none; }
-      .container { padding: 0 24px; }
-      .how-steps, .install-grid { grid-template-columns: 1fr 1fr; }
-      .syntax-layout, .about-layout { grid-template-columns: 1fr; }
-      .footer-top { flex-direction: column; gap: 36px; }
+      .container { padding: 0 20px; }
+      #hero { padding: 60px 16px 40px; min-height: auto; }
+      .hero-title { font-size: clamp(2rem, 8vw, 3.6rem); }
+      .hero-mascot-img-wrap { width: 170px; height: 170px; margin: 20px auto 16px; }
+      .how-steps { grid-template-columns: 1fr; border: none; gap: 12px; }
+      .how-step { border: 1px solid var(--line) !important; border-radius: 10px; }
+      .syntax-layout, .about-layout { grid-template-columns: 1fr; gap: 32px; }
+      .install-grid { grid-template-columns: 1fr; border: none; gap: 12px; }
+      .install-col { border: 1px solid var(--line) !important; border-radius: 10px; }
+      .footer-top { flex-direction: column; gap: 32px; }
+      .footer-cols { flex-wrap: wrap; gap: 28px; width: 100%; justify-content: space-between; }
+      .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+      .mascot-widget { bottom: 16px; right: 16px; }
+      .mascot-avatar-container { width: 54px; height: 54px; }
+      .mascot-svg { width: 42px; height: 42px; }
+      .mascot-speech { max-width: 190px; font-size: 0.75rem; padding: 10px 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-actions { flex-direction: column; width: 100%; }
+      .btn-gold, .btn-outline { width: 100%; text-align: center; }
+      .hero-install { max-width: 100%; font-size: 0.75rem; }
+      .ref-item { flex-direction: column; gap: 6px; }
+      .ref-kw { min-width: auto; width: 100%; }
     }
   </style>
 </head>
@@ -381,7 +391,6 @@
 <nav>
   <div class="eth-pattern" style="top:0"></div>
   
-  <!-- Logo with SVG Symbol -->
   <a href="#" class="brand-logo">
     <svg class="brand-svg" viewBox="0 0 40 40" fill="none">
       <rect width="40" height="40" rx="10" fill="#141214" stroke="#C8963A" stroke-width="1.5"/>
@@ -389,7 +398,7 @@
       <path d="M15 23H25" stroke="#E8B45A" stroke-width="2" stroke-linecap="round"/>
       <circle cx="20" cy="18" r="2" fill="#C8963A"/>
     </svg>
-    <div class="brand-text">Mr<span>.</span>easy <span class="brand-flag">🇪🇹</span></div>
+    <div class="brand-text">Mr<span>.</span>easy 🇪🇹</div>
   </a>
 
   <ul class="nav-links">
@@ -402,23 +411,21 @@
 </nav>
 
 <!-- ─── MARQUEE TICKER ANIMATION ────────────────────────────────────────────── -->
-<div class="ticker-wrap" style="margin-top:64px">
+<div class="ticker-wrap">
   <div class="ticker-move" id="ticker">
     <span class="ticker-item"><span class="ticker-star">★</span> Born in Ethiopia 🇪🇹</span>
     <span class="ticker-item"><span class="ticker-star">★</span> No brackets. No semicolons.</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Starts with Mr.easy "Title"</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Real-time Live Preview</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Pure HTML/CSS Output</span>
-    <span class="ticker-item"><span class="ticker-star">★</span> Inspired by Spirit of Adwa 1896</span>
+    <span class="ticker-item"><span class="ticker-star">★</span> Spirit of Adwa 1896</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Free & Open Source</span>
-    <!-- Duplicated for seamless infinite loop -->
+    <!-- Repeat for infinite marquee -->
     <span class="ticker-item"><span class="ticker-star">★</span> Born in Ethiopia 🇪🇹</span>
     <span class="ticker-item"><span class="ticker-star">★</span> No brackets. No semicolons.</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Starts with Mr.easy "Title"</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Real-time Live Preview</span>
     <span class="ticker-item"><span class="ticker-star">★</span> Pure HTML/CSS Output</span>
-    <span class="ticker-item"><span class="ticker-star">★</span> Inspired by Spirit of Adwa 1896</span>
-    <span class="ticker-item"><span class="ticker-star">★</span> Free & Open Source</span>
   </div>
 </div>
 
@@ -426,14 +433,19 @@
 <section id="hero">
   <div class="hero-origin">
     <span class="origin-line"></span>
-    Adwa Heritage · Addis Ababa, Ethiopia 🇪🇹
+    Adwa Heritage · Ethiopia 🇪🇹
     <span class="origin-line"></span>
   </div>
 
-  <h1 class="hero-title" id="animated-title">
+  <h1 class="hero-title">
     Build websites.<br>
     <span class="serif-em" id="typewriter-target">Like writing words.</span><span class="typing-cursor"></span>
   </h1>
+
+  <!-- 3D Mascot Character Banner -->
+  <div class="hero-mascot-img-wrap">
+    <img src="assets/mascot_3d.png" alt="Mr.easy 3D Mascot" class="hero-mascot-img" />
+  </div>
 
   <p class="hero-desc">
     Mr.easy turns plain, readable text into beautiful websites.
@@ -455,26 +467,18 @@
 <!-- ─── INTERACTIVE MASCOT COMPANION WITH ANIMATED MOUTH ─────────────────────── -->
 <div class="mascot-widget" id="mascot-widget">
   <div class="mascot-speech" id="mascot-speech">
-    <div class="speech-text" id="speech-text">Selam! 👋 I'm your Mr.easy AI guide. Click me to hear tips!</div>
+    <div class="speech-text" id="speech-text">Selam! 👋 I'm your Mr.easy AI guide. Click me for tips!</div>
     <span class="speech-tag">Adwa AI Mascot</span>
   </div>
 
   <div class="mascot-avatar-container" id="mascot-btn" onclick="triggerMascotTalk()">
-    <!-- SVG Character Avatar with Talking Mouth -->
     <svg class="mascot-svg" viewBox="0 0 100 100" fill="none">
-      <!-- Head / Helm -->
       <circle cx="50" cy="50" r="40" fill="#141214" stroke="#C8963A" stroke-width="3"/>
-      <!-- Ethiopian Gold Crown / Visor -->
       <path d="M26 36L38 24L50 32L62 24L74 36V42H26V36Z" fill="#C8963A"/>
-      <!-- Eyes (Animated blink) -->
       <circle class="mascot-eye" cx="38" cy="48" r="5" fill="#F2EAD8"/>
       <circle class="mascot-eye" cx="62" cy="48" r="5" fill="#F2EAD8"/>
       <circle cx="38" cy="48" r="2.5" fill="#09080A"/>
       <circle cx="62" cy="48" r="2.5" fill="#09080A"/>
-      <!-- Cheeks -->
-      <circle cx="30" cy="54" r="3" fill="rgba(200,150,58,0.3)"/>
-      <circle cx="70" cy="54" r="3" fill="rgba(200,150,58,0.3)"/>
-      <!-- Mouth (Animated Talking Mouth Path) -->
       <path class="mascot-mouth" id="mascot-mouth-path" d="M 38 64 Q 50 72 62 64" stroke="#E8B45A" stroke-width="3.5" stroke-linecap="round" fill="none"/>
     </svg>
   </div>
@@ -564,8 +568,7 @@
         <div class="ref-item"><code class="ref-kw">button "Label" blue</code><div class="ref-desc">Button. Color with <strong>blue red green purple orange</strong>. Add <strong>outline</strong> for ghost style.</div></div>
         <div class="ref-item"><code class="ref-kw">grid cols:3</code><div class="ref-desc">Responsive grid. Set columns with the <strong>cols:</strong> property.</div></div>
         <div class="ref-item"><code class="ref-kw">card shadow glass</code><div class="ref-desc">Content card. <strong>shadow</strong> adds depth; <strong>glass</strong> adds frosted effect.</div></div>
-        <div class="ref-item"><code class="ref-kw">repeat 3 times</code><div class="ref-desc">Loop block. Use <strong>{index}</strong> inside to get the iteration number.</div></div>
-        <div class="ref-item" style="border-bottom:none"><code class="ref-kw"># comment</code><div class="ref-desc">Lines starting with # are notes — completely ignored by the compiler.</div></div>
+        <div class="ref-item"><code class="ref-kw">repeat 3 times</code><div class="ref-desc">Loop block. Use <strong>{index}</strong> inside to get iteration number.</div></div>
       </div>
     </div>
   </div>
@@ -594,17 +597,15 @@
       </div>
 
       <div>
-        <p style="font-size:0.91rem; color:var(--text2); line-height:1.88; margin-bottom:44px">
+        <p style="font-size:0.91rem; color:var(--text2); line-height:1.88; margin-bottom:32px">
           Mr.easy was created in <strong style="color:var(--text)">2026</strong> in <strong style="color:var(--text)">Addis Ababa, Ethiopia</strong> by Biruk — a developer who wanted to give everyone the power to build beautiful websites.
-          <br><br>
-          Just like the Battle of Adwa showed that determination overcomes obstacle, Mr.easy proves that coding does not have to be difficult.
         </p>
 
         <div class="timeline">
-          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Jan 2026</div><div class="tl-t">The Idea</div><div class="tl-d">Inspired by Adwa's spirit — making powerful coding tools accessible to all.</div></div></div>
-          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Mar 2026</div><div class="tl-t">First Compiler</div><div class="tl-d">The lexer, parser, and HTML compiler were built — turning .mreasy files into web pages.</div></div></div>
-          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Jul 2026</div><div class="tl-t">Web IDE</div><div class="tl-d">Browser IDE with live preview, syntax highlighting, and component library.</div></div></div>
-          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div></div><div><div class="tl-date">Aug 2026</div><div class="tl-t">Public Launch</div><div class="tl-d">Mr.easy v1.0 — free and open source. Born in Ethiopia. Built for everyone.</div></div></div>
+          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Jan 2026</div><div class="tl-t">The Idea</div><div class="tl-d">Inspired by Adwa's spirit — making coding accessible to all.</div></div></div>
+          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Mar 2026</div><div class="tl-t">First Compiler</div><div class="tl-d">Building the lexer, parser, and HTML compiler.</div></div></div>
+          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div><div class="tl-date">Jul 2026</div><div class="tl-t">Web IDE</div><div class="tl-d">Browser IDE with live real-time preview.</div></div></div>
+          <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div></div><div><div class="tl-date">Aug 2026</div><div class="tl-t">Public Launch</div><div class="tl-d">Mr.easy v1.0 released to the world.</div></div></div>
         </div>
       </div>
     </div>
@@ -621,9 +622,9 @@
       <div class="install-col">
         <div class="install-tag">01 — Recommended</div>
         <div class="install-t">Windows Installer</div>
-        <div class="install-s">One command. Installs everything and registers the mreasy command in PATH.</div>
+        <div class="install-s">One command. Installs everything and registers the command in PATH.</div>
         <div class="i-steps">
-          <div class="i-step"><div class="i-n">1.</div><div class="i-content"><div class="i-lbl">Open PowerShell as Admin</div><div class="i-cmd"><span>Right-click → Run as Admin</span></div></div></div>
+          <div class="i-step"><div class="i-n">1.</div><div class="i-content"><div class="i-lbl">Open PowerShell as Admin</div><div class="i-cmd"><span>Right-click → Admin</span></div></div></div>
           <div class="i-step"><div class="i-n">2.</div><div class="i-content"><div class="i-lbl">Run installer</div><div class="i-cmd"><span>powershell -File installer\install.ps1</span><button class="i-copy" onclick="copyText(this,'powershell -ExecutionPolicy Bypass -File installer\\install.ps1')">⎘</button></div></div></div>
           <div class="i-step"><div class="i-n">3.</div><div class="i-content"><div class="i-lbl">Create project</div><div class="i-cmd"><span>mreasy new mysite</span><button class="i-copy" onclick="copyText(this,'mreasy new mysite')">⎘</button></div></div></div>
         </div>
@@ -632,7 +633,7 @@
       <div class="install-col">
         <div class="install-tag">02 — Developer</div>
         <div class="install-t">npm install</div>
-        <div class="install-s">For developers who prefer manual setup. Clone repo, install, and link globally.</div>
+        <div class="install-s">Clone repo, install dependencies, and link globally.</div>
         <div class="i-steps">
           <div class="i-step"><div class="i-n">1.</div><div class="i-content"><div class="i-lbl">Install dependencies</div><div class="i-cmd"><span>npm install</span><button class="i-copy" onclick="copyText(this,'npm install')">⎘</button></div></div></div>
           <div class="i-step"><div class="i-n">2.</div><div class="i-content"><div class="i-lbl">Link globally</div><div class="i-cmd"><span>npm link</span><button class="i-copy" onclick="copyText(this,'npm link')">⎘</button></div></div></div>
@@ -643,14 +644,14 @@
       <div class="install-col">
         <div class="install-tag">03 — No Install</div>
         <div class="install-t">Web IDE</div>
-        <div class="install-s">Zero setup required. Open in browser, write code, see real-time preview, download HTML.</div>
+        <div class="install-s">Zero setup required. Open in browser, write code, see live preview.</div>
         <div class="i-steps">
           <div class="i-step"><div class="i-n">1.</div><div class="i-content"><div class="i-lbl">Open browser</div><div class="i-cmd"><span>ide/index.html</span></div></div></div>
           <div class="i-step"><div class="i-n">2.</div><div class="i-content"><div class="i-lbl">Write & preview</div><div class="i-cmd" style="color:var(--text3)">Works instantly. →</div></div></div>
           <div class="i-step"><div class="i-n">3.</div><div class="i-content"><div class="i-lbl">Download output</div><div class="i-cmd"><span>Click ⬇ Download HTML</span></div></div></div>
         </div>
-        <div style="margin-top:24px">
-          <a href="ide/index.html" class="btn-gold" style="font-size:0.83rem; padding:10px 20px;">Open Web IDE →</a>
+        <div style="margin-top:20px">
+          <a href="ide/index.html" class="btn-gold" style="font-size:0.83rem; padding:10px 18px; width:100%; text-align:center">Open Web IDE →</a>
         </div>
       </div>
     </div>
@@ -700,7 +701,6 @@
 
 <!-- ─── SCRIPTS ───────────────────────────────────────────────────────────────── -->
 <script>
-// ── THREE.JS BACKGROUND ───────────────────────────────────────────────────────
 (function() {
   const canvas   = document.getElementById('bg-canvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -714,11 +714,11 @@
   const group = new THREE.Group();
   const geos = [new THREE.IcosahedronGeometry(0.8, 0), new THREE.OctahedronGeometry(0.7, 0)];
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 5; i++) {
     const m = new THREE.Mesh(geos[i % 2], new THREE.MeshBasicMaterial({
-      color: 0x7a5a20, wireframe: true, transparent: true, opacity: 0.08
+      color: 0x7a5a20, wireframe: true, transparent: true, opacity: 0.07
     }));
-    m.position.set((Math.random() - 0.5) * 18, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 4 - 2);
+    m.position.set((Math.random() - 0.5) * 16, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 4 - 2);
     m.userData = { rx: (Math.random() - 0.5) * 0.004, ry: (Math.random() - 0.5) * 0.006, fy: 0.2, fo: Math.random() * 6, by: m.position.y };
     group.add(m);
   }
@@ -745,11 +745,8 @@
   tick();
 })();
 
-// ── TYPEWRITER TEXT ANIMATION ─────────────────────────────────────────────────
-const phrases = ["Like writing words.", "Without brackets.", "Without semicolons.", "In plain language.", "Simple & Powerful."];
-let phraseIdx = 0;
-let charIdx = 0;
-let isDeleting = false;
+const phrases = ["Like writing words.", "Without brackets.", "Without semicolons.", "In plain language."];
+let phraseIdx = 0, charIdx = 0, isDeleting = false;
 const targetEl = document.getElementById('typewriter-target');
 
 function typeLoop() {
@@ -764,18 +761,14 @@ function typeLoop() {
 
   let delay = isDeleting ? 40 : 90;
   if (!isDeleting && charIdx === currentPhrase.length) {
-    delay = 2000;
-    isDeleting = true;
+    delay = 2000; isDeleting = true;
   } else if (isDeleting && charIdx === 0) {
-    isDeleting = false;
-    phraseIdx = (phraseIdx + 1) % phrases.length;
-    delay = 400;
+    isDeleting = false; phraseIdx = (phraseIdx + 1) % phrases.length; delay = 400;
   }
   setTimeout(typeLoop, delay);
 }
 typeLoop();
 
-// ── MASCOT TALKING ANIMATION & SPEECH ──────────────────────────────────────────
 const tips = [
   "Selam! 👋 Every file must start with Mr.easy 'Title'",
   "Tip: Indent with 2 spaces to put elements inside sections!",
@@ -783,8 +776,7 @@ const tips = [
   "Tip: Run 'mreasy run' to see real-time updates as you type!",
   "Pro tip: Build to HTML with 'mreasy build' for production 🚀"
 ];
-let tipIdx = 0;
-let isTalking = false;
+let tipIdx = 0, isTalking = false;
 
 function triggerMascotTalk() {
   if (isTalking) return;
@@ -800,16 +792,11 @@ function triggerMascotTalk() {
   speechBubble.classList.add('active');
   mascotContainer.classList.add('talking');
 
-  // Mouth animation frames sync
   let mouthToggle = false;
   const talkInterval = setInterval(() => {
     mouthToggle = !mouthToggle;
     const mouthPath = document.getElementById('mascot-mouth-path');
-    if (mouthToggle) {
-      mouthPath.setAttribute('d', 'M 36 62 Q 50 80 64 62'); // Open mouth
-    } else {
-      mouthPath.setAttribute('d', 'M 38 64 Q 50 72 62 64'); // Closed mouth
-    }
+    mouthPath.setAttribute('d', mouthToggle ? 'M 36 62 Q 50 80 64 62' : 'M 38 64 Q 50 72 62 64');
   }, 160);
 
   setTimeout(() => {
@@ -820,25 +807,11 @@ function triggerMascotTalk() {
   }, 3500);
 }
 
-// Automatically trigger mascot speech bubble once on page load after 2s
 setTimeout(() => {
   document.getElementById('mascot-speech').classList.add('active');
   triggerMascotTalk();
 }, 2000);
 
-// ── GSAP SCROLL ANIMATIONS ────────────────────────────────────────────────────
-gsap.registerPlugin(ScrollTrigger);
-
-['how-step','install-col','ref-item','tl-item'].forEach(cls => {
-  gsap.utils.toArray('.' + cls).forEach((el, i) => {
-    gsap.from(el, {
-      scrollTrigger: { trigger: el, start: 'top 92%' },
-      opacity: 0, y: 24, duration: 0.6, delay: i * 0.08, ease: 'power2.out'
-    });
-  });
-});
-
-// ── COPY HELPERS ──────────────────────────────────────────────────────────────
 function copyInstall(btn) {
   navigator.clipboard.writeText('mreasy new mywebsite').then(() => {
     const o = btn.textContent; btn.textContent = '✓';
