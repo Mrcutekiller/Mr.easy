@@ -193,7 +193,7 @@ function initEditor() {
 
   editor.on('change', () => {
     clearTimeout(previewTimeout);
-    previewTimeout = setTimeout(compileAndPreview, 600);
+    previewTimeout = setTimeout(compileAndPreview, 120);
     markUnsaved();
   });
 
@@ -622,8 +622,7 @@ function refreshPreview() {
 function openInNewTab() {
   const source = editor.getValue();
   try {
-    const { title, body } = browserCompile(source);
-    const html   = wrapPage(title, body);
+    const html   = browserCompile(source);
     const blob   = new Blob([html], { type: 'text/html' });
     const url    = URL.createObjectURL(blob);
     window.open(url, '_blank');
@@ -635,8 +634,7 @@ function openInNewTab() {
 function downloadHTML() {
   const source = editor.getValue();
   try {
-    const { title, body } = browserCompile(source);
-    const html = wrapPage(title, body);
+    const html = browserCompile(source);
     const blob = new Blob([html], { type: 'text/html' });
     const a    = document.createElement('a');
     a.href     = URL.createObjectURL(blob);
@@ -651,8 +649,7 @@ function downloadHTML() {
 function copyHTML() {
   const source = editor.getValue();
   try {
-    const { title, body } = browserCompile(source);
-    const html = wrapPage(title, body);
+    const html = browserCompile(source);
     navigator.clipboard.writeText(html).then(() => showToast('📋 HTML copied to clipboard!'));
   } catch (err) { showToast('❌ ' + err.message); }
 }
