@@ -498,58 +498,42 @@
     <div class="s-label">Language Rules</div>
     <h2 class="s-title">The 3 Essential Rules of Mr.easy</h2>
 
-    <div class="syntax-layout">
-      <div class="syntax-editor">
-        <div class="editor-bar">
-          <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-          <span class="fname">portfolio.mreasy</span>
+    <div class="syntax-layout" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:24px;">
+      <div class="syntax-editor" style="display:flex; flex-direction:column; background:var(--bg3); border:1px solid var(--line); border-radius:12px; overflow:hidden;">
+        <div class="editor-bar" style="background:var(--bg2); padding:10px 16px; display:flex; align-items:center; gap:8px;">
+          <div class="dots" style="display:flex; gap:6px;"><div class="dot" style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div><div class="dot" style="width:10px;height:10px;border-radius:50%;background:#eab308;"></div><div class="dot" style="width:10px;height:10px;border-radius:50%;background:#22c55e;"></div></div>
+          <span class="fname" style="font-family:var(--mono); font-size:0.8rem; color:var(--text2);">demo.mreasy (Live Playground ⚡)</span>
+          <a href="/ide" style="margin-left:auto; font-size:0.75rem; color:var(--gold); text-decoration:none; font-family:var(--mono);">Full IDE →</a>
         </div>
-        <div class="editor-body">
-          <div><span class="ln">1</span><span class="dc">Mr.easy</span> <span class="st">"Biruk's Portfolio"</span></div>
-          <div><span class="ln">2</span></div>
-          <div><span class="ln">3</span><span class="cm"># IG: @mrcute_killer</span></div>
-          <div><span class="ln">4</span><span class="kd">nav</span></div>
-          <div><span class="ln">5</span>&nbsp;&nbsp;<span class="kd">logo</span> <span class="st">"Biruk"</span></div>
-          <div><span class="ln">6</span>&nbsp;&nbsp;<span class="kd">links</span> <span class="md">Home Work Contact</span></div>
-          <div><span class="ln">7</span></div>
-          <div><span class="ln">8</span><span class="cm"># Hero section</span></div>
-          <div><span class="ln">9</span><span class="kd">hero</span></div>
-          <div><span class="ln">10</span>&nbsp;&nbsp;<span class="kd">title</span> <span class="st">"Hello, I'm Biruk"</span> <span class="md">big glow</span></div>
-          <div><span class="ln">11</span>&nbsp;&nbsp;<span class="kd">subtitle</span> <span class="st">"I build for the web"</span></div>
-          <div><span class="ln">12</span>&nbsp;&nbsp;<span class="kd">button</span> <span class="st">"View Work"</span> <span class="md">blue big</span></div>
-          <div><span class="ln">13</span></div>
-          <div><span class="ln">14</span><span class="cm"># Grid layout</span></div>
-          <div><span class="ln">15</span><span class="kd">section</span> <span class="st">"work"</span></div>
-          <div><span class="ln">16</span>&nbsp;&nbsp;<span class="kd">grid</span> <span class="pr">cols:3</span></div>
-          <div><span class="ln">17</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">card</span> <span class="md">shadow</span></div>
-          <div><span class="ln">18</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">title</span> <span class="st">"Project"</span> <span class="md">small</span></div>
-          <div><span class="ln">19</span></div>
-          <div><span class="ln">20</span><span class="kd">footer</span></div>
-          <div><span class="ln">21</span>&nbsp;&nbsp;<span class="kd">text</span> <span class="st">"Made with Mr.easy 🇪🇹"</span></div>
+        <div class="editor-body" style="padding:0;">
+          <textarea id="home-playground-code" spellcheck="false" style="width:100%; height:340px; background:var(--bg3); color:var(--text); font-family:var(--mono); font-size:0.84rem; line-height:1.6; border:none; padding:16px; outline:none; resize:none;">Mr.easy "My Live Website"
+
+# 👋 Type anything below to test live!
+# IG: @mrcute_killer
+
+hero
+  title "Build Websites Fast" big glow
+  subtitle "No HTML. No CSS. No setup required."
+  button "Open Full IDE" blue big
+
+grid cols:2
+  card shadow
+    icon rocket
+    title "Fast & Simple" small
+    text "Clean indentation syntax"
+  card shadow
+    icon bolt
+    title "Instant Live Output" small
+    text "Updates live as you type"</textarea>
         </div>
       </div>
 
-      <div class="syntax-ref">
-        <div class="ref-item">
-          <code class="ref-kw">Rule 1: Signature</code>
-          <div class="ref-desc"><strong>Every file MUST start with:</strong> <code style="color:var(--gold2)">Mr.easy "Title"</code>. This tells the compiler it's a valid Mr.easy document.</div>
+      <div class="syntax-preview" style="background:var(--bg3); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; height:390px;">
+        <div class="editor-bar" style="background:var(--bg2); padding:10px 16px; display:flex; align-items:center; justify-content:space-between;">
+          <span class="fname" style="font-family:var(--mono); font-size:0.8rem; color:var(--gold);">⚡ Live Output Preview</span>
+          <span style="font-size:0.72rem; color:var(--muted2); font-family:var(--mono);">IG: @mrcute_killer</span>
         </div>
-        <div class="ref-item">
-          <code class="ref-kw">Rule 2: Plain Words</code>
-          <div class="ref-desc"><strong>No brackets {} or semicolons ; needed.</strong> Write keywords directly like <code style="color:var(--text)">hero</code>, <code style="color:var(--text)">title</code>, <code style="color:var(--text)">button</code>.</div>
-        </div>
-        <div class="ref-item">
-          <code class="ref-kw">Rule 3: Indentation</code>
-          <div class="ref-desc"><strong>Indent with 2 spaces to nest elements.</strong> Place cards inside grids, and titles inside hero blocks cleanly.</div>
-        </div>
-        <div class="ref-item">
-          <code class="ref-kw">button "Label" blue</code>
-          <div class="ref-desc">Button element. Style with color modifiers: <strong>blue red green purple orange</strong>.</div>
-        </div>
-        <div class="ref-item">
-          <code class="ref-kw">grid cols:3</code>
-          <div class="ref-desc">Responsive grid system. Set column count with <code style="color:var(--text)">cols:</code> property.</div>
-        </div>
+        <iframe id="home-preview-frame" title="Live Preview" style="width:100%; height:100%; border:none; background:#09080A;"></iframe>
       </div>
     </div>
   </div>
@@ -758,12 +742,49 @@ function copyInstall(btn) {
     setTimeout(() => { btn.textContent = o; }, 2000);
   });
 }
-function copyText(btn, text) {
-  navigator.clipboard.writeText(text).then(() => {
-    const o = btn.textContent; btn.textContent = '✓';
-    setTimeout(() => { btn.textContent = o; }, 2000);
-  });
-}
+// Homepage Live Playground Compiler
+(function() {
+  const codeEl  = document.getElementById('home-playground-code');
+  const frameEl = document.getElementById('home-preview-frame');
+  if (!codeEl || !frameEl) return;
+
+  function compileHome() {
+    const src = codeEl.value;
+    const bodyHtml = compileHomeCode(src);
+    frameEl.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><style>body{font-family:'Inter',sans-serif;background:#09080A;color:#F2EAD8;padding:16px;margin:0;} .mr-hero{text-align:center;padding:24px 12px;} .mr-title{font-size:1.4rem;margin-bottom:8px;color:#F2EAD8;} .mr-glow{color:#E8B45A;text-shadow:0 0 15px rgba(200,150,58,0.4);} .mr-subtitle{color:#9A9180;font-size:0.85rem;margin-bottom:12px;} .mr-button{background:#C8963A;color:#080706;border:none;padding:8px 18px;border-radius:6px;font-weight:600;cursor:pointer;} .mr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:16px;} .mr-card{background:#141214;border:1px solid rgba(200,150,58,0.25);border-radius:8px;padding:12px;} .mr-icon{color:#C8963A;font-size:1.2rem;margin-bottom:6px;display:block;} .mr-text{color:#9A9180;font-size:0.78rem;}</style></head><body>${bodyHtml}</body></html>`;
+  }
+
+  function compileHomeCode(src) {
+    const lines = src.split('\n');
+    let html = '';
+    lines.forEach(line => {
+      const t = line.trim();
+      if (!t || t.startsWith('#') || t.startsWith('Mr.easy')) return;
+      if (t.startsWith('hero')) html += '<div class="mr-hero">';
+      else if (t.startsWith('title')) {
+        const match = t.match(/"([^"]+)"/);
+        const title = match ? match[1] : 'Title';
+        html += `<h2 class="mr-title mr-glow">${title}</h2>`;
+      } else if (t.startsWith('subtitle')) {
+        const match = t.match(/"([^"]+)"/);
+        html += `<p class="mr-subtitle">${match ? match[1] : ''}</p>`;
+      } else if (t.startsWith('button')) {
+        const match = t.match(/"([^"]+)"/);
+        html += `<button class="mr-button">${match ? match[1] : 'Button'}</button></div>`;
+      } else if (t.startsWith('grid')) html += '<div class="mr-grid">';
+      else if (t.startsWith('card')) html += '<div class="mr-card">';
+      else if (t.startsWith('icon')) html += `<i class="mr-icon fa fa-${t.split(' ')[1] || 'star'}"></i>`;
+      else if (t.startsWith('text')) {
+        const match = t.match(/"([^"]+)"/);
+        html += `<p class="mr-text">${match ? match[1] : ''}</p></div>`;
+      }
+    });
+    return html;
+  }
+
+  codeEl.addEventListener('input', compileHome);
+  setTimeout(compileHome, 200);
+})();
 </script>
 </body>
 </html>

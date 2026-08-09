@@ -503,6 +503,9 @@ html, body {
     <button class="btn-icon" onclick="downloadHTML()" title="Export Website">
       <i class="fa fa-download"></i> Export Web
     </button>
+    <button class="btn-icon" onclick="exportZip()" title="Export complete ZIP bundle">
+      <i class="fa fa-file-zipper"></i> ZIP
+    </button>
     <button class="btn-run" onclick="runCode()">
       <i class="fa fa-play"></i> Run
     </button>
@@ -670,6 +673,7 @@ html, body {
 <!-- ── SCRIPTS ──────────────────────────────────────────────────────────────── -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
 /**
@@ -967,6 +971,7 @@ function compileLines(lines) {
   }
 
   function compileLine(line, ind, baseIndent) {
+    const lineIndex = i;
     const tokens = tokenizeLine(line);
     if (!tokens.length) return '';
     const kw = tokens[0].toLowerCase();
@@ -975,9 +980,9 @@ function compileLines(lines) {
     if (blocks.includes(kw)) {
       i++;
       const children = parseSectionLines(ind + 2);
-      return renderBlock(kw, tokens.slice(1), children);
+      return renderBlock(kw, tokens.slice(1), children, lineIndex);
     }
-    return renderInline(kw, tokens.slice(1), vars) + '\n';
+    return renderInline(kw, tokens.slice(1), vars, lineIndex) + '\n';
   }
 
   function tokenizeLine(line) {
@@ -1016,55 +1021,57 @@ function compileLines(lines) {
     return c ? { background: `linear-gradient(135deg, ${COLOR_MAP[c] || c}, ${COLOR_MAP[c] || c}cc)`, boxShadow: `0 4px 15px ${COLOR_MAP[c]}55` } : null;
   }
 
-  function renderBlock(type, tokens, children) {
+  function renderBlock(type, tokens, children, lineIdx) {
     const label = getLabel(tokens) || '';
     const id    = (label || type).replace(/\s+/g, '-').toLowerCase();
     const bg    = getProp(tokens, 'background') || getProp(tokens, 'bg');
     const cols  = getProp(tokens, 'cols');
     const gap   = getProp(tokens, 'gap');
+    const lineAttr = `data-line="${lineIdx}"`;
 
     switch (type) {
       case 'nav':
-        return `<nav class="mr-nav" style="${bg?'background:'+bg:''}">${children}</nav>`;
+        return `<nav class="mr-nav" ${lineAttr} style="${bg?'background:'+bg:''}">${children}</nav>`;
       case 'hero':
-        return `<div class="mr-hero"><div class="mr-hero-inner">${children}</div></div>`;
+        return `<div class="mr-hero" ${lineAttr}><div class="mr-hero-inner">${children}</div></div>`;
       case 'section':
-        return `<section id="${id}" class="mr-section" ${bg?`style="background:${bg}"`:''} >${children}</section>`;
+        return `<section id="${id}" class="mr-section" ${lineAttr} ${bg?`style="background:${bg}"`:''} >${children}</section>`;
       case 'header':
-        return `<div class="mr-header">${children}</div>`;
+        return `<div class="mr-header" ${lineAttr}>${children}</div>`;
       case 'footer':
-        return `<footer class="mr-footer">${children}</footer>`;
+        return `<footer class="mr-footer" ${lineAttr}>${children}</footer>`;
       case 'row':
         const jc = hasMod(tokens,'center') ? 'justify-content:center;' : '';
         const gapR = gap ? `gap:${gap}px;` : '';
-        return `<div class="mr-row" style="${jc}${gapR}">${children}</div>`;
+        return `<div class="mr-row" ${lineAttr} style="${jc}${gapR}">${children}</div>`;
       case 'column':
       case 'col':
-        return `<div class="mr-column">${children}</div>`;
+        return `<div class="mr-column" ${lineAttr}>${children}</div>`;
       case 'grid':
         const gridCols = cols ? `grid-template-columns:repeat(${cols},1fr);` : '';
         const gridGap  = gap ? `gap:${gap}px;` : '';
-        return `<div class="mr-grid" style="${gridCols}${gridGap}">${children}</div>`;
+        return `<div class="mr-grid" ${lineAttr} style="${gridCols}${gridGap}">${children}</div>`;
       case 'card':
         const glassC = hasMod(tokens,'glass') ? ' glass' : '';
-        return `<div class="mr-card${glassC}" ${bg?`style="background:${bg}"`:''} >${children}</div>`;
+        return `<div class="mr-card${glassC}" ${lineAttr} ${bg?`style="background:${bg}"`:''} >${children}</div>`;
       case 'box':
-        return `<div class="mr-box">${children}</div>`;
+        return `<div class="mr-box" ${lineAttr}>${children}</div>`;
       case 'list':
-        return `<ul class="mr-list">${children}</ul>`;
+        return `<ul class="mr-list" ${lineAttr}>${children}</ul>`;
       case 'form':
-        return `<form class="mr-form" onsubmit="return false">${children}</form>`;
+        return `<form class="mr-form" ${lineAttr} onsubmit="return false">${children}</form>`;
       default:
-        return `<div>${children}</div>`;
+        return `<div ${lineAttr}>${children}</div>`;
     }
   }
 
-  function renderInline(type, tokens, vars) {
+  function renderInline(type, tokens, vars, lineIdx) {
     const label   = getLabel(tokens) || '';
     const colorT  = tokens.find(t => COLOR_MAP[t.toLowerCase()]);
     const color   = getProp(tokens, 'color') || (colorT ? COLOR_MAP[colorT.toLowerCase()] : null);
     const size    = tokens.find(t => SIZE_MAP.includes(t.toLowerCase()));
     const hasProp = (k) => getProp(tokens, k);
+    const lineAttr = `data-line="${lineIdx}"`;
 
     switch(type) {
       case 'title': {
@@ -1072,16 +1079,16 @@ function compileLines(lines) {
         const glow  = hasMod(tokens,'glow');
         const cls   = `mr-title${size ? ' mr-title-size-'+size : ''}${glow ? ' mr-glow' : ''}`;
         const st    = color ? `color:${color}` : '';
-        return `<${tag} class="${cls}" ${st?`style="${st}"`:''}>${label}</${tag}>`;
+        return `<${tag} class="${cls}" ${lineAttr} ${st?`style="${st}"`:''}>${label}</${tag}>`;
       }
       case 'subtitle':
-        return `<p class="mr-subtitle" ${color?`style="color:${color}"`:''}>${label}</p>`;
+        return `<p class="mr-subtitle" ${lineAttr} ${color?`style="color:${color}"`:''}>${label}</p>`;
       case 'text':
-        return `<p class="mr-text" ${color?`style="color:${color}"`:''}>${label}</p>`;
+        return `<p class="mr-text" ${lineAttr} ${color?`style="color:${color}"`:''}>${label}</p>`;
       case 'label':
-        return `<label class="mr-label" for="${hasProp('for')||''}">${label}</label>`;
+        return `<label class="mr-label" ${lineAttr} for="${hasProp('for')||''}">${label}</label>`;
       case 'item':
-        return `<li class="mr-item">${label}</li>`;
+        return `<li class="mr-item" ${lineAttr}>${label}</li>`;
       case 'button': {
         const bc  = btnColor(tokens);
         const siz = size === 'big' ? 'mr-btn-big' : size === 'small' ? 'mr-btn-small' : '';
@@ -1089,11 +1096,11 @@ function compileLines(lines) {
         const cls = `mr-button ${siz} ${out}`.trim();
         const act = hasProp('action') || '';
         const st  = bc && !out ? `background:${bc.background};box-shadow:${bc.boxShadow}` : '';
-        return `<button class="${cls}" ${st?`style="${st}"`:''}  onclick="${act ? resolveAction(act) : 'void 0'}" >${label || 'Button'}</button>`;
+        return `<button class="${cls}" ${lineAttr} ${st?`style="${st}"`:''}  onclick="${act ? resolveAction(act) : 'void 0'}" >${label || 'Button'}</button>`;
       }
       case 'link': {
         const url = hasProp('url') || '#';
-        return `<a class="mr-link" href="${url}" ${color?`style="color:${color}"`:''}>${label || url}</a>`;
+        return `<a class="mr-link" ${lineAttr} href="${url}" ${color?`style="color:${color}"`:''}>${label || url}</a>`;
       }
       case 'image': {
         const src = hasProp('src') || label || '';
@@ -1101,32 +1108,32 @@ function compileLines(lines) {
         const shd = hasMod(tokens,'shadow') ? ' mr-shadow' : '';
         const w   = hasProp('width'); const h = hasProp('height');
         const imgStyle = (w || h) ? 'style="' + (w ? 'width:'+w+'px;' : '') + (h ? 'height:'+h+'px;' : '') + '"' : '';
-        return '<img class="mr-image' + rnd + shd + '" src="' + src + '" alt="' + (label || '') + '" ' + imgStyle + '/>';
+        return '<img class="mr-image' + rnd + shd + '" ' + lineAttr + ' src="' + src + '" alt="' + (label || '') + '" ' + imgStyle + '/>';
       }
       case 'icon': {
         const ic = ICON_MAP[label.toLowerCase()] || `fa-${label.toLowerCase() || 'star'}`;
         const sz = hasProp('size');
-        return `<i class="mr-icon fa ${ic}" ${color||sz?`style="${color?'color:'+color+';':''}${sz?'font-size:'+sz+'px;':''}"`:''}></i>`;
+        return `<i class="mr-icon fa ${ic}" ${lineAttr} ${color||sz?`style="${color?'color:'+color+';':''}${sz?'font-size:'+sz+'px;':''}"`:''}></i>`;
       }
       case 'input': {
         const t   = hasProp('type') || 'text';
         const ph  = hasProp('placeholder') || label || '';
         const id  = hasProp('id') || '';
-        return `<input class="mr-input" type="${t}" placeholder="${ph}" id="${id}" name="${id}">`;
+        return `<input class="mr-input" ${lineAttr} type="${t}" placeholder="${ph}" id="${id}" name="${id}">`;
       }
       case 'logo':
-        return `<div class="mr-nav-logo">${label}</div>`;
+        return `<div class="mr-nav-logo" ${lineAttr}>${label}</div>`;
       case 'links':
-        return `<div class="mr-nav-links">${tokens.filter(t=>!t.includes(':')).map(it => `<a class="mr-nav-item" href="#${it.toLowerCase()}">${it}</a>`).join('')}</div>`;
+        return `<div class="mr-nav-links" ${lineAttr}>${tokens.filter(t=>!t.includes(':')).map(it => `<a class="mr-nav-item" href="#${it.toLowerCase()}">${it}</a>`).join('')}</div>`;
       case 'divider':
-        return `<hr class="mr-divider">`;
+        return `<hr class="mr-divider" ${lineAttr}>`;
       case 'spacer': {
         const sz = hasProp('size') || '40';
-        return `<div class="mr-spacer" style="height:${sz}px"></div>`;
+        return `<div class="mr-spacer" ${lineAttr} style="height:${sz}px"></div>`;
       }
       case 'video': {
         const src = hasProp('src') || label || '';
-        return `<video class="mr-video" src="${src}" controls></video>`;
+        return `<video class="mr-video" ${lineAttr} src="${src}" controls></video>`;
       }
       default:
         return '';
@@ -1195,9 +1202,41 @@ body{font-family:var(--mr-font);background:var(--mr-dark);color:var(--mr-text);l
 .mr-spacer{display:block}
 </style>
 </head>
-<body>
-${body}
-</body></html>`;
+</body>
+<script>
+(function() {
+  let activeOutline = null;
+
+  document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest('[data-line]');
+    if (el && el !== activeOutline) {
+      if (activeOutline) activeOutline.style.outline = 'none';
+      activeOutline = el;
+      activeOutline.style.outline = '2px dashed #C8963A';
+      activeOutline.style.outlineOffset = '2px';
+      activeOutline.title = 'Click to jump to line in code editor';
+    }
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    if (activeOutline) {
+      activeOutline.style.outline = 'none';
+      activeOutline = null;
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-line]');
+    if (el) {
+      const line = parseInt(el.getAttribute('data-line'), 10);
+      if (!isNaN(line)) {
+        window.parent.postMessage({ type: 'JUMP_TO_LINE', line: line }, '*');
+      }
+    }
+  });
+})();
+<\/script>
+</html>`;
 }
 
 function switchTab(mode) {
@@ -1255,6 +1294,33 @@ function setZoom(level) {
       frame.style.height = `${heightPct}%`;
     }
   }
+}
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'JUMP_TO_LINE') {
+    const lineIndex = e.data.line;
+    jumpToLine(lineIndex);
+  }
+});
+
+function jumpToLine(lineIndex) {
+  if (editor) {
+    editor.scrollIntoView({ line: lineIndex, ch: 0 }, 100);
+    editor.setSelection({ line: lineIndex, ch: 0 }, { line: lineIndex, ch: 999 });
+    editor.focus();
+    const lineEl = document.getElementById('line-col');
+    if (lineEl) lineEl.textContent = `Ln ${lineIndex + 1}, Col 1`;
+  } else {
+    const txt = document.getElementById('code-textarea');
+    if (txt) {
+      const lines = txt.value.split('\n');
+      let pos = 0;
+      for (let k = 0; k < Math.min(lineIndex, lines.length); k++) pos += lines[k].length + 1;
+      txt.focus();
+      txt.setSelectionRange(pos, pos + (lines[lineIndex] || '').length);
+    }
+  }
+  showToast(`🎯 Auto-scrolled to Line ${lineIndex + 1}`);
 }
 
 function togglePreviewTheme() {
@@ -1326,6 +1392,30 @@ function downloadSource() {
   a.download   = 'index.mreasy';
   a.click();
   showToast('⬇️ Downloaded index.mreasy');
+}
+
+function exportZip() {
+  const source = getSourceCode();
+  try {
+    const html = browserCompile(source);
+    if (typeof JSZip !== 'undefined') {
+      const zip = new JSZip();
+      zip.file("index.html", html);
+      zip.file("index.mreasy", source);
+      zip.file("README.md", "# Built with MR.easy 🇪🇹\nCreated by @mrcute_killer\n\nTo view your site, double click `index.html`!");
+      zip.generateAsync({ type: "blob" }).then(content => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(content);
+        a.download = "mreasy-website.zip";
+        a.click();
+        showToast("📦 Exported full website ZIP!");
+      });
+    } else {
+      downloadHTML();
+    }
+  } catch (err) {
+    showToast("❌ " + err.message);
+  }
 }
 
 function copyHTML() {
