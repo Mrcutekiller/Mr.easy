@@ -1,0 +1,33 @@
+Mr.easy "Mr.easy — Built in Ethiopia 🇪🇹"
+
+nav
+  logo "Mr.easy"
+  links Home About Features IDE
+
+hero
+  title "Build Websites Fast" big glow
+  subtitle "MR.easy is the simplest programming language for building beautiful websites"
+  spacer size:24
+  row center
+    button "Try Web IDE" blue big
+    button "Learn More" outline
+
+section "features"
+  title "Why MR.easy?" medium center
+  spacer size:16
+  grid cols:3
+    card shadow
+      icon rocket
+      title "Fast" small
+      text "Build websites in minutes, not hours"
+    card shadow
+      icon bolt
+      title "Simple" small
+      text "Anyone can learn MR.easy in one day"
+    card shadow
+      icon heart
+      title "Beautiful" small
+      text "Every page looks stunning by default"
+
+footer
+  text "Made with ❤️ in Ethiopia 🇪🇹 using Mr.easy"
