@@ -1,0 +1,38 @@
+{
+  "name": "mreasy-vscode",
+  "displayName": "MR.easy Language Support",
+  "description": "Syntax highlighting, snippets, and language support for MR.easy (.mreasy) web language",
+  "version": "1.0.0",
+  "publisher": "Biruk",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "icon": "icon.png",
+  "contributes": {
+    "languages": [
+      {
+        "id": "mreasy",
+        "aliases": ["MR.easy", "mreasy"],
+        "extensions": [".mreasy"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mreasy",
+        "scopeName": "source.mreasy",
+        "path": "./syntaxes/mreasy.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "mreasy",
+        "path": "./snippets/mreasy.code-snippets"
+      }
+    ]
+  }
+}

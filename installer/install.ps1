@@ -102,6 +102,20 @@ try {
     Write-Host "  (Could not create shortcut)" -ForegroundColor Gray
 }
 
+# ── Install VS Code Extension ──────────────────────────────────────────────────
+Write-Step "Installing VS Code Extension for .mreasy syntax highlighting..."
+try {
+    $vscodeExtSrc = "$installDir\vscode-extension"
+    $vscodeExtDst = Join-Path $env:USERPROFILE ".vscode\extensions\mreasy-vscode-1.0.0"
+    if (Test-Path $vscodeExtSrc) {
+        if (Test-Path $vscodeExtDst) { Remove-Item -Path $vscodeExtDst -Recurse -Force }
+        Copy-Item -Path $vscodeExtSrc -Destination $vscodeExtDst -Recurse -Force
+        Write-OK "VS Code extension installed (Syntax highlighting for .mreasy enabled!)"
+    }
+} catch {
+    Write-Host "  (Could not install VS Code extension)" -ForegroundColor Gray
+}
+
 Pop-Location
 
 # ── Done ──────────────────────────────────────────────────────────────────────

@@ -1,0 +1,49 @@
+{
+  "MR.easy Header": {
+    "prefix": "mreasy",
+    "body": [
+      "Mr.easy \"${1:My Page Title}\"",
+      "",
+      "# IG @mrcute_killer",
+      "",
+      "nav",
+      "  logo \"${2:LogoName}\"",
+      "  links Home About Contact",
+      "",
+      "hero",
+      "  title \"${3:Build Websites Fast}\" big glow",
+      "  subtitle \"${4:Simple and beautiful}\"",
+      "  button \"${5:Get Started}\" blue big",
+      "",
+      "footer",
+      "  text \"Made with Mr.easy 🇪🇹\""
+    ],
+    "description": "Create a new MR.easy file header"
+  },
+  "Hero Section": {
+    "prefix": "hero",
+    "body": [
+      "hero",
+      "  title \"${1:Headline}\" big glow",
+      "  subtitle \"${2:Subtitle text}\"",
+      "  button \"${3:Action}\" blue big"
+    ],
+    "description": "Insert hero block"
+  },
+  "3-Column Grid": {
+    "prefix": "grid",
+    "body": [
+      "grid cols:3",
+      "  card shadow",
+      "    title \"${1:Card 1}\" small",
+      "    text \"${2:Description}\"",
+      "  card shadow",
+      "    title \"${3:Card 2}\" small",
+      "    text \"${4:Description}\"",
+      "  card shadow",
+      "    title \"${5:Card 3}\" small",
+      "    text \"${6:Description}\""
+    ],
+    "description": "Insert 3-column grid"
+  }
+}

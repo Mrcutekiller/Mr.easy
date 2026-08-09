@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "MR.easy",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#declaration" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#modifiers" },
+    { "include": "#properties" }
+  ],
+  "repository": {
+    "comments": {
+      "name": "comment.line.number-sign.mreasy",
+      "match": "#.*$"
+    },
+    "declaration": {
+      "name": "keyword.other.declaration.mreasy",
+      "match": "\\bMr\\.easy\\b"
+    },
+    "strings": {
+      "name": "string.quoted.double.mreasy",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.mreasy",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "numbers": {
+      "name": "constant.numeric.mreasy",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    "keywords": {
+      "name": "keyword.control.mreasy",
+      "match": "\\b(nav|hero|section|header|footer|row|column|col|grid|card|box|list|form|title|subtitle|text|label|item|button|link|image|img|video|icon|input|logo|links|menu|divider|spacer|set|repeat|times|if|else|end|show|hide|animate|component|use|function|call)\\b"
+    },
+    "modifiers": {
+      "name": "entity.other.attribute-name.mreasy",
+      "match": "\\b(big|medium|small|tiny|glow|shadow|rounded|outline|bold|italic|dark|light|gradient|glass|center|left|right|blue|red|green|purple|orange|pink|yellow|white|black|gray|on|off|float|autoplay|required|ordered)\\b"
+    },
+    "properties": {
+      "name": "variable.parameter.mreasy",
+      "match": "\\b[a-zA-Z_][\\w-]*:"
+    }
+  },
+  "scopeName": "source.mreasy"
+}

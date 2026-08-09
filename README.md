@@ -186,8 +186,20 @@ myproject/
 
 ---
 
+## VS Code Extension & Editor Support
+
+MR.easy comes with full VS Code syntax highlighting, indentation, and snippets!
+
+### Install in VS Code:
+```powershell
+powershell -ExecutionPolicy Bypass -File installer\install-vscode-extension.ps1
+```
+Or open VS Code, copy `vscode-extension/` to `%USERPROFILE%\.vscode\extensions\mreasy-vscode-1.0.0`, and restart VS Code.
+
+---
+
 ## License
 
 MIT — Free to use, modify, and share.
 
-**Created by Biruk** — Because building websites should be as easy as writing a list.
+**Created by Biruk** (IG: [@mrcute_killer](https://instagram.com/mrcute_killer)) — Ethiopia 🇪🇹
