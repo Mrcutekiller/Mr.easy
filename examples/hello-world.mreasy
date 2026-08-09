@@ -1,0 +1,45 @@
+Mr.easy "Hello World"
+
+# This is your first MR.easy program!
+# Lines starting with # are comments - they do nothing
+
+nav
+  logo "My First Site"
+  links Home About Contact
+
+hero
+  title "Hello, World!" big glow
+  subtitle "I just built my first website with MR.easy!"
+  spacer size:24
+  row center
+    button "I Love This!" blue big action:alert
+    button "Learn More" outline
+
+section "about"
+  title "About MR.easy" medium center
+  spacer size:16
+  grid cols:3
+    card shadow
+      icon rocket
+      title "Simple" small
+      text "Just write words. No brackets. No semicolons."
+    card shadow
+      icon bolt
+      title "Fast" small
+      text "From idea to website in under 5 minutes."
+    card shadow
+      icon heart
+      title "Beautiful" small
+      text "Every page looks amazing automatically."
+
+section "contact"
+  title "Say Hello" medium
+  form
+    label "Your Name" for:name
+    input placeholder:"Your name" id:name
+    label "Your Email" for:email
+    input type:email placeholder:"your@email.com" id:email
+    button "Send Message" blue
+
+footer
+  text "Made with ❤️ using Mr.easy — the world's simplest web language"

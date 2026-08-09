@@ -1,0 +1,25 @@
+{
+  "name": "mreasy",
+  "version": "1.0.0",
+  "description": "MR.easy — The simple, beautiful programming language for websites",
+  "main": "cli/index.js",
+  "bin": {
+    "mreasy": "./cli/index.js"
+  },
+  "scripts": {
+    "start": "node cli/index.js run",
+    "build": "node cli/index.js build",
+    "ide": "node cli/ide-server.js"
+  },
+  "keywords": ["mreasy", "language", "web", "compiler", "html"],
+  "author": "Biruk",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "open": "^8.4.2"
+  }
+}

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MR.easy IDE — The Simple Web Language</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── TOP BAR ──────────────────────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">
+      <span class="logo-mr">Mr</span><span class="logo-dot">.</span><span class="logo-easy">easy</span>
+      <span class="logo-badge">IDE 🇪🇹</span>
+    </div>
+    <div class="file-info">
+      <i class="fa fa-file-code"></i>
+      <span id="filename">index.mreasy</span>
+      <span class="dot-indicator" id="saved-indicator" title="Saved"></span>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('editor')">
+        <i class="fa fa-code"></i> Editor
+      </div>
+      <div class="tab" onclick="switchTab('preview')">
+        <i class="fa fa-eye"></i> Preview
+      </div>
+      <div class="tab" onclick="switchTab('split')">
+        <i class="fa fa-table-columns"></i> Split
+      </div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-icon" onclick="formatCode()" title="Format Code">
+      <i class="fa fa-wand-magic-sparkles"></i>
+    </button>
+    <button class="btn-icon" onclick="copyHTML()" title="Copy HTML Output">
+      <i class="fa fa-copy"></i>
+    </button>
+    <button class="btn-icon" onclick="downloadHTML()" title="Download HTML">
+      <i class="fa fa-download"></i>
+    </button>
+    <button class="btn-run" onclick="runCode()">
+      <i class="fa fa-play"></i> Run
+    </button>
+  </div>
+</header>
+
+<!-- ── MAIN LAYOUT ──────────────────────────────────────────────────────────── -->
+<div class="workspace" id="workspace">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">SNIPPETS</div>
+      <div class="snippet-list" id="snippet-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">EXAMPLES</div>
+      <div class="example-list" id="example-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">LANGUAGE GUIDE</div>
+      <div class="guide-items">
+        <div class="guide-item" onclick="showGuide()">
+          <i class="fa fa-book"></i> Full Reference
+        </div>
+        <div class="guide-item" onclick="showCheatsheet()">
+          <i class="fa fa-list"></i> Cheatsheet
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── EDITOR PANEL ── -->
+  <div class="editor-panel" id="editor-panel">
+    <div class="editor-toolbar">
+      <div class="editor-info">
+        <span class="line-col" id="line-col">Ln 1, Col 1</span>
+        <span class="lang-badge">MR.easy</span>
+      </div>
+      <div class="editor-actions">
+        <button class="mini-btn" onclick="decreaseFontSize()"><i class="fa fa-minus"></i></button>
+        <span class="font-size-label" id="font-size-label">14px</span>
+        <button class="mini-btn" onclick="increaseFontSize()"><i class="fa fa-plus"></i></button>
+      </div>
+    </div>
+    <div id="codemirror-container"></div>
+  </div>
+
+  <!-- ── DIVIDER ── -->
+  <div class="divider" id="divider" onmousedown="startResize(event)"></div>
+
+  <!-- ── PREVIEW PANEL ── -->
+  <div class="preview-panel" id="preview-panel">
+    <div class="preview-toolbar">
+      <div class="preview-info">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="preview-status">Live Preview</span>
+      </div>
+      <div class="preview-actions">
+        <button class="mini-btn" onclick="refreshPreview()" title="Refresh">
+          <i class="fa fa-rotate-right"></i>
+        </button>
+        <button class="mini-btn" onclick="openInNewTab()" title="Open in new tab">
+          <i class="fa fa-arrow-up-right-from-square"></i>
+        </button>
+        <div class="viewport-switcher">
+          <button class="vp-btn active" onclick="setViewport('desktop')" title="Desktop">
+            <i class="fa fa-desktop"></i>
+          </button>
+          <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet">
+            <i class="fa fa-tablet-screen-button"></i>
+          </button>
+          <button class="vp-btn" onclick="setViewport('mobile')" title="Mobile">
+            <i class="fa fa-mobile-screen-button"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="preview-frame-wrapper" id="preview-frame-wrapper">
+      <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ── STATUS BAR ─────────────────────────────────────────────────────────── -->
+<div class="statusbar">
+  <div class="statusbar-left">
+    <span><i class="fa fa-circle-check" style="color:#22c55e"></i> MR.easy v1.0.0</span>
+    <span id="sb-errors"></span>
+  </div>
+  <div class="statusbar-right">
+    <span id="sb-chars">0 chars</span>
+    <span>UTF-8</span>
+  </div>
+</div>
+
+<!-- ── GUIDE MODAL ──────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="guide-modal" onclick="closeModal('guide-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fa fa-book"></i> MR.easy Language Reference</h2>
+      <button onclick="closeModal('guide-modal')"><i class="fa fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="guide-content"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ───────────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

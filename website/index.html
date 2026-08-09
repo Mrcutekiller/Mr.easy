@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mr.easy — Built in Ethiopia. For Everyone.</title>
+  <meta name="description" content="Mr.easy is an Ethiopian-born programming language for building beautiful websites. Simple, powerful, and free.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <style>
+    /* ─── ETHIOPIA TOKENS ──────────────────────────────────────────────────── */
+    :root {
+      /* Palette: deep night soil + Adwa gold + Simien green */
+      --bg:       #09080A;        /* Almost black, warm-cool night */
+      --bg2:      #0f0e10;
+      --bg3:      #141214;
+      --bg4:      #1a181c;
+      --surface:  #201e23;
+
+      --gold:     #C8963A;        /* Adwa shield gold */
+      --gold2:    #E8B45A;        /* Lighter gold highlight */
+      --gold-dim: rgba(200,150,58,0.12);
+      --green:    #4A7A2E;        /* Simien Mountains green */
+      --green2:   #5E9A3A;
+      --red:      #8B2020;        /* Ethiopian coffee red — used sparingly */
+
+      --line:     rgba(255,255,255,0.06);
+      --line2:    rgba(255,255,255,0.10);
+      --line-g:   rgba(200,150,58,0.2);  /* gold border */
+
+      --text:     #F2EAD8;        /* Warm cream — like injera */
+      --text2:    #9A9180;        /* Warm muted */
+      --text3:    #5A5248;        /* Warm dark muted */
+
+      --font:     'Inter', -apple-system, sans-serif;
+      --serif:    'Playfair Display', Georgia, serif;
+      --mono:     'DM Mono', monospace;
+      --ease:     cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::-webkit-scrollbar { width: 2px; }
+    ::-webkit-scrollbar-thumb { background: var(--gold); opacity: 0.4; }
+
+    /* ─── CANVAS ───────────────────────────────────────────────────────────── */
+    #bg-canvas {
+      position: fixed; inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── ETHIOPIAN PATTERN OVERLAY ────────────────────────────────────────── */
+    /* Subtle tibeb-inspired repeating geometric border */
+    .eth-pattern {
+      pointer-events: none;
+      position: absolute;
+      left: 0; right: 0;
+      height: 3px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--gold) 0px,
+        var(--gold) 4px,
+        var(--green) 4px,
+        var(--green) 8px,
+        var(--red)   8px,
+        var(--red)   12px,
+        transparent  12px,
+        transparent  16px
+      );
+      opacity: 0.7;
+    }
+    .eth-pattern.top    { top: 0; }
+    .eth-pattern.bottom { bottom: 0; }
+
+    /* ─── NAV ──────────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 56px;
+      background: rgba(9,8,10,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--line);
+    }
+    nav .eth-pattern { top: 0; }
+
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: -0.3px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-logo .dot { color: var(--gold); }
+    .nav-logo .flag { font-size: 0.85rem; }
+
+    .nav-links {
+      display: flex; align-items: center;
+      gap: 32px; list-style: none;
+    }
+    .nav-links a {
+      color: var(--text2);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-btn {
+      background: var(--gold) !important;
+      color: #080706 !important;
+      padding: 8px 20px;
+      border-radius: 5px;
+      font-weight: 500 !important;
+      font-size: 0.84rem !important;
+      transition: opacity 0.2s !important;
+    }
+    .nav-btn:hover { opacity: 0.88; }
+
+    /* ─── SHARED ───────────────────────────────────────────────────────────── */
+    section, .wrap { position: relative; z-index: 1; }
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 56px; }
+
+    .s-label {
+      font-size: 0.7rem; font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .s-title {
+      font-size: clamp(1.9rem, 3.8vw, 3rem);
+      font-weight: 300;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .s-desc {
+      font-size: 0.92rem;
+      color: var(--text2);
+      line-height: 1.85;
+      max-width: 520px;
+    }
+
+    .fade-up { opacity: 0; transform: translateY(20px); }
+
+    /* ─── HERO ─────────────────────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 110px 48px 100px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Adwa sun: subtle radial glow behind hero */
+    #hero::before {
+      content: '';
+      position: absolute;
+      top: 30%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,150,58,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-origin {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 44px;
+      opacity: 0; transform: translateY(12px);
+    }
+    .origin-line {
+      width: 32px; height: 1px;
+      background: var(--gold);
+      opacity: 0.5;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 7vw, 6.2rem);
+      font-weight: 300;
+      line-height: 1.06;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      margin-bottom: 8px;
+      opacity: 0; transform: translateY(20px);
+    }
+    .hero-title .serif-em {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--gold);
+      letter-spacing: -0.02em;
+    }
+
+    .hero-subtitle-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 40px;
+      opacity: 0; transform: translateY(14px);
+    }
+    .hbar { width: 24px; height: 1px; background: var(--gold); opacity: 0.5; }
+    .hero-tagline {
+      font-size: 0.88rem;
+      color: var(--text2);
+      letter-spacing: 0.04em;
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--text2);
+      max-width: 480px;
+      line-height: 1.8;
+      margin-bottom: 52px;
+      opacity: 0; transform: translateY(14px);
+    }
+
+    .hero-install {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--bg3);
+      border: 1px solid var(--line-g);
+      border-radius: 7px;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--text2);
+      max-width: 380px;
+      overflow: hidden;
+      margin-bottom: 28px;
+      opacity: 0; transform: translateY(12px);
+    }
+    .hero-install-prompt { padding: 14px 16px; color: var(--gold); opacity: 0.7; border-right: 1px solid var(--line); user-select: none; }
+    .hero-install-cmd    { padding: 14px 16px; color: var(--text); flex: 1; }
+    .hero-install-copy   {
+      padding: 14px 16px;
+      cursor: pointer; color: var(--text3);
+      border-left: 1px solid var(--line);
+      background: none; border-top: none; border-bottom: none; border-right: none;
+      font-family: var(--mono); font-size: 0.82rem;
+      transition: color 0.2s;
+    }
+    .hero-install-copy:hover { color: var(--gold); }
+
+    .hero-actions {
+      display: flex; gap: 12px; justify-content: center;
+      opacity: 0; transform: translateY(10px);
+    }
+    .btn-gold {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--gold);
+      color: #080706;
+      padding: 12px 32px; border-radius: 6px;
+      font-size: 0.875rem; font-weight: 500; font-family: var(--font);
+      text-decoration: none; border: none; cursor: pointer;
+      transition: opacity 0.2s var(--ease);
+    }
+    .btn-gold:hover { opacity: 0.86; }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--text2);
+      padding: 12px 32px; border-radius: 6px;
+      font-size: 0.875rem; font-weight: 400; font-family: var(--font);
+      text-decoration: none; border: 1px solid var(--line2); cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+    .btn-outline:hover { color: var(--text); border-color: rgba(200,150,58,0.3); }
+
+    /* ─── HERITAGE BANNER ──────────────────────────────────────────────────── */
+    .heritage-bar {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 28px 56px;
+      overflow: hidden;
+    }
+    .heritage-bar::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(200,150,58,0.04), transparent);
+    }
+    .heritage-inner {
+      max-width: 1080px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 32px;
+    }
+    .heritage-item { text-align: center; }
+    .heritage-num {
+      font-family: var(--serif);
+      font-size: 1.9rem;
+      font-weight: 400;
+      color: var(--gold);
+      display: block;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .heritage-label {
+      font-size: 0.72rem;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .heritage-divider {
+      width: 1px; height: 40px;
+      background: var(--line);
+    }
+
+    /* ─── ADWA QUOTE ───────────────────────────────────────────────────────── */
+    #adwa {
+      padding: 100px 56px;
+      position: relative; z-index: 1;
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+    }
+    .adwa-quote {
+      font-family: var(--serif);
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.5;
+      max-width: 720px;
+      margin: 0 auto 24px;
+      letter-spacing: -0.01em;
+    }
+    .adwa-quote .gold { color: var(--gold); }
+    .adwa-source {
+      font-size: 0.78rem;
+      color: var(--text3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    /* Decorative Adwa cross element */
+    .adwa-deco {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      margin-bottom: 48px;
+    }
+    .adwa-deco-line { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); opacity: 0.4; }
+    .adwa-deco-line.rev { transform: scaleX(-1); }
+    .adwa-cross {
+      font-size: 1.3rem; color: var(--gold); opacity: 0.6;
+    }
+
+    /* ─── HOW IT WORKS ─────────────────────────────────────────────────────── */
+    #how { padding: 120px 0; }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 56px;
+    }
+    .how-step {
+      padding: 40px 28px;
+      background: var(--bg2);
+      transition: background 0.3s;
+      opacity: 0; transform: translateY(20px);
+      position: relative;
+    }
+    .how-step::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s var(--ease);
+    }
+    .how-step:hover { background: var(--bg3); }
+    .how-step:hover::after { transform: scaleX(1); }
+    .how-step:not(:last-child) { border-right: 1px solid var(--line); }
+    .step-n {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--gold);
+      opacity: 0.6;
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+    }
+    .step-icon {
+      width: 34px; height: 34px;
+      border: 1px solid var(--line-g);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+    }
+    .step-t { font-size: 0.92rem; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+    .step-d { font-size: 0.81rem; color: var(--text2); line-height: 1.75; }
+    .step-code {
+      margin-top: 14px;
+      font-family: var(--mono); font-size: 0.73rem;
+      color: var(--text2);
+      background: var(--bg4);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 9px 12px;
+    }
+
+    /* ─── SYNTAX ───────────────────────────────────────────────────────────── */
+    #syntax { padding: 120px 0; border-top: 1px solid var(--line); }
+    .syntax-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+      margin-top: 56px;
+    }
+    .syntax-editor {
+      background: var(--bg2);
+      border: 1px solid var(--line-g);
+      border-radius: 10px;
+      overflow: hidden;
+      font-family: var(--mono);
+      font-size: 0.79rem;
+      line-height: 1.9;
+    }
+    .editor-bar {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--line);
+      padding: 11px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--bg4); }
+    .fname { font-size: 0.7rem; color: var(--text3); margin-left: 6px; }
+    .editor-body { padding: 22px; }
+    .ln  { color: var(--text3); margin-right: 18px; font-size: 0.68rem; display: inline-block; min-width: 16px; text-align: right; }
+    .dc  { color: var(--gold2); font-weight: 500; }
+    .kd  { color: #B8A888; }
+    .st  { color: #8FA898; }
+    .md  { color: #9A8870; }
+    .pr  { color: #807060; }
+    .cm  { color: #3a3530; }
+
+    .syntax-ref { display: flex; flex-direction: column; }
+    .ref-item {
+      display: flex; align-items: flex-start; gap: 18px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+      opacity: 0; transform: translateX(14px);
+    }
+    .ref-item:last-child { border-bottom: none; }
+    .ref-kw {
+      font-family: var(--mono); font-size: 0.73rem;
+      color: var(--text2);
+      background: var(--bg3);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 4px 10px;
+      white-space: nowrap;
+      min-width: 155px; flex-shrink: 0;
+    }
+    .ref-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.65; padding-top: 4px; }
+    .ref-desc strong { color: var(--text); font-weight: 500; }
+
+    /* ─── ABOUT ────────────────────────────────────────────────────────────── */
+    #about { padding: 120px 0; border-top: 1px solid var(--line); }
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .about-card {
+      background: var(--bg2);
+      border: 1px solid var(--line-g);
+      border-radius: 12px;
+      padding: 44px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Ethiopian cross watermark */
+    .about-card::after {
+      content: '✞';
+      position: absolute;
+      bottom: -20px; right: -10px;
+      font-size: 9rem;
+      color: rgba(200,150,58,0.04);
+      pointer-events: none;
+      line-height: 1;
+    }
+    .about-avatar {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: var(--bg4);
+      border: 1px solid var(--line-g);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .about-name { font-size: 1.25rem; font-weight: 400; color: var(--text); margin-bottom: 3px; }
+    .about-role { font-size: 0.79rem; color: var(--gold); margin-bottom: 24px; letter-spacing: 0.05em; }
+    .about-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 24px; }
+    .tag {
+      background: rgba(200,150,58,0.08);
+      border: 1px solid rgba(200,150,58,0.2);
+      color: var(--text2); font-size: 0.71rem;
+      padding: 4px 12px; border-radius: 100px;
+    }
+    .about-quote {
+      font-family: var(--serif);
+      font-size: 0.92rem;
+      color: var(--text2);
+      line-height: 1.85;
+      border-left: 2px solid rgba(200,150,58,0.4);
+      padding-left: 16px;
+      font-style: italic;
+    }
+
+    .timeline { display: flex; flex-direction: column; gap: 32px; }
+    .tl-item { display: flex; gap: 18px; }
+    .tl-left { display: flex; flex-direction: column; align-items: center; }
+    .tl-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold); opacity: 0.5; margin-top: 6px; flex-shrink: 0;
+    }
+    .tl-line { width: 1px; flex: 1; background: var(--line); margin-top: 6px; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-date { font-family: var(--mono); font-size: 0.68rem; color: var(--gold); opacity: 0.7; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+    .tl-t { font-size: 0.88rem; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .tl-d { font-size: 0.8rem; color: var(--text2); line-height: 1.7; }
+
+    /* ─── INSTALL ──────────────────────────────────────────────────────────── */
+    #install { padding: 120px 0; border-top: 1px solid var(--line); }
+    .install-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 56px;
+    }
+    .install-col {
+      padding: 40px 30px;
+      background: var(--bg2);
+      opacity: 0; transform: translateY(18px);
+    }
+    .install-col:not(:last-child) { border-right: 1px solid var(--line); }
+    .install-col:hover { background: var(--bg3); }
+    .install-tag { font-size: 0.68rem; font-weight: 500; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 18px; }
+    .install-t { font-size: 1rem; font-weight: 400; color: var(--text); margin-bottom: 8px; }
+    .install-s { font-size: 0.8rem; color: var(--text2); margin-bottom: 28px; line-height: 1.65; }
+    .i-steps { display: flex; flex-direction: column; gap: 13px; }
+    .i-step { display: flex; gap: 10px; align-items: flex-start; }
+    .i-n { font-family: var(--mono); font-size: 0.67rem; color: var(--text3); margin-top: 2px; flex-shrink: 0; width: 14px; }
+    .i-content { flex: 1; }
+    .i-lbl { font-size: 0.73rem; color: var(--text3); margin-bottom: 5px; }
+    .i-cmd {
+      background: var(--bg3);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 8px 12px;
+      font-family: var(--mono); font-size: 0.74rem;
+      color: var(--text2);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .i-cmd:hover { border-color: rgba(200,150,58,0.25); }
+    .i-copy {
+      color: var(--text3); background: none; border: none;
+      cursor: pointer; font-size: 0.7rem; padding: 0;
+      flex-shrink: 0; transition: color 0.2s;
+    }
+    .i-copy:hover { color: var(--gold); }
+
+    /* ─── FEATURES ─────────────────────────────────────────────────────────── */
+    #features { padding: 120px 0; border-top: 1px solid var(--line); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 56px;
+    }
+    .feat {
+      padding: 34px 28px;
+      background: var(--bg2);
+      transition: background 0.25s;
+      opacity: 0; transform: translateY(16px);
+      position: relative; overflow: hidden;
+    }
+    .feat:not(:nth-child(3n)) { border-right: 1px solid var(--line); }
+    .feat:nth-child(1), .feat:nth-child(2), .feat:nth-child(3) { border-bottom: 1px solid var(--line); }
+    .feat:hover { background: var(--bg3); }
+    .feat-mark {
+      font-family: var(--mono); font-size: 0.75rem;
+      color: var(--gold); opacity: 0.5; margin-bottom: 14px;
+    }
+    .feat-t { font-size: 0.9rem; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+    .feat-d { font-size: 0.8rem; color: var(--text2); line-height: 1.8; }
+
+    /* ─── CTA ──────────────────────────────────────────────────────────────── */
+    #cta {
+      padding: 160px 56px;
+      text-align: center;
+      border-top: 1px solid var(--line);
+      position: relative; overflow: hidden;
+    }
+    #cta::before {
+      content: '';
+      position: absolute; top: 40%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,150,58,0.06) 0%, transparent 70%);
+    }
+    .cta-title {
+      position: relative;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 300;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+    .cta-title .serif-em { font-family: var(--serif); font-style: italic; color: var(--gold); font-weight: 400; }
+    .cta-sub { font-size: 0.92rem; color: var(--text2); margin-bottom: 44px; position: relative; }
+
+    /* ─── FOOTER ───────────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 60px 56px 40px;
+      position: relative; z-index: 1;
+    }
+    .footer-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 56px;
+    }
+    .footer-brand { max-width: 260px; }
+    .footer-logo { font-size: 1rem; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+    .footer-logo .dot { color: var(--gold); }
+    .footer-tagline { font-size: 0.8rem; color: var(--text2); line-height: 1.75; }
+    .footer-cols { display: flex; gap: 56px; }
+    .footer-col h5 { font-size: 0.68rem; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; opacity: 0.7; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a { font-size: 0.82rem; color: var(--text2); text-decoration: none; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom {
+      border-top: 1px solid var(--line);
+      padding-top: 28px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.76rem; color: var(--text3);
+    }
+    .footer-eth {
+      display: flex; align-items: center; gap: 8px; color: var(--gold); opacity: 0.6;
+      font-size: 0.72rem; letter-spacing: 0.06em;
+    }
+
+    /* ─── RESPONSIVE ───────────────────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      nav { padding: 0 24px; }
+      .nav-links { display: none; }
+      .container { padding: 0 24px; }
+      #hero, #adwa, #cta { padding-left: 24px; padding-right: 24px; }
+      .heritage-bar { padding: 24px; }
+      .how-steps, .install-grid, .features-grid { grid-template-columns: 1fr 1fr; }
+      .how-step:nth-child(2n) { border-right: none !important; }
+      .how-step:nth-child(1), .how-step:nth-child(2) { border-bottom: 1px solid var(--line); }
+      .install-col:nth-child(2) { border-right: none !important; }
+      .install-col:nth-child(1), .install-col:nth-child(2) { border-bottom: 1px solid var(--line); }
+      .feat:nth-child(2n) { border-right: none !important; }
+      .syntax-layout, .about-layout { grid-template-columns: 1fr; gap: 48px; }
+      .footer-top { flex-direction: column; gap: 36px; }
+      .footer-cols { flex-wrap: wrap; gap: 28px; }
+      .footer-bottom { flex-direction: column; gap: 12px; }
+    }
+    @media (max-width: 560px) {
+      .how-steps, .install-grid, .features-grid { grid-template-columns: 1fr; }
+      .how-step, .install-col, .feat { border-right: none !important; border-bottom: 1px solid var(--line) !important; }
+      .hero-install { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- ─── NAV ─────────────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="eth-pattern top"></div>
+  <div class="nav-logo">
+    Mr<span class="dot">.</span>easy
+    <span class="flag">🇪🇹</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#syntax">Syntax</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#install">Install</a></li>
+    <li><a href="ide/index.html" class="nav-btn">Open IDE</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ─────────────────────────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="hero-origin" id="hero-origin">
+    <span class="origin-line"></span>
+    Born in Ethiopia · Adwa, 2026
+    <span class="origin-line rev"></span>
+  </div>
+
+  <h1 class="hero-title" id="hero-title">
+    Build websites.<br>
+    <span class="serif-em">Like writing words.</span>
+  </h1>
+
+  <div class="hero-subtitle-bar" id="hero-sub-bar">
+    <div class="hbar"></div>
+    <div class="hero-tagline">The programming language anyone can learn in a day</div>
+    <div class="hbar"></div>
+  </div>
+
+  <p class="hero-desc" id="hero-desc">
+    Mr.easy turns plain, readable text into beautiful websites.
+    Every file starts with <code style="font-family:var(--mono); font-size:0.88em; color:var(--gold2)">Mr.easy</code> — then just write what you want, in plain words.
+  </p>
+
+  <div class="hero-install" id="hero-install">
+    <span class="hero-install-prompt">$_</span>
+    <span class="hero-install-cmd">mreasy new mywebsite</span>
+    <button class="hero-install-copy" onclick="copyInstall(this)">⎘</button>
+  </div>
+
+  <div class="hero-actions" id="hero-actions">
+    <a href="ide/index.html" class="btn-gold">Try in Browser</a>
+    <a href="#how" class="btn-outline">How it works</a>
+  </div>
+</section>
+
+<!-- ─── HERITAGE BAR ─────────────────────────────────────────────────────────── -->
+<div class="heritage-bar">
+  <div class="heritage-inner">
+    <div class="heritage-item">
+      <span class="heritage-num">30+</span>
+      <span class="heritage-label">Built-in Elements</span>
+    </div>
+    <div class="heritage-divider"></div>
+    <div class="heritage-item">
+      <span class="heritage-num">5 min</span>
+      <span class="heritage-label">To Learn the Basics</span>
+    </div>
+    <div class="heritage-divider"></div>
+    <div class="heritage-item">
+      <span class="heritage-num">0</span>
+      <span class="heritage-label">Brackets Needed</span>
+    </div>
+    <div class="heritage-divider"></div>
+    <div class="heritage-item">
+      <span class="heritage-num">1896</span>
+      <span class="heritage-label">Spirit of Adwa</span>
+    </div>
+    <div class="heritage-divider"></div>
+    <div class="heritage-item">
+      <span class="heritage-num">Free</span>
+      <span class="heritage-label">Forever Open Source</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADWA QUOTE ───────────────────────────────────────────────────────────── -->
+<section id="adwa">
+  <div class="adwa-deco fade-up">
+    <div class="adwa-deco-line"></div>
+    <div class="adwa-cross">✞</div>
+    <div class="adwa-deco-line rev"></div>
+  </div>
+  <blockquote class="adwa-quote fade-up">
+    "In 1896, Ethiopia stood alone and <span class="gold">proved to the world</span> that no victory is impossible.<br>
+    Mr.easy carries that same spirit — making the impossible simple."
+  </blockquote>
+  <div class="adwa-source fade-up">Inspired by the Battle of Adwa · March 1, 1896 · Ethiopia 🇪🇹</div>
+</section>
+
+<!-- ─── HOW IT WORKS ──────────────────────────────────────────────────────────── -->
+<section id="how">
+  <div class="container">
+    <div class="s-label fade-up">How it works</div>
+    <h2 class="s-title fade-up">From text to website<br>in four steps.</h2>
+    <p class="s-desc fade-up">No prior coding experience. No complex setup. Just write and see.</p>
+
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="step-n">01</div>
+        <div class="step-icon">💾</div>
+        <div class="step-t">Install</div>
+        <div class="step-d">Run the installer. It sets up the <code style="font-family:var(--mono); font-size:0.8em; color:var(--text)">mreasy</code> command and adds it to your PATH automatically.</div>
+        <div class="step-code">installer\install.ps1</div>
+      </div>
+      <div class="how-step">
+        <div class="step-n">02</div>
+        <div class="step-icon">✏️</div>
+        <div class="step-t">Write</div>
+        <div class="step-d">Create a <code style="font-family:var(--mono); font-size:0.8em; color:var(--text)">.mreasy</code> file. Start with <code style="font-family:var(--mono); font-size:0.8em; color:var(--gold2)">Mr.easy "Title"</code> and write the rest in plain words.</div>
+        <div class="step-code">Mr.easy "My Website"</div>
+      </div>
+      <div class="how-step">
+        <div class="step-n">03</div>
+        <div class="step-icon">⚡</div>
+        <div class="step-t">Preview</div>
+        <div class="step-d">Run <code style="font-family:var(--mono); font-size:0.8em; color:var(--text)">mreasy run</code> — browser opens instantly with live preview. Every change updates automatically.</div>
+        <div class="step-code">mreasy run</div>
+      </div>
+      <div class="how-step">
+        <div class="step-n">04</div>
+        <div class="step-icon">🌐</div>
+        <div class="step-t">Deploy</div>
+        <div class="step-d">Run <code style="font-family:var(--mono); font-size:0.8em; color:var(--text)">mreasy build</code> to get a single HTML file. Upload to Netlify, GitHub Pages, or any host.</div>
+        <div class="step-code">mreasy build</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SYNTAX ────────────────────────────────────────────────────────────────── -->
+<section id="syntax">
+  <div class="container">
+    <div class="s-label fade-up">The language</div>
+    <h2 class="s-title fade-up">No semicolons.<br>No brackets. Just words.</h2>
+    <p class="s-desc fade-up" style="margin-bottom:0">
+      Indent to nest. Add words like <code style="font-family:var(--mono); font-size:0.85em; color:var(--text)">big</code>, <code style="font-family:var(--mono); font-size:0.85em; color:var(--text)">glow</code>, or <code style="font-family:var(--mono); font-size:0.85em; color:var(--text)">blue</code> to style any element instantly.
+    </p>
+
+    <div class="syntax-layout">
+      <div class="syntax-editor fade-up">
+        <div class="editor-bar">
+          <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <span class="fname">portfolio.mreasy</span>
+        </div>
+        <div class="editor-body">
+          <div><span class="ln">1</span><span class="dc">Mr.easy</span> <span class="st">"Biruk's Portfolio"</span></div>
+          <div><span class="ln">2</span></div>
+          <div><span class="ln">3</span><span class="cm"># Navigation bar</span></div>
+          <div><span class="ln">4</span><span class="kd">nav</span></div>
+          <div><span class="ln">5</span>&nbsp;&nbsp;<span class="kd">logo</span> <span class="st">"Biruk"</span></div>
+          <div><span class="ln">6</span>&nbsp;&nbsp;<span class="kd">links</span> <span class="md">Home Work Contact</span></div>
+          <div><span class="ln">7</span></div>
+          <div><span class="ln">8</span><span class="cm"># Big hero section</span></div>
+          <div><span class="ln">9</span><span class="kd">hero</span></div>
+          <div><span class="ln">10</span>&nbsp;&nbsp;<span class="kd">title</span> <span class="st">"Hello, I'm Biruk"</span> <span class="md">big glow</span></div>
+          <div><span class="ln">11</span>&nbsp;&nbsp;<span class="kd">subtitle</span> <span class="st">"I build for the web"</span></div>
+          <div><span class="ln">12</span>&nbsp;&nbsp;<span class="kd">button</span> <span class="st">"View Work"</span> <span class="md">blue big</span></div>
+          <div><span class="ln">13</span></div>
+          <div><span class="ln">14</span><span class="cm"># 3-column project grid</span></div>
+          <div><span class="ln">15</span><span class="kd">section</span> <span class="st">"work"</span></div>
+          <div><span class="ln">16</span>&nbsp;&nbsp;<span class="kd">grid</span> <span class="pr">cols:3</span></div>
+          <div><span class="ln">17</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">card</span> <span class="md">shadow</span></div>
+          <div><span class="ln">18</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">icon</span> <span class="md">rocket</span></div>
+          <div><span class="ln">19</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kd">title</span> <span class="st">"Project"</span> <span class="md">small</span></div>
+          <div><span class="ln">20</span></div>
+          <div><span class="ln">21</span><span class="kd">footer</span></div>
+          <div><span class="ln">22</span>&nbsp;&nbsp;<span class="kd">text</span> <span class="st">"Made with Mr.easy 🇪🇹"</span></div>
+        </div>
+      </div>
+
+      <div class="syntax-ref">
+        <div class="ref-item"><code class="ref-kw">Mr.easy "Title"</code><div class="ref-desc"><strong>Required first line.</strong> Like &lt;!DOCTYPE html&gt; in HTML — every .mreasy file must begin with this.</div></div>
+        <div class="ref-item"><code class="ref-kw">nav / hero / section</code><div class="ref-desc">Layout containers. Indent inside with 2 spaces to add content.</div></div>
+        <div class="ref-item"><code class="ref-kw">title "Text" big glow</code><div class="ref-desc">Heading. Add <strong>big medium small</strong> for size; <strong>glow</strong> for gradient effect.</div></div>
+        <div class="ref-item"><code class="ref-kw">button "Label" blue</code><div class="ref-desc">Button. Color with <strong>blue red green purple orange</strong>. Add <strong>outline</strong> for ghost style.</div></div>
+        <div class="ref-item"><code class="ref-kw">grid cols:3</code><div class="ref-desc">Responsive grid. Set columns with the <strong>cols:</strong> property.</div></div>
+        <div class="ref-item"><code class="ref-kw">card shadow glass</code><div class="ref-desc">Content card. <strong>shadow</strong> adds depth; <strong>glass</strong> adds frosted effect.</div></div>
+        <div class="ref-item"><code class="ref-kw">repeat 3 times</code><div class="ref-desc">Loop block. Use <strong>{index}</strong> inside to get the iteration number.</div></div>
+        <div class="ref-item" style="border-bottom:none"><code class="ref-kw"># comment</code><div class="ref-desc">Lines starting with # are notes — completely ignored by the compiler.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ABOUT ─────────────────────────────────────────────────────────────────── -->
+<section id="about">
+  <div class="container">
+    <div class="s-label fade-up">About</div>
+    <h2 class="s-title fade-up">Built in Ethiopia.<br>For the whole world.</h2>
+
+    <div class="about-layout" style="margin-top:56px">
+      <div class="about-card fade-up">
+        <div class="about-avatar">B</div>
+        <div class="about-name">Biruk</div>
+        <div class="about-role">Creator · Mr.easy Programming Language</div>
+        <div class="about-tags">
+          <span class="tag">Addis Ababa, Ethiopia 🇪🇹</span>
+          <span class="tag">Language Designer</span>
+          <span class="tag">Developer</span>
+          <span class="tag">2026</span>
+        </div>
+        <div class="about-quote">
+          "Ethiopia won at Adwa with courage, unity, and intelligence against all odds. Mr.easy carries that same spirit — making web development possible for anyone, anywhere."
+        </div>
+      </div>
+
+      <div>
+        <p style="font-size:0.91rem; color:var(--text2); line-height:1.88; margin-bottom:44px">
+          Mr.easy was created in <strong style="color:var(--text); font-weight:500">2026</strong> in <strong style="color:var(--text); font-weight:500">Addis Ababa, Ethiopia</strong> by Biruk — a developer who wanted to give everyone the power to build beautiful websites, regardless of background or experience.
+          <br><br>
+          Just like the Battle of Adwa showed the world that Africans could stand tall and prevail — Mr.easy shows the world that coding doesn't have to be hard, and great tools can be born anywhere.
+        </p>
+
+        <div class="timeline">
+          <div class="tl-item fade-up">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div><div class="tl-date">Jan 2026</div><div class="tl-t">The Idea</div><div class="tl-d">Inspired by Adwa's spirit — the idea of making something powerful accessible to everyone.</div></div>
+          </div>
+          <div class="tl-item fade-up">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div><div class="tl-date">Mar 2026</div><div class="tl-t">First Compiler</div><div class="tl-d">The lexer, parser, and HTML compiler were built — turning .mreasy files into real websites.</div></div>
+          </div>
+          <div class="tl-item fade-up">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div><div class="tl-date">Jul 2026</div><div class="tl-t">Web IDE</div><div class="tl-d">AI-style browser IDE with live preview, syntax highlighting, and a full component library.</div></div>
+          </div>
+          <div class="tl-item fade-up">
+            <div class="tl-left"><div class="tl-dot"></div></div>
+            <div><div class="tl-date">Aug 2026</div><div class="tl-t">Public Launch</div><div class="tl-d">Mr.easy v1.0 — free, open source, and ready for the world. Born in Ethiopia. Built for everyone.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INSTALL ───────────────────────────────────────────────────────────────── -->
+<section id="install">
+  <div class="container">
+    <div class="s-label fade-up">Installation</div>
+    <h2 class="s-title fade-up">Three ways to start.</h2>
+    <p class="s-desc fade-up">Pick the method that works for you. Or skip it all and use the Web IDE.</p>
+
+    <div class="install-grid">
+      <div class="install-col">
+        <div class="install-tag">01 — Recommended</div>
+        <div class="install-t">Windows Installer</div>
+        <div class="install-s">One command. Installs everything, registers the mreasy command, and creates a Desktop shortcut to the IDE.</div>
+        <div class="i-steps">
+          <div class="i-step"><div class="i-n">1.</div><div class="i-content"><div class="i-lbl">Open PowerShell as Administrator</div><div class="i-cmd"><span>Right-click → Run as Admin</span></div></div></div>
+          <div class="i-step"><div class="i-n">2.</div><div class="i-content"><div class="i-lbl">Run the installer</div><div class="i-cmd"><span>powershell -File installer\install.ps1</span><button class="i-copy" onclick="copyText(this,'powershell -ExecutionPolicy Bypass -File installer\\install.ps1')">⎘</button></div></div></div>
+          <div class="i-step"><div class="i-n">3.</div><div class="i-content"><div class="i-lbl">Create your first project</div><div class="i-cmd"><span>mreasy new mysite</span><button class="i-copy" onclick="copyText(this,'mreasy new mysite')">⎘</button></div></div></div>
+        </div>
+      </div>
+
+      <div class="install-col">
+        <div class="install-tag">02 — Developer</div>
+        <div class="install-t">npm install</div>
+        <div class="install-s">For developers who prefer full manual control. Clone the project, install dependencies, and link globally.</div>
+        <div class="i-steps">
+          <div class="i-step"><div class="i-n">1.</div><div class="i-content"><div class="i-lbl">Install dependencies</div><div class="i-cmd"><span>npm install</span><button class="i-copy" onclick="copyText(this,'npm install')">⎘</button></div></div></div>
+          <div class="i-step"><div class="i-n">2.</div><div class="i-content"><div class="i-lbl">Register command globally</div><div class="i-cmd"><span>npm link</span><button class="i-copy" onclick="copyText(this,'npm link')">⎘</button></div></div></div>
+          <div class="i-step"><div class="i-n">3.</div><div class="i-content"><div class="i-lbl">Create and run your project</div><div class="i-cmd"><span>mreasy new mysite</span><button class="i-copy" onclick="copyText(this,'mreasy new mysite')">⎘</button></div></div></div>
+        </div>
+      </div>
+
+      <div class="install-col">
+        <div class="install-tag">03 — No Install</div>
+        <div class="install-t">Web IDE</div>
+        <div class="install-s">Zero setup required. Open in any browser, write code, see the result live, and download finished HTML.</div>
+        <div class="i-steps">
+          <div class="i-step"><div class="i-n">1.</div><div class="i-content"><div class="i-lbl">Open in your browser</div><div class="i-cmd"><span>ide/index.html</span></div></div></div>
+          <div class="i-step"><div class="i-n">2.</div><div class="i-content"><div class="i-lbl">Write and preview — no setup</div><div class="i-cmd" style="color:var(--text3)">Works instantly. Nothing to install. →</div></div></div>
+          <div class="i-step"><div class="i-n">3.</div><div class="i-content"><div class="i-lbl">Download your HTML</div><div class="i-cmd"><span>Click ⬇ Download in the IDE</span></div></div></div>
+        </div>
+        <div style="margin-top:24px">
+          <a href="ide/index.html" class="btn-gold" style="font-size:0.83rem; padding:10px 20px; border-radius:5px">Open Web IDE →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FEATURES ──────────────────────────────────────────────────────────────── -->
+<section id="features">
+  <div class="container">
+    <div class="s-label fade-up">Why Mr.easy</div>
+    <h2 class="s-title fade-up">Everything you need.<br>Nothing you don't.</h2>
+
+    <div class="features-grid">
+      <div class="feat">
+        <div class="feat-mark">— 01</div>
+        <div class="feat-t">Learn in minutes</div>
+        <div class="feat-d">No programming background needed. If you can write a shopping list, you can build a website with Mr.easy.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-mark">— 02</div>
+        <div class="feat-t">Live preview</div>
+        <div class="feat-d">Every change you type appears in your browser instantly. No refresh. No build step. Pure real-time feedback.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-mark">— 03</div>
+        <div class="feat-t">Beautiful by default</div>
+        <div class="feat-d">A complete design system is built in — dark mode, animations, grids, and responsive layouts. Automatic.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-mark">— 04</div>
+        <div class="feat-t">Mobile responsive</div>
+        <div class="feat-d">Every Mr.easy site works perfectly on phones, tablets, and desktops. Zero extra work required.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-mark">— 05</div>
+        <div class="feat-t">Pure HTML output</div>
+        <div class="feat-d">The compiler outputs clean HTML + CSS + JS. No frameworks. No dependencies in your site. Just files.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-mark">— 06</div>
+        <div class="feat-t">Deploy anywhere</div>
+        <div class="feat-d">One HTML file. Upload to GitHub Pages, Netlify, Vercel, or any host. It works everywhere, always.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ───────────────────────────────────────────────────────────────────── -->
+<section id="cta">
+  <div class="s-label fade-up" style="display:flex; justify-content:center; margin-bottom:18px">Get started</div>
+  <h2 class="cta-title fade-up">
+    Start with<br>
+    <span class="serif-em">Mr.easy "Your Website"</span>
+  </h2>
+  <p class="cta-sub fade-up">The first line of every Mr.easy file. Simple, memorable, unforgettable.</p>
+  <div style="display:flex; gap:12px; justify-content:center;" class="fade-up">
+    <a href="ide/index.html" class="btn-gold">Open IDE</a>
+    <a href="#how" class="btn-outline">Learn more</a>
+  </div>
+</section>
+
+<!-- ─── FOOTER ────────────────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">Mr<span class="dot">.</span>easy</div>
+      <div class="footer-tagline">A programming language born in Ethiopia. Simple, powerful, and free for everyone in the world.</div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h5>Language</h5>
+        <ul>
+          <li><a href="#syntax">Syntax guide</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="examples/hello-world.mreasy">Examples</a></li>
+          <li><a href="ide/index.html">Web IDE</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Install</h5>
+        <ul>
+          <li><a href="installer/install.ps1">PowerShell</a></li>
+          <li><a href="installer/install.bat">Batch file</a></li>
+          <li><a href="#install">npm link</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>About</h5>
+        <ul>
+          <li><a href="#about">The Creator</a></li>
+          <li><a href="README.md">README</a></li>
+          <li><a href="#features">Features</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Mr.easy — Created by Biruk</span>
+    <div class="footer-eth">🇪🇹 Made in Ethiopia · Spirit of Adwa · Free & Open Source</div>
+  </div>
+  <div class="eth-pattern bottom" style="margin-top:28px"></div>
+</footer>
+
+<!-- ─── SCRIPTS ───────────────────────────────────────────────────────────────── -->
+<script>
+// ─── THREE.JS: Ethiopian night sky / subtle gold particles ────────────────────
+(function() {
+  const canvas   = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.z = 5;
+
+  const group = new THREE.Group();
+
+  // Sparse dim gold wireframe shapes
+  const geos = [
+    new THREE.IcosahedronGeometry(0.8, 0),
+    new THREE.OctahedronGeometry(0.7, 0),
+    new THREE.TetrahedronGeometry(0.6, 0),
+  ];
+  for (let i = 0; i < 6; i++) {
+    const g   = geos[i % geos.length].clone();
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0x7a5a20, wireframe: true, transparent: true,
+      opacity: 0.08 + Math.random() * 0.06,
+    });
+    const m = new THREE.Mesh(g, mat);
+    m.scale.setScalar(0.5 + Math.random() * 0.9);
+    m.position.set(
+      (Math.random() - 0.5) * 18,
+      (Math.random() - 0.5) * 10,
+      (Math.random() - 0.5) * 4 - 2
+    );
+    m.userData = {
+      rx: (Math.random() - 0.5) * 0.004,
+      ry: (Math.random() - 0.5) * 0.006,
+      fy: 0.15 + Math.random() * 0.25,
+      fo: Math.random() * Math.PI * 2,
+      by: m.position.y,
+    };
+    group.add(m);
+  }
+
+  // Gold dot stars
+  const N   = 180;
+  const pos = new Float32Array(N * 3);
+  for (let i = 0; i < N * 3; i++) pos[i] = (Math.random() - 0.5) * 26;
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  group.add(new THREE.Points(starGeo, new THREE.PointsMaterial({
+    color: 0x5a4010, size: 0.04, transparent: true, opacity: 0.9
+  })));
+
+  // Dim white stars (distant)
+  const W   = 300;
+  const wpos = new Float32Array(W * 3);
+  for (let i = 0; i < W * 3; i++) wpos[i] = (Math.random() - 0.5) * 40;
+  const wGeo = new THREE.BufferGeometry();
+  wGeo.setAttribute('position', new THREE.BufferAttribute(wpos, 3));
+  group.add(new THREE.Points(wGeo, new THREE.PointsMaterial({
+    color: 0x2a2520, size: 0.03, transparent: true, opacity: 0.7
+  })));
+
+  scene.add(group);
+
+  let mouseX = 0, mouseY = 0, clock = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth - 0.5);
+    mouseY = (e.clientY / window.innerHeight - 0.5);
+  });
+
+  function tick() {
+    requestAnimationFrame(tick);
+    clock += 0.01;
+    group.children.forEach(m => {
+      if (!m.userData.rx) return;
+      m.rotation.x += m.userData.rx;
+      m.rotation.y += m.userData.ry;
+      m.position.y  = m.userData.by + Math.sin(clock * m.userData.fy + m.userData.fo) * 0.2;
+    });
+    group.rotation.y += (mouseX * 0.25 - group.rotation.y) * 0.025;
+    group.rotation.x += (-mouseY * 0.15 - group.rotation.x) * 0.025;
+    renderer.render(scene, camera);
+  }
+  tick();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
+// ─── GSAP ─────────────────────────────────────────────────────────────────────
+gsap.registerPlugin(ScrollTrigger);
+
+gsap.timeline({ defaults: { ease: 'power2.out' } })
+  .to('#hero-origin',   { opacity: 1, y: 0, duration: 0.7, delay: 0.3 })
+  .to('#hero-title',    { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
+  .to('#hero-sub-bar',  { opacity: 1, y: 0, duration: 0.6 }, '-=0.5')
+  .to('#hero-desc',     { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
+  .to('#hero-install',  { opacity: 1, y: 0, duration: 0.5 }, '-=0.3')
+  .to('#hero-actions',  { opacity: 1, y: 0, duration: 0.5 }, '-=0.3');
+
+gsap.utils.toArray('.fade-up').forEach((el, i) => {
+  gsap.to(el, {
+    scrollTrigger: { trigger: el, start: 'top 88%' },
+    opacity: 1, y: 0, duration: 0.7, delay: (i % 3) * 0.05,
+    ease: 'power2.out',
+  });
+});
+
+['how-step','install-col','feat','tl-item','ref-item'].forEach(cls => {
+  gsap.utils.toArray('.' + cls).forEach((el, i) => {
+    gsap.to(el, {
+      scrollTrigger: { trigger: el, start: 'top 92%' },
+      opacity: 1, y: 0, x: 0, duration: 0.55, delay: i * 0.07,
+      ease: 'power2.out',
+    });
+  });
+});
+
+// ─── COPY ─────────────────────────────────────────────────────────────────────
+function copyInstall(btn) {
+  navigator.clipboard.writeText('mreasy new mywebsite').then(() => {
+    const o = btn.textContent; btn.textContent = '✓';
+    setTimeout(() => { btn.textContent = o; }, 2000);
+  }).catch(() => {});
+}
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const o = btn.textContent; btn.textContent = '✓';
+    setTimeout(() => { btn.textContent = o; }, 2000);
+  }).catch(() => {});
+}
+
+// ─── SMOOTH SCROLL ────────────────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>

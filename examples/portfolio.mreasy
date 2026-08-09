@@ -1,0 +1,66 @@
+Mr.easy "Biruk's Portfolio"
+
+nav
+  logo "Biruk"
+  links Work Skills About Contact
+
+hero
+  title "Hi, I'm Biruk 👋" big glow
+  subtitle "I build amazing things with code — and now I have my own programming language!"
+  spacer size:24
+  row center
+    button "See My Work" blue big
+    button "Contact Me" outline
+
+section "work"
+  title "My Projects" medium center
+  spacer
+  grid cols:3
+    card shadow
+      icon rocket
+      title "MR.easy Language" small
+      text "I created my own programming language that makes web development simple and fun"
+      spacer size:12
+      button "View Project" outline small
+    card shadow
+      icon globe
+      title "Portfolio Site" small
+      text "A beautiful portfolio built entirely with MR.easy in under 10 minutes"
+      spacer size:12
+      button "View Project" outline small
+    card shadow
+      icon code
+      title "Coming Soon" small
+      text "More amazing projects being built with MR.easy right now..."
+      spacer size:12
+      button "Stay Tuned" ghost small
+
+section "skills"
+  title "My Skills" medium center
+  spacer
+  row center
+    card shadow
+      title "MR.easy" small
+      text "Creator ⭐⭐⭐⭐⭐"
+    card shadow
+      title "Python" small
+      text "Advanced ⭐⭐⭐⭐"
+    card shadow
+      title "Web Dev" small
+      text "Expert ⭐⭐⭐⭐⭐"
+
+section "contact"
+  title "Let's Work Together" medium center
+  subtitle "Have a project in mind? I'd love to hear about it."
+  spacer
+  form
+    label "Your Name" for:name
+    input placeholder:"Your name" id:name
+    label "Your Email" for:email
+    input type:email placeholder:"your@email.com" id:email
+    label "Message" for:msg
+    input placeholder:"Tell me about your project" id:msg
+    button "Send Message" blue big
+
+footer
+  text "© 2026 Biruk • Built with Mr.easy 🇪🇹 🚀"
