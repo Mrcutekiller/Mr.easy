@@ -502,22 +502,19 @@ html, body {
     <button class="btn-icon" onclick="clearCode()" title="Start from 0 (Clear Editor)">
       <i class="fa fa-trash-can"></i> Start 0
     </button>
-    <button class="btn-icon" onclick="formatCode()" title="Format Code">
-      <i class="fa fa-wand-magic-sparkles"></i> Format
+    <button class="btn-icon" onclick="copySource()" title="Copy .mreasy source code">
+      <i class="fa fa-copy"></i> Copy .mreasy
     </button>
-    <button class="btn-icon" onclick="copyHTML()" title="Copy Compiled Output">
-      <i class="fa fa-copy"></i> Copy Output
+    <button class="btn-run" onclick="downloadSource()" title="Download .mreasy file">
+      <i class="fa fa-file-arrow-down"></i> Save .mreasy
     </button>
-    <button class="btn-icon" onclick="downloadSource()" title="Save .mreasy source file">
-      <i class="fa fa-file-arrow-down"></i> .mreasy
-    </button>
-    <button class="btn-icon" onclick="downloadHTML()" title="Export Website">
-      <i class="fa fa-download"></i> Export Web
+    <button class="btn-icon" onclick="downloadHTML()" title="Export Compiled HTML Website">
+      <i class="fa fa-globe"></i> Export HTML
     </button>
     <button class="btn-icon" onclick="exportZip()" title="Export complete ZIP bundle">
       <i class="fa fa-file-zipper"></i> ZIP
     </button>
-    <button class="btn-run" onclick="runCode()">
+    <button class="btn-icon" onclick="runCode()" title="Recompile preview">
       <i class="fa fa-play"></i> Run
     </button>
   </div>
@@ -631,19 +628,19 @@ html, body {
         <span id="preview-status">Live Preview</span>
       </div>
       <div class="preview-actions">
-        <button class="mini-btn" onclick="togglePreviewTheme()" title="Toggle Preview Light/Dark Mode"><i class="fa fa-moon" id="theme-icon"></i></button>
-        <button class="mini-btn" onclick="refreshPreview()" title="Refresh"><i class="fa fa-rotate-right"></i></button>
-        <button class="mini-btn" onclick="openInNewTab()" title="Open in New Tab"><i class="fa fa-arrow-up-right-from-square"></i></button>
         <div class="zoom-switcher">
-          <button class="zoom-btn" onclick="setZoom(100)" id="zoom-100" title="Full size (100%)">100%</button>
-          <button class="zoom-btn active" onclick="setZoom(80)" id="zoom-80" title="Scaled Desktop (80%)">80%</button>
-          <button class="zoom-btn" onclick="setZoom(65)" id="zoom-65" title="Compact Desktop (65%)">65%</button>
+          <button class="zoom-btn" onclick="setZoom(100)" id="zoom-100" title="100% Native View">100%</button>
+          <button class="zoom-btn active" onclick="setZoom(75)" id="zoom-75" title="75% Desktop Scale">75%</button>
+          <button class="zoom-btn" onclick="setZoom(50)" id="zoom-50" title="50% Compact Scale">50%</button>
         </div>
         <div class="viewport-switcher">
           <button class="vp-btn active" onclick="setViewport('desktop')" title="Desktop"><i class="fa fa-desktop"></i></button>
           <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet"><i class="fa fa-tablet-screen-button"></i></button>
           <button class="vp-btn" onclick="setViewport('mobile')" title="Mobile"><i class="fa fa-mobile-screen-button"></i></button>
         </div>
+        <button class="mini-btn" onclick="togglePreviewTheme()" title="Toggle Preview Light/Dark Mode"><i class="fa fa-moon" id="theme-icon"></i></button>
+        <button class="mini-btn" onclick="refreshPreview()" title="Refresh"><i class="fa fa-rotate-right"></i></button>
+        <button class="mini-btn" onclick="openInNewTab()" title="Open in New Tab"><i class="fa fa-arrow-up-right-from-square"></i></button>
       </div>
     </div>
     <div class="preview-frame-wrapper" id="preview-wrapper">
@@ -1421,6 +1418,11 @@ function downloadSource() {
   a.download   = 'index.mreasy';
   a.click();
   showToast('⬇️ Downloaded index.mreasy');
+}
+
+function copySource() {
+  const source = getSourceCode();
+  navigator.clipboard.writeText(source).then(() => showToast('📋 MR.easy source copied to clipboard!'));
 }
 
 function exportZip() {
