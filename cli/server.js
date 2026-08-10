@@ -32,7 +32,16 @@ function startServer(cwd, customPort) {
     try { entry = JSON.parse(fs.readFileSync(rcPath)).entry || entry; } catch {}
   }
 
-  const entryFile = path.join(cwd, entry);
+  let entryFile = path.join(cwd, entry);
+  if (!fs.existsSync(entryFile)) {
+    try {
+      const files = fs.readdirSync(cwd).filter(f => f.endsWith('.mreasy'));
+      if (files.length > 0) {
+        entry = files[0];
+        entryFile = path.join(cwd, entry);
+      }
+    } catch {}
+  }
 
   // ── WebSocket Server (for hot reload) ────────────────────────────────────
   let wss;

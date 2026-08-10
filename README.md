@@ -64,54 +64,63 @@ npm link
 
 ## 🔰 Beginner's Guide — How to Use MR.easy
 
-### 💻 Method A: Working on your PC (Terminal & VS Code)
+### 💻 Working on your PC (Terminal & VS Code)
 
-#### **Step 1: Install MR.easy on PC**
-Double-click `installer\install.bat` inside the project folder, or run in PowerShell:
+#### **1️⃣ Installation**
+Run `installer\install.bat` inside the project folder, or run in PowerShell:
 ```powershell
 powershell -ExecutionPolicy Bypass -File installer\install.ps1
 ```
 
-#### **Step 2: Create a New Project**
-Open terminal (PowerShell or CMD) and type:
+---
+
+#### **📁 Workflow A: Start a New Project Automatically (`mreasy new`)**
+Use this when starting from scratch. MR.easy will create the project folder for you:
 ```powershell
+# 1. Create project (this automatically creates a new folder named 'mywebsite'):
 mreasy new mywebsite
-```
-*This creates a new folder `mywebsite` containing `index.mreasy` and starter files.*
 
-#### **Step 3: Go into your Project Folder**
-```powershell
+# 2. Enter the created folder:
 cd mywebsite
-```
 
-#### **Step 4: Start Live Preview**
-```powershell
+# 3. Start live preview server (opens browser at http://localhost:3000):
 mreasy run
 ```
-*This automatically starts the server and opens your website in your browser at `http://localhost:3000`.*
-
-#### **Step 5: Edit your Code**
-Open `index.mreasy` in VS Code or any text editor:
-```mreasy
-Mr.easy "My First Website"
-
-hero
-  title "Welcome to My Website" big glow
-  subtitle "Built with MR.easy"
-  button "Click Me" blue big
-```
-Press **Save** (Ctrl+S) — your browser will update automatically!
-
-#### **Step 6: Export Final Website**
-When you finish making your website, run:
-```powershell
-mreasy build
-```
-This generates a single production-ready `dist/index.html` file that you can share or host anywhere!
 
 ---
 
-### 🌐 Method B: Working in the Web IDE (No Install Needed)
+#### **✏️ Workflow B: Using Your Own Existing Folder or Manual File**
+If you already created your own folder manually or wrote your own `index.mreasy` (or `mysite.mreasy`):
+```powershell
+# 1. Open your terminal inside your existing folder:
+cd path\to\your\folder
+
+# 2. Start live preview (mreasy automatically detects your file without overwriting it):
+mreasy run
+```
+> 💡 **Note**: You do NOT need `mreasy new` if you already created your folder or `.mreasy` file manually! `mreasy run` will automatically detect and serve your existing code.
+
+---
+
+#### **⚡ Workflow C: Compile a Single Standalone File**
+If you just want to compile a single `.mreasy` file into a standalone `.html` file:
+```powershell
+mreasy compile myfile.mreasy
+```
+*This produces `myfile.html` right next to your file.*
+
+---
+
+#### **🏗️ Building Production Output**
+When you finish your website and want to publish or share it:
+```powershell
+mreasy build
+```
+*Generates a clean HTML bundle inside `dist/index.html`.*
+
+---
+
+### 🌐 Working in the Web IDE (No Install Needed)
 
 1. Open `ide/index.html` in your browser (or visit [mr-easy.vercel.app/ide](https://mr-easy.vercel.app/ide)).
 2. Write or edit MR.easy code in the **left panel**.

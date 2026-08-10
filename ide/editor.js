@@ -1448,19 +1448,21 @@ hero
     body.innerHTML = `
       <div class="guide-section">
         <h3>💻 Working on your PC (Terminal & VS Code)</h3>
-        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Complete step-by-step workflow for PC users:</p>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Choose how you want to work on PC:</p>
         
-        <div style="margin-bottom:10px;"><strong>1. Create Project:</strong></div>
-        <div class="guide-code">mreasy new mywebsite</div>
-        
-        <div style="margin-bottom:10px;margin-top:10px;"><strong>2. Enter Directory & Start Server:</strong></div>
-        <div class="guide-code">cd mywebsite<br>mreasy run</div>
-        <p style="color:var(--text-muted);font-size:0.8rem;margin-top:4px;">Opens http://localhost:3000 automatically with live auto-reload!</p>
+        <div style="margin-bottom:6px;"><strong>📁 Option A: Automatic New Project</strong></div>
+        <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:6px;">Creates a new folder <code>mywebsite</code> with starter files automatically:</p>
+        <div class="guide-code">mreasy new mywebsite<br>cd mywebsite<br>mreasy run</div>
 
-        <div style="margin-bottom:10px;margin-top:10px;"><strong>3. Edit Code:</strong></div>
-        <p style="color:var(--text-muted);font-size:0.8rem;">Open <code>index.mreasy</code> in VS Code or Notepad. Every file starts with <code>Mr.easy "Title"</code>. Hit Save to see changes live!</p>
+        <div style="margin-bottom:6px;margin-top:14px;"><strong>✏️ Option B: Existing Folder / Manual File</strong></div>
+        <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:6px;">If you created your folder or <code>.mreasy</code> file manually, just open terminal inside your folder and run:</p>
+        <div class="guide-code">cd path\\to\\your\\folder<br>mreasy run</div>
+        <p style="color:var(--text-muted);font-size:0.8rem;margin-top:4px;">Auto-detects your file without overwriting anything!</p>
 
-        <div style="margin-bottom:10px;margin-top:10px;"><strong>4. Export HTML:</strong></div>
+        <div style="margin-bottom:6px;margin-top:14px;"><strong>⚡ Option C: Compile Standalone File</strong></div>
+        <div class="guide-code">mreasy compile myfile.mreasy</div>
+
+        <div style="margin-bottom:6px;margin-top:14px;"><strong>🏗️ Build Production HTML:</strong></div>
         <div class="guide-code">mreasy build</div>
       </div>
 

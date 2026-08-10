@@ -417,35 +417,36 @@ grid cols:2
                   </div>
                 </div>
                 <div class="guide-step">
-                  <div class="guide-step-num">2</div>
+                  <div class="guide-step-num">2A</div>
                   <div class="guide-step-content">
-                    <h4>Create a New Project</h4>
-                    <p>Open Terminal / PowerShell and type:</p>
-                    <code>mreasy new mywebsite</code>
+                    <h4>Option A: Automatic New Project</h4>
+                    <p>Creates a new folder <code>mywebsite</code> with starter files automatically:</p>
+                    <code>mreasy new mywebsite</code><br>
+                    <code>cd mywebsite</code>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">2B</div>
+                  <div class="guide-step-content">
+                    <h4>Option B: Existing Folder / Manual File</h4>
+                    <p>If you already created your own folder or manual <code>.mreasy</code> file, just open terminal inside your folder:</p>
+                    <code>cd path\to\your\folder</code>
                   </div>
                 </div>
                 <div class="guide-step">
                   <div class="guide-step-num">3</div>
                   <div class="guide-step-content">
-                    <h4>Open Project & Start Server</h4>
-                    <p>Move into your folder and start live server:</p>
-                    <code>cd mywebsite</code><br>
+                    <h4>Start Live Server</h4>
+                    <p>Run live preview (automatically detects your code without overwriting anything):</p>
                     <code>mreasy run</code>
-                    <p style="margin-top:4px;">This opens <strong>http://localhost:3000</strong> in your browser automatically!</p>
+                    <p style="margin-top:4px;">Opens <strong>http://localhost:3000</strong> in your browser with hot auto-reload!</p>
                   </div>
                 </div>
                 <div class="guide-step">
                   <div class="guide-step-num">4</div>
                   <div class="guide-step-content">
-                    <h4>Edit index.mreasy & Save</h4>
-                    <p>Open <code>index.mreasy</code> in VS Code or Notepad. Every file must start with <code>Mr.easy "Title"</code>. Hit Save and see changes live!</p>
-                  </div>
-                </div>
-                <div class="guide-step">
-                  <div class="guide-step-num">5</div>
-                  <div class="guide-step-content">
                     <h4>Build Production HTML</h4>
-                    <p>When ready to share or publish your site, run:</p>
+                    <p>When ready to publish or share your site, run:</p>
                     <code>mreasy build</code>
                     <p style="margin-top:4px;">Your compiled HTML is saved in <code>dist/index.html</code>.</p>
                   </div>
