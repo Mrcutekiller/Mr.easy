@@ -213,6 +213,15 @@
         <span id="preview-status">Live Preview</span>
       </div>
       <div class="preview-actions">
+        <select class="device-select" id="device-select" onchange="setDevicePreset(this.value)" title="Choose device model preset" aria-label="Device model preset">
+          <option value="desktop">🖥️ Desktop (Fluid)</option>
+          <option value="iphone-15">📱 iPhone 15 / 14 (393px)</option>
+          <option value="mobile">📱 iPhone SE (375px)</option>
+          <option value="samsung-s25">📱 Samsung S25 / S21 (360px)</option>
+          <option value="samsung-a14">📱 Samsung A14 / A15 (412px)</option>
+          <option value="google-pixel">📱 Google Pixel 8 / 7 (412px)</option>
+          <option value="tablet">📱 iPad Mini (768px)</option>
+        </select>
         <div class="zoom-switcher" aria-label="Preview zoom">
           <button class="zoom-btn active" type="button" onclick="setZoom(100)" id="zoom-100">Fit</button>
           <button class="zoom-btn" type="button" onclick="setZoom(75)" id="zoom-75">75%</button>

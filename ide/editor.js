@@ -32,9 +32,13 @@
   let isResizing = false;
   let scaleFrame;
   const PREVIEW_VIEWPORTS = Object.freeze({
-    desktop: { width: 1280, minHeight: 900 },
-    tablet: { width: 768, minHeight: 900 },
-    mobile: { width: 375, minHeight: 760 }
+    desktop: { width: 1280, minHeight: 900, label: 'Desktop' },
+    tablet: { width: 768, minHeight: 1024, label: 'iPad Mini' },
+    mobile: { width: 375, minHeight: 667, label: 'iPhone SE' },
+    'iphone-15': { width: 393, minHeight: 852, label: 'iPhone 15/14' },
+    'samsung-s25': { width: 360, minHeight: 800, label: 'Samsung S25/S21' },
+    'samsung-a14': { width: 412, minHeight: 915, label: 'Samsung A14/A15' },
+    'google-pixel': { width: 412, minHeight: 915, label: 'Google Pixel 8/7' }
   });
 
   const PROVIDERS = Object.freeze({
@@ -1042,20 +1046,37 @@ hero
     }
   }
 
-  function setViewport(viewport, sourceEvent) {
-    if (!PREVIEW_VIEWPORTS[viewport]) return;
-    activeViewport = viewport;
+  function setDevicePreset(preset) {
+    if (!PREVIEW_VIEWPORTS[preset]) return;
+    activeViewport = preset;
+
+    const select = document.getElementById('device-select');
+    if (select) select.value = preset;
+
     const viewportButtons = document.querySelectorAll('.vp-btn');
     viewportButtons.forEach(button => button.classList.remove('active'));
-    const eventTarget = sourceEvent?.target || root.event?.target;
-    const button = eventTarget?.closest?.('.vp-btn');
-    if (button) button.classList.add('active');
-    else viewportButtons[['desktop', 'tablet', 'mobile'].indexOf(viewport)]?.classList.add('active');
+
+    if (preset === 'desktop') {
+      viewportButtons[0]?.classList.add('active');
+    } else if (preset === 'tablet') {
+      viewportButtons[1]?.classList.add('active');
+    } else {
+      viewportButtons[2]?.classList.add('active');
+    }
+
     const frame = document.getElementById('preview-frame');
     const wrapper = document.getElementById('preview-wrapper');
-    if (frame) frame.className = viewport === 'desktop' ? '' : viewport;
-    if (wrapper) wrapper.className = `preview-frame-wrapper ${viewport === 'desktop' ? '' : viewport}`;
+    const isMobile = preset !== 'desktop' && preset !== 'tablet';
+    if (frame) frame.className = preset === 'desktop' ? '' : (preset === 'tablet' ? 'tablet' : 'mobile');
+    if (wrapper) wrapper.className = `preview-frame-wrapper ${isDarkTheme ? '' : 'light'} ${preset === 'desktop' ? '' : (preset === 'tablet' ? 'tablet' : 'mobile')}`;
+
     applyPreviewScale();
+  }
+
+  function setViewport(viewport, sourceEvent) {
+    if (viewport === 'desktop') setDevicePreset('desktop');
+    else if (viewport === 'tablet') setDevicePreset('tablet');
+    else if (viewport === 'mobile') setDevicePreset('mobile');
   }
 
   function applyPreviewScale() {
@@ -1517,7 +1538,7 @@ hero
 
   Object.assign(root, {
     KEYWORDS, STYLE_WORDS, COLOR_MAP, ICON_MAP, SIZE_MAP,
-    browserCompile, compileAndPreview, switchTab, setViewMode, activateRail, setViewport, setZoom,
+    browserCompile, compileAndPreview, switchTab, setViewMode, activateRail, setViewport, setDevicePreset, setZoom,
     togglePreviewTheme, insertSnippet, loadExample, runCode, refreshPreview,
     openInNewTab, downloadHTML, downloadSource, copySource, copyHTML, exportZip,
     clearCode, formatCode, increaseFontSize, decreaseFontSize, openGuideModal,
