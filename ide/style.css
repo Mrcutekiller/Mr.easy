@@ -150,7 +150,7 @@ button:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2
 .kbd { padding: 2px 5px; border: 1px solid var(--hairline); color: var(--parchment); background: var(--ink-2); font: .58rem var(--font-mono); }
 
 /* EDITOR PANEL */
-.editor-panel { display: flex; flex: 0 0 50%; flex-direction: column; min-width: 0; overflow: hidden; background: var(--ink-0); }
+.editor-panel { display: flex; flex: 1 1 0%; flex-direction: column; min-width: 0; overflow: hidden; background: var(--ink-0); }
 .editor-toolbar, .preview-toolbar { height: 36px; flex: 0 0 36px; display: flex; align-items: center; justify-content: space-between; min-width: 0; padding: 0 10px; background: var(--ink-2); border-bottom: 1px solid var(--hairline); }
 .editor-info, .editor-actions { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .line-col, .font-size-label { color: var(--muted); font: .63rem var(--font-mono); }
@@ -215,7 +215,7 @@ button:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2
 .divider:hover, .divider.dragging { background: var(--brass); }
 
 /* PREVIEW PANEL */
-.preview-panel { display: flex; flex: 0 0 50%; flex-direction: column; min-width: 0; overflow: hidden; background: var(--ink-2); }
+.preview-panel { display: flex; flex: 1 1 0%; flex-direction: column; min-width: 0; overflow: hidden; background: var(--ink-2); }
 .preview-info { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; color: var(--muted); font: .66rem var(--font-mono); white-space: nowrap; }
 .preview-actions { flex: 1 1 auto; display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; }
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--signal-green); box-shadow: 0 0 7px rgba(95,168,90,.55); flex-shrink: 0; }

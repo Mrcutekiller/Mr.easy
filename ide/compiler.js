@@ -312,6 +312,7 @@ footer bg:#080706 color:#62584a
 
     function renderInline(type, tokens, lineIndex) {
       const label = getLabel(tokens) || '';
+      const colorToken = tokens.find(token => COLOR_MAP[token.toLowerCase()]) || getProp(tokens, 'color');
       const sizeToken = tokens.find(token => SIZE_MAP.includes(token.toLowerCase()));
       const prop = key => getProp(tokens, key);
       const lineAttr = `data-line="${lineIndex}"`;
