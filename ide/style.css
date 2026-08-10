@@ -151,11 +151,8 @@ button:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2
 
 /* EDITOR PANEL */
 .editor-panel { display: flex; flex: 0 0 50%; flex-direction: column; min-width: 0; overflow: hidden; background: var(--ink-0); }
-.editor-toolbar, .preview-toolbar { height: 36px; flex: 0 0 36px; display: flex; align-items: center; justify-content: space-between; min-width: 0; padding: 0 12px; background: var(--ink-2); border-bottom: 1px solid var(--hairline); }
-.editor-info, .editor-actions, .preview-info, .preview-actions { display: flex; align-items: center; gap: 9px; min-width: 0; }
-.preview-info { flex: 0 1 auto; overflow: hidden; white-space: nowrap; }
-.preview-actions { flex: 0 1 auto; max-width: 72%; overflow-x: auto; scrollbar-width: none; }
-.preview-actions::-webkit-scrollbar { display: none; }
+.editor-toolbar, .preview-toolbar { height: 36px; flex: 0 0 36px; display: flex; align-items: center; justify-content: space-between; min-width: 0; padding: 0 10px; background: var(--ink-2); border-bottom: 1px solid var(--hairline); }
+.editor-info, .editor-actions { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .line-col, .font-size-label { color: var(--muted); font: .63rem var(--font-mono); }
 .lang-badge { padding: 2px 6px; color: var(--brass-bright); border: 1px solid var(--hairline-brass); font: 500 .58rem var(--font-mono); }
 .mini-btn { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 1px solid var(--hairline); color: var(--muted); background: var(--ink-1); font-size: .65rem; transition: color .2s, border-color .2s, background .2s; }
