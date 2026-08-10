@@ -626,6 +626,12 @@ html, body {
       <button class="quick-chip" onclick="insertSnippet('grid')">+ grid</button>
       <button class="quick-chip" onclick="insertSnippet('card')">+ card</button>
       <button class="quick-chip" onclick="insertSnippet('button')">+ button</button>
+      <button class="quick-chip" onclick="insertSnippet('badge')">+ badge</button>
+      <button class="quick-chip" onclick="insertSnippet('alert')">+ alert</button>
+      <button class="quick-chip" onclick="insertSnippet('accordion')">+ accordion</button>
+      <button class="quick-chip" onclick="insertSnippet('tabs')">+ tabs</button>
+      <button class="quick-chip" onclick="insertSnippet('stat')">+ stat</button>
+      <button class="quick-chip" onclick="insertSnippet('progress')">+ progress</button>
       <button class="quick-chip" onclick="insertSnippet('form')">+ form</button>
       <button class="quick-chip" onclick="insertSnippet('footer')">+ footer</button>
     </div>
@@ -711,12 +717,16 @@ const KEYWORDS = ['nav','hero','section','header','footer','row','column','col',
   'grid','card','box','list','form','title','subtitle','text','label','item',
   'button','link','image','img','video','icon','input','logo','links','menu',
   'divider','spacer','set','repeat','times','if','else','end','show','hide',
-  'animate','component','use','function','call'];
+  'animate','component','use','function','call',
+  'accordion','tabs','tab','table','thead','tbody','tr','th','td',
+  'badge','tag','alert','progress','avatar','quote','code','stat',
+  'select','checkbox','toggle','embed','rating','countdown','steps','step',
+  'testimonial','page','sidebar','modal','dropdown'];
 
 const STYLE_WORDS = ['big','medium','small','tiny','glow','shadow','rounded','outline',
   'bold','italic','dark','light','gradient','glass','center','left','right',
-  'blue','red','green','purple','orange','pink','yellow','white','black','gray',
-  'on','off','float','autoplay','required','ordered'];
+  'blue','red','green','purple','orange','pink','yellow','white','black','gray','cyan',
+  'on','off','float','autoplay','required','ordered','done','checked','success','warning','error','info'];
 
 const COLOR_MAP = { blue:'#3b82f6', purple:'#8b5cf6', green:'#22c55e', red:'#ef4444', orange:'#f97316', pink:'#ec4899', yellow:'#eab308', white:'#fff', black:'#0f172a', gray:'#6b7280', cyan:'#06b6d4' };
 const ICON_MAP  = { star:'fa-star', heart:'fa-heart', rocket:'fa-rocket', bolt:'fa-bolt', globe:'fa-globe', lock:'fa-lock', home:'fa-house', user:'fa-user', mail:'fa-envelope', check:'fa-check', code:'fa-code', fire:'fa-fire', diamond:'fa-gem', moon:'fa-moon', sun:'fa-sun', phone:'fa-phone', settings:'fa-gear', download:'fa-download', upload:'fa-upload', share:'fa-share-nodes', chat:'fa-comments', info:'fa-circle-info', warn:'fa-triangle-exclamation' };
@@ -825,21 +835,28 @@ const SNIPPETS = [
   { icon: 'fa-heading',   label: 'Title',       tag: 'text',    code: 'title "Your Title Here" big glow\n' },
   { icon: 'fa-paragraph', label: 'Text',        tag: 'text',    code: 'text "Your paragraph text goes here"\n' },
   { icon: 'fa-square',    label: 'Button',      tag: 'ui',      code: 'button "Click Me" blue big\n' },
+  { icon: 'fa-tag',       label: 'Badge',       tag: 'ui',      code: 'badge "NEW" green\n' },
+  { icon: 'fa-circle-info',label:'Alert Banner',tag: 'ui',      code: 'alert "Success! Account created." success\n' },
+  { icon: 'fa-bars-progress',label:'Progress Bar',tag:'ui',     code: 'progress value:80 label:"Project Completion"\n' },
+  { icon: 'fa-star',      label: 'Rating',      tag: 'ui',      code: 'rating value:5 label:"(128 reviews)"\n' },
+  { icon: 'fa-chart-column',label:'Stat Box',   tag: 'ui',      code: 'stat value:"150+" label:"Projects Delivered"\n' },
+  { icon: 'fa-arrows-split-up-and-left',label:'Accordion',tag:'ui',code: 'accordion "What is MR.easy?"\n  text "The simplest language for building websites."\n' },
+  { icon: 'fa-folder-tree',label:'Tabs',        tag: 'ui',      code: 'tabs\n  tab "Overview"\n    text "Tab 1 content"\n  tab "Details"\n    text "Tab 2 content"\n' },
+  { icon: 'fa-table',     label: 'Data Table',  tag: 'layout',  code: 'table\n  thead\n    tr\n      th "Name"\n      th "Role"\n      th "Status"\n  tbody\n    tr\n      td "Biruk"\n      td "Developer"\n      td "Active"\n' },
   { icon: 'fa-grip',      label: 'Card',        tag: 'layout',  code: 'card shadow\n  title "Card Title" small\n  text "Card content here"\n' },
   { icon: 'fa-table-cells',label:'Grid 3-col',  tag: 'layout',  code: 'grid cols:3\n  card shadow\n    title "Item 1" small\n    text "Description"\n  card shadow\n    title "Item 2" small\n    text "Description"\n  card shadow\n    title "Item 3" small\n    text "Description"\n' },
   { icon: 'fa-bars',      label: 'Nav Bar',     tag: 'layout',  code: 'nav\n  logo "MySite"\n  links Home About Contact\n' },
   { icon: 'fa-star',      label: 'Hero',        tag: 'layout',  code: 'hero\n  title "Welcome" big glow\n  subtitle "Subtitle text here"\n  button "Get Started" blue big\n' },
   { icon: 'fa-image',     label: 'Image',       tag: 'media',   code: 'image "photo.jpg" rounded shadow\n' },
+  { icon: 'fa-video',     label: 'Embed Video', tag: 'media',   code: 'embed "https://www.youtube.com/watch?v=dQw4w9WgXcQ"\n' },
   { icon: 'fa-link',      label: 'Link',        tag: 'ui',      code: 'link "Visit Google" url:https://google.com\n' },
   { icon: 'fa-list',      label: 'List',        tag: 'content', code: 'list\n  item "First item"\n  item "Second item"\n  item "Third item"\n' },
   { icon: 'fa-envelope',  label: 'Contact Form',tag: 'form',    code: 'form\n  label "Name" for:name\n  input placeholder:"Your name" id:name\n  label "Email" for:email\n  input type:email placeholder:"Email" id:email\n  button "Submit" blue\n' },
-  { icon: 'fa-circle-info',label:'Icon + Text', tag: 'content', code: 'row\n  icon star\n  text "Your text here"\n' },
-  { icon: 'fa-minus',     label: 'Divider',     tag: 'layout',  code: 'divider\n' },
-  { icon: 'fa-arrows-up-down', label:'Spacer',  tag: 'layout',  code: 'spacer size:40\n' },
   { icon: 'fa-rotate',    label: 'Repeat',      tag: 'logic',   code: 'repeat 3 times\n  card shadow\n    text "Item {index}"\n' },
 ];
 
 const EXAMPLES = [
+  { icon: 'fa-gem',      label: 'NexaStudio (v2.0)', key: 'nexastudio', code: `Mr.easy "NexaStudio — Creative Agency"\n\npage primary:purple\n\nnav\n  logo "NexaStudio"\n  links Services Work Pricing FAQ Contact\n\nhero\n  badge "AGENCY OF THE YEAR 2025" purple\n  title "We Build Digital Dreams" big glow\n  subtitle "Premium websites. Powerful brands. Built in days — not months."\n  spacer size:24\n  row center\n    button "Start Project" purple big\n    button "See Case Studies" outline big\n\nsection "stats"\n  grid cols:4\n    stat value:"150+" label:"Projects Delivered"\n    stat value:"99%" label:"Client Satisfaction"\n    stat value:"12" label:"Design Awards"\n    stat value:"24/7" label:"Dedicated Support"\n\nsection "features"\n  title "Why Work With Us" medium center\n  spacer size:16\n  grid cols:3\n    card shadow\n      icon rocket\n      title "Ultra Fast" small\n      text "From wireframe to live URL in under 7 days."\n    card shadow\n      icon bolt\n      title "Bold Design" small\n      text "High-converting layouts that captivate your audience."\n    card shadow\n      icon star\n      title "Top Quality" small\n      text "Crafted with precision. Zero compromises."\n\nsection "faq"\n  title "Frequently Asked Questions" medium center\n  spacer size:24\n  accordion "How fast can you launch my website?"\n    text "Most custom projects are designed and launched within 5 to 7 business days."\n  accordion "Do you provide hosting and maintenance?"\n    text "Yes! Every project includes optional cloud hosting and 24/7 server monitoring."\n  accordion "Can I edit the content myself?"\n    text "Absolutely! You get full access to the MR.easy source code and editor."\n\nfooter\n  text "© 2025 NexaStudio — Built with MR.easy 🇪🇹"\n` },
   { icon: 'fa-globe',    label: 'Landing Page', key: 'landing',  code: `Mr.easy "Awesome Landing"\n\nnav\n  logo "ACME"\n  links Home Pricing About\n\nhero\n  title "The Future Is Here" big glow\n  subtitle "We build next-generation solutions for modern businesses"\n  spacer size:24\n  row center\n    button "Start Free Trial" blue big\n    button "Watch Demo" outline\n\nsection "features"\n  title "Everything You Need" medium center\n  spacer\n  grid cols:3\n    card shadow\n      icon rocket\n      title "Lightning Fast" small\n      text "Deploy in seconds, not hours"\n    card shadow\n      icon lock\n      title "Secure by Default" small\n      text "Enterprise-grade security built in"\n    card shadow\n      icon globe\n      title "Global Scale" small\n      text "Reach users anywhere in the world"\n\nfooter\n  text "© 2024 ACME Corp. All rights reserved."\n` },
   { icon: 'fa-user',     label: 'Portfolio',   key: 'portfolio',code: `Mr.easy "John's Portfolio"\n\nnav\n  logo "John Doe"\n  links Work About Contact\n\nhero\n  title "Hello, I'm John" big glow\n  subtitle "Full-stack developer & designer creating beautiful digital experiences"\n  spacer size:20\n  button "See My Work" blue big\n\nsection "work"\n  title "My Projects" medium center\n  spacer\n  grid cols:3\n    card shadow\n      title "Project One" small\n      text "A beautiful web application built with modern tech"\n      spacer size:12\n      button "View Project" outline small\n    card shadow\n      title "Project Two" small\n      text "Mobile app with 100k+ downloads"\n      spacer size:12\n      button "View Project" outline small\n    card shadow\n      title "Project Three" small\n      text "Open-source tool used by thousands"\n      spacer size:12\n      button "View Project" outline small\n\nfooter\n  text "✉️ john@example.com"\n` },
   { icon: 'fa-mug-hot',  label: 'Buna Café Lounge', key: 'buna',  code: `Mr.easy "Buna Ethiopian Coffee & Lounge"\n\nnav\n  logo "Buna Coffee ☕"\n  links Menu Story Contact\n\nhero\n  title "Authentic Ethiopian Coffee" big glow\n  subtitle "Savor roasted traditional Sidama & Yirgacheffe beans in a modern atmosphere"\n  spacer size:20\n  row center\n    button "Order Online" blue big\n    button "Find Location" outline\n\nsection "menu"\n  title "Our Specials" medium center\n  spacer\n  grid cols:3\n    card shadow\n      icon fire\n      title "Jebena Buna" small\n      text "Traditional clay pot coffee brewed over hot coals"\n      spacer size:12\n      button "50 ETB" outline small\n    card shadow\n      icon heart\n      title "Special Macchiato" small\n      text "Layered espresso with steamed fresh milk"\n      spacer size:12\n      button "70 ETB" outline small\n    card shadow\n      icon star\n      title "Pastry & Spris" small\n      text "Freshly baked Sambusa & layered avocado juice"\n      spacer size:12\n      button "60 ETB" outline small\n\nfooter\n  text "📍 Addis Ababa, Ethiopia — IG @mrcute_killer 🇪🇹"\n` },

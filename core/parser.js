@@ -96,6 +96,23 @@ class Parser {
       case 'if':        return this.parseBlock('if');
       case 'repeat':    return this.parseRepeat();
 
+      // ── NEW v2.0 block keywords ──────────────────────────────────
+      case 'accordion': return this.parseBlock('accordion');
+      case 'tabs':      return this.parseBlock('tabs');
+      case 'tab':       return this.parseBlock('tab');
+      case 'table':     return this.parseBlock('table');
+      case 'thead':     return this.parseBlock('thead');
+      case 'tbody':     return this.parseBlock('tbody');
+      case 'tr':        return this.parseBlock('tr');
+      case 'page':      return this.parseBlock('page');
+      case 'navbar':    return this.parseBlock('navbar');
+      case 'sidebar':   return this.parseBlock('sidebar');
+      case 'modal':     return this.parseBlock('modal');
+      case 'dropdown':  return this.parseBlock('dropdown');
+      case 'steps':     return this.parseBlock('steps');
+      case 'step':      return this.parseBlock('step');
+      case 'testimonial': return this.parseBlock('testimonial');
+
       case 'title':     return this.parseInline('title');
       case 'subtitle':  return this.parseInline('subtitle');
       case 'text':      return this.parseInline('text');
@@ -119,6 +136,24 @@ class Parser {
       case 'animate':   return this.parseInline('animate');
       case 'show':      return this.parseInline('show');
       case 'hide':      return this.parseInline('hide');
+
+      // ── NEW v2.0 inline keywords ─────────────────────────────────
+      case 'badge':     return this.parseInline('badge');
+      case 'tag':       return this.parseInline('tag');
+      case 'alert':     return this.parseInline('alert');
+      case 'progress':  return this.parseInline('progress');
+      case 'avatar':    return this.parseInline('avatar');
+      case 'quote':     return this.parseInline('quote');
+      case 'code':      return this.parseInline('codeblock');
+      case 'stat':      return this.parseInline('stat');
+      case 'select':    return this.parseInline('select');
+      case 'checkbox':  return this.parseInline('checkbox');
+      case 'toggle':    return this.parseInline('toggle');
+      case 'embed':     return this.parseInline('embed');
+      case 'rating':    return this.parseInline('rating');
+      case 'countdown': return this.parseInline('countdown');
+      case 'th':        return this.parseInline('th');
+      case 'td':        return this.parseInline('td');
 
       default:
         this.consume();

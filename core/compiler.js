@@ -59,42 +59,73 @@ ${js}
   compileNode(node) {
     if (!node) return '';
     switch (node.type) {
-      case 'nav':       return this.Nav(node);
-      case 'hero':      return this.Hero(node);
-      case 'section':   return this.Section(node);
-      case 'header':    return this.Header(node);
-      case 'footer':    return this.Footer(node);
-      case 'row':       return this.Row(node);
-      case 'column':    return this.Column(node);
-      case 'grid':      return this.Grid(node);
-      case 'card':      return this.Card(node);
-      case 'box':       return this.Box(node);
-      case 'list':      return this.List(node);
-      case 'form':      return this.Form(node);
-      case 'title':     return this.Title(node);
-      case 'subtitle':  return this.Subtitle(node);
-      case 'text':      return this.Text(node);
-      case 'label':     return this.Label(node);
-      case 'item':      return this.Item(node);
-      case 'button':    return this.Button(node);
-      case 'link':      return this.Link(node);
-      case 'links':     return this.Links(node);
-      case 'logo':      return this.Logo(node);
-      case 'menu':      return this.Menu(node);
-      case 'image':     return this.Image(node);
-      case 'video':     return this.Video(node);
-      case 'icon':      return this.Icon(node);
-      case 'input':     return this.Input(node);
-      case 'divider':   return `<hr class="mr-divider">`;
-      case 'spacer':    return this.Spacer(node);
-      case 'set':       return this.Set(node);
-      case 'repeat':    return this.Repeat(node);
-      case 'component': return this.ComponentDef(node);
-      case 'use':       return this.Use(node);
-      case 'function':  return this.FunctionDef(node);
-      case 'call':      return this.Call(node);
-      case 'animate':   return this.Animate(node);
-      default:          return '';
+      case 'nav':         return this.Nav(node);
+      case 'hero':        return this.Hero(node);
+      case 'section':     return this.Section(node);
+      case 'header':      return this.Header(node);
+      case 'footer':      return this.Footer(node);
+      case 'row':         return this.Row(node);
+      case 'column':      return this.Column(node);
+      case 'grid':        return this.Grid(node);
+      case 'card':        return this.Card(node);
+      case 'box':         return this.Box(node);
+      case 'list':        return this.List(node);
+      case 'form':        return this.Form(node);
+      case 'title':       return this.Title(node);
+      case 'subtitle':    return this.Subtitle(node);
+      case 'text':        return this.Text(node);
+      case 'label':       return this.Label(node);
+      case 'item':        return this.Item(node);
+      case 'button':      return this.Button(node);
+      case 'link':        return this.Link(node);
+      case 'links':       return this.Links(node);
+      case 'logo':        return this.Logo(node);
+      case 'menu':        return this.Menu(node);
+      case 'image':       return this.Image(node);
+      case 'video':       return this.Video(node);
+      case 'icon':        return this.Icon(node);
+      case 'input':       return this.Input(node);
+      case 'divider':     return `<hr class="mr-divider">`;
+      case 'spacer':      return this.Spacer(node);
+      case 'set':         return this.Set(node);
+      case 'repeat':      return this.Repeat(node);
+      case 'component':   return this.ComponentDef(node);
+      case 'use':         return this.Use(node);
+      case 'function':    return this.FunctionDef(node);
+      case 'call':        return this.Call(node);
+      case 'animate':     return this.Animate(node);
+      // ── NEW v2.0 ─────────────────────────────────────────────────
+      case 'accordion':   return this.Accordion(node);
+      case 'tabs':        return this.Tabs(node);
+      case 'tab':         return this.Tab(node);
+      case 'table':       return this.Table(node);
+      case 'thead':       return `<thead class="mr-thead">${this.compileChildren(node.children)}</thead>`;
+      case 'tbody':       return `<tbody>${this.compileChildren(node.children)}</tbody>`;
+      case 'tr':          return `<tr class="mr-tr">${this.compileChildren(node.children)}</tr>`;
+      case 'th':          return this.TH(node);
+      case 'td':          return this.TD(node);
+      case 'badge':       return this.Badge(node);
+      case 'tag':         return this.Tag(node);
+      case 'alert':       return this.Alert(node);
+      case 'progress':    return this.Progress(node);
+      case 'avatar':      return this.Avatar(node);
+      case 'quote':       return this.Quote(node);
+      case 'codeblock':   return this.CodeBlock(node);
+      case 'stat':        return this.Stat(node);
+      case 'select':      return this.Select(node);
+      case 'checkbox':    return this.Checkbox(node);
+      case 'toggle':      return this.Toggle(node);
+      case 'embed':       return this.Embed(node);
+      case 'rating':      return this.Rating(node);
+      case 'countdown':   return this.Countdown(node);
+      case 'steps':       return this.Steps(node);
+      case 'step':        return this.Step(node);
+      case 'testimonial': return this.Testimonial(node);
+      case 'page':        return this.Page(node);
+      case 'sidebar':     return this.Sidebar(node);
+      case 'modal':       return this.Modal(node);
+      case 'dropdown':    return this.Dropdown(node);
+      default:            return '';
     }
   }
 
@@ -393,6 +424,228 @@ document.querySelectorAll('${target ? '#' + target : '.mr-animate'}').forEach(fu
   }
 
   // ── UTILITY ────────────────────────────────────────────────────────────────
+
+  // ── PAGE (sets global theme/color/font) ─────────────────────────────────
+  Page(node) {
+    const { primary, font, theme, background } = node.props || {};
+    let css = ':root {';
+    if (primary) css += `--mr-primary:${this.color(primary) || primary};--mr-secondary:${this.color(primary) || primary};`;
+    if (font)    css += `--mr-font:'${font}',system-ui,sans-serif;`;
+    if (background) css += `} body { background:${this.color(background) || background};`;
+    css += '}';
+    if (theme === 'light') {
+      css += 'body{background:#f8fafc;color:#0f172a;}.mr-card{background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.08);}.mr-nav{background:rgba(248,250,252,0.9);}.mr-text,.mr-muted{color:#475569;}.mr-subtitle{color:#64748b;}';
+      this.pageStyle.light = true;
+    }
+    this.extraCSS.push(`<style>${css}</style>`);
+    return '';
+  }
+
+  // ── ACCORDION (expandable sections) ─────────────────────────────────────
+  Accordion(node) {
+    const id = `acc_${Math.random().toString(36).slice(2,7)}`;
+    const { label } = node.props || {};
+    const body = this.compileChildren(node.children);
+    return `<div class="mr-accordion">
+  <button class="mr-accordion-btn" onclick="mrToggle('${id}')">
+    ${this.esc(label || 'Click to expand')}
+    <span class="mr-accordion-icon">▾</span>
+  </button>
+  <div class="mr-accordion-body" id="${id}">${body}</div>
+</div>`;
+  }
+
+  // ── TABS ─────────────────────────────────────────────────────────────────
+  Tabs(node) {
+    const id = `tabs_${Math.random().toString(36).slice(2,7)}`;
+    const tabs = (node.children || []).filter(c => c.type === 'tab');
+    const btns = tabs.map((t, i) =>
+      `<button class="mr-tab-btn${i===0?' active':''}" onclick="mrTab('${id}',${i})" id="${id}_btn_${i}">${this.esc(t.props?.label || `Tab ${i+1}`)}</button>`
+    ).join('');
+    const panes = tabs.map((t, i) =>
+      `<div class="mr-tab-pane${i===0?' active':''}" id="${id}_pane_${i}">${this.compileChildren(t.children)}</div>`
+    ).join('');
+    this.extraJS.push(`function mrTab(id,idx){document.querySelectorAll('#'+id+' .mr-tab-btn').forEach((b,i)=>{b.classList.toggle('active',i===idx)});document.querySelectorAll('#'+id+' .mr-tab-pane').forEach((p,i)=>{p.classList.toggle('active',i===idx)});}`);
+    return `<div class="mr-tabs" id="${id}"><div class="mr-tab-bar">${btns}</div><div class="mr-tab-content">${panes}</div></div>`;
+  }
+
+  Tab(node) { return this.compileChildren(node.children); }
+
+  // ── TABLE ─────────────────────────────────────────────────────────────────
+  Table(node) {
+    const inner = this.compileChildren(node.children);
+    return `<div class="mr-table-wrapper"><table class="mr-table">${inner}</table></div>`;
+  }
+
+  TH(node) {
+    const { label } = node.props || {};
+    return `<th class="mr-th">${this.esc(this.vars_(label))}</th>`;
+  }
+
+  TD(node) {
+    const { label } = node.props || {};
+    return `<td class="mr-td">${this.esc(this.vars_(label))}</td>`;
+  }
+
+  // ── BADGE ─────────────────────────────────────────────────────────────────
+  Badge(node) {
+    const { label, color: clr } = node.props || {};
+    const m = this.mods(node);
+    const col = this.color(clr) || (m.includes('green') ? '#22c55e' : m.includes('red') ? '#ef4444' : m.includes('yellow') ? '#eab308' : m.includes('blue') ? '#3b82f6' : null);
+    const s = col ? `style="background:${col}20;color:${col};border-color:${col}40;"` : '';
+    return `<span class="mr-badge" ${s}>${this.esc(label || '')}</span>`;
+  }
+
+  // ── TAG ───────────────────────────────────────────────────────────────────
+  Tag(node) {
+    const { label } = node.props || {};
+    return `<span class="mr-tag">#${this.esc(label || '')}</span>`;
+  }
+
+  // ── ALERT ─────────────────────────────────────────────────────────────────
+  Alert(node) {
+    const { label, type } = node.props || {};
+    const m    = this.mods(node);
+    const kind = type || m.find(x => ['success','warning','error','info'].includes(x)) || 'info';
+    const icons = { success:'✓', warning:'⚠', error:'✕', info:'ℹ' };
+    return `<div class="mr-alert mr-alert-${kind}"><span class="mr-alert-icon">${icons[kind]||'ℹ'}</span><span>${this.esc(label || '')}</span></div>`;
+  }
+
+  // ── PROGRESS ──────────────────────────────────────────────────────────────
+  Progress(node) {
+    const { value, label, color: clr } = node.props || {};
+    const pct = Math.min(100, Math.max(0, parseInt(value || 0)));
+    const col = this.color(clr) || 'var(--mr-primary)';
+    return `<div class="mr-progress-wrap">${label ? `<div class="mr-progress-label"><span>${this.esc(label)}</span><span>${pct}%</span></div>` : ''}<div class="mr-progress-bar"><div class="mr-progress-fill" style="width:${pct}%;background:${col};"></div></div></div>`;
+  }
+
+  // ── AVATAR ────────────────────────────────────────────────────────────────
+  Avatar(node) {
+    const { src, label, size } = node.props || {};
+    const sz = size ? size + 'px' : '64px';
+    const s = `width:${sz};height:${sz};`;
+    if (src) return `<img class="mr-avatar" src="${this.esc(src)}" alt="${this.esc(label || '')}" style="${s}">`;
+    const initials = (label || 'A').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="mr-avatar mr-avatar-initials" style="${s}">${initials}</div>`;
+  }
+
+  // ── QUOTE / TESTIMONIAL ───────────────────────────────────────────────────
+  Quote(node) {
+    const { label, author } = node.props || {};
+    const body = this.compileChildren(node.children);
+    return `<blockquote class="mr-quote"><p class="mr-quote-text">"${this.vars_(label || '')}"</p>${body}${author ? `<cite class="mr-quote-author">— ${this.esc(author)}</cite>` : ''}</blockquote>`;
+  }
+
+  Testimonial(node) {
+    const { label, author, role } = node.props || {};
+    const body = this.compileChildren(node.children);
+    return `<div class="mr-testimonial"><p class="mr-testimonial-text">"${this.vars_(label || '')}"</p>${body}<div class="mr-testimonial-author"><strong>${this.esc(author || '')}</strong>${role ? `<span>${this.esc(role)}</span>` : ''}</div></div>`;
+  }
+
+  // ── CODE BLOCK ────────────────────────────────────────────────────────────
+  CodeBlock(node) {
+    const { label, lang } = node.props || {};
+    const m = this.mods(node);
+    const isInline = m.includes('inline');
+    if (isInline) return `<code class="mr-code-inline">${this.esc(label || '')}</code>`;
+    return `<pre class="mr-code-block"><code class="mr-code-lang-${this.esc(lang || 'text')}">${this.esc(label || '')}</code></pre>`;
+  }
+
+  // ── STAT ──────────────────────────────────────────────────────────────────
+  Stat(node) {
+    const { label, value, icon } = node.props || {};
+    const ic = icon ? `<i class="mr-icon fa fa-${icon}" style="margin-bottom:8px;"></i>` : '';
+    return `<div class="mr-stat">${ic}<div class="mr-stat-value">${this.esc(value || label || '0')}</div>${label && value ? `<div class="mr-stat-label">${this.esc(label)}</div>` : ''}</div>`;
+  }
+
+  // ── SELECT ────────────────────────────────────────────────────────────────
+  Select(node) {
+    const { label, id, name } = node.props || {};
+    const items = (node.props?.items || []).map(it => `<option value="${this.esc(it)}">${this.esc(it)}</option>`).join('');
+    const children = this.compileChildren(node.children);
+    return `<select class="mr-input mr-select" id="${id || ''}" name="${name || id || ''}">${items}${children}</select>`;
+  }
+
+  // ── CHECKBOX ──────────────────────────────────────────────────────────────
+  Checkbox(node) {
+    const { label, id, checked } = node.props || {};
+    const m = this.mods(node);
+    return `<label class="mr-checkbox-wrap"><input type="checkbox" class="mr-checkbox" id="${id || ''}" ${(checked || m.includes('checked')) ? 'checked' : ''}><span class="mr-checkbox-label">${this.esc(label || '')}</span></label>`;
+  }
+
+  // ── TOGGLE ────────────────────────────────────────────────────────────────
+  Toggle(node) {
+    const { label, id } = node.props || {};
+    const m = this.mods(node);
+    const tid = id || `tog_${Math.random().toString(36).slice(2,7)}`;
+    return `<label class="mr-toggle-wrap"><input type="checkbox" class="mr-toggle-input" id="${tid}" ${m.includes('on') ? 'checked' : ''}><span class="mr-toggle-slider"></span>${label ? `<span class="mr-toggle-label">${this.esc(label)}</span>` : ''}</label>`;
+  }
+
+  // ── EMBED (YouTube / iframe) ───────────────────────────────────────────────
+  Embed(node) {
+    const { src, label, width, height } = node.props || {};
+    const url = src || label || '';
+    // Convert YouTube watch URLs to embed URLs
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+    const embedUrl = ytMatch ? `https://www.youtube.com/embed/${ytMatch[1]}` : url;
+    const h = height || '400';
+    return `<div class="mr-embed-wrapper" style="height:${h}px"><iframe class="mr-embed" src="${this.esc(embedUrl)}" width="${width || '100%'}" height="${h}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>`;
+  }
+
+  // ── RATING ────────────────────────────────────────────────────────────────
+  Rating(node) {
+    const { value, max, label } = node.props || {};
+    const total = parseInt(max || 5);
+    const filled = Math.round(parseFloat(value || 5));
+    let stars = '';
+    for (let i = 1; i <= total; i++) {
+      stars += `<span class="mr-star${i <= filled ? ' filled' : ''}">★</span>`;
+    }
+    return `<div class="mr-rating">${stars}${label ? `<span class="mr-rating-label">${this.esc(label)}</span>` : ''}</div>`;
+  }
+
+  // ── COUNTDOWN ─────────────────────────────────────────────────────────────
+  Countdown(node) {
+    const { to, label } = node.props || {};
+    const id = `cd_${Math.random().toString(36).slice(2,7)}`;
+    this.extraJS.push(`(function(){const t=new Date('${to||''}').getTime();if(!t||isNaN(t))return;function upd(){const n=new Date().getTime(),d=t-n;if(d<0){document.getElementById('${id}').innerHTML='<span>Time is up!</span>';return;}const days=Math.floor(d/86400000),hrs=Math.floor((d%86400000)/3600000),min=Math.floor((d%3600000)/60000),sec=Math.floor((d%60000)/1000);document.getElementById('${id}').innerHTML='<div class=\\"mr-cd-unit\\"><span class=\\"mr-cd-num\\">'+days+'</span><span class=\\"mr-cd-lbl\\">Days</span></div><div class=\\"mr-cd-sep\\">:</div><div class=\\"mr-cd-unit\\"><span class=\\"mr-cd-num\\">'+hrs+'</span><span class=\\"mr-cd-lbl\\">Hours</span></div><div class=\\"mr-cd-sep\\">:</div><div class=\\"mr-cd-unit\\"><span class=\\"mr-cd-num\\">'+min+'</span><span class=\\"mr-cd-lbl\\">Mins</span></div><div class=\\"mr-cd-sep\\">:</div><div class=\\"mr-cd-unit\\"><span class=\\"mr-cd-num\\">'+sec+'</span><span class=\\"mr-cd-lbl\\">Secs</span></div>';}upd();setInterval(upd,1000);})();`);
+    return `<div class="mr-countdown">${label?`<p class="mr-countdown-title">${this.esc(label)}</p>`:''}<div class="mr-countdown-timer" id="${id}">Loading...</div></div>`;
+  }
+
+  // ── STEPS ─────────────────────────────────────────────────────────────────
+  Steps(node) {
+    return `<div class="mr-steps">${this.compileChildren(node.children)}</div>`;
+  }
+
+  Step(node) {
+    const { label, number } = node.props || {};
+    const m = this.mods(node);
+    const n = number || '';
+    const body = this.compileChildren(node.children);
+    return `<div class="mr-step${m.includes('done')?'  mr-step-done':''}"><div class="mr-step-num">${n}</div><div class="mr-step-body"><div class="mr-step-title">${this.esc(label || '')}</div>${body}</div></div>`;
+  }
+
+  // ── SIDEBAR ────────────────────────────────────────────────────────────────
+  Sidebar(node) {
+    const body = this.compileChildren(node.children);
+    return `<aside class="mr-sidebar">${body}</aside>`;
+  }
+
+  // ── MODAL ──────────────────────────────────────────────────────────────────
+  Modal(node) {
+    const { label, id } = node.props || {};
+    const mid = id || `modal_${Math.random().toString(36).slice(2,7)}`;
+    const body = this.compileChildren(node.children);
+    this.extraJS.push(`function mrOpenModal(id){document.getElementById(id).classList.add('open');}function mrCloseModal(id){document.getElementById(id).classList.remove('open');}`);
+    return `<div class="mr-modal" id="${mid}"><div class="mr-modal-overlay" onclick="mrCloseModal('${mid}')"></div><div class="mr-modal-box"><button class="mr-modal-close" onclick="mrCloseModal('${mid}')">✕</button>${label?`<h2 class="mr-modal-title">${this.esc(label)}</h2>`:''}<div class="mr-modal-body">${body}</div></div></div>`;
+  }
+
+  // ── DROPDOWN ───────────────────────────────────────────────────────────────
+  Dropdown(node) {
+    const { label } = node.props || {};
+    const body = this.compileChildren(node.children);
+    return `<div class="mr-dropdown"><button class="mr-dropdown-btn">${this.esc(label||'Options')} ▾</button><div class="mr-dropdown-menu">${body}</div></div>`;
+  }
 
   resolveAction(action) {
     if (!action) return '';
