@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -11,161 +11,316 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-left">
-      <div class="logo" aria-label="MR.easy IDE">
-        <span class="logo-mr">Mr</span><span class="logo-dot">.</span><span class="logo-easy">easy</span>
-        <span class="logo-badge">IDE / ETHIOPIA</span>
-      </div>
-      <div class="file-info">
-        <i class="fa fa-file-code" aria-hidden="true"></i>
-        <span id="filename">index.mreasy</span>
-        <span class="dot-indicator" id="saved-indicator" title="Saved" aria-label="Saved"></span>
+
+<!-- ── TOPBAR ──────────────────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="/" class="logo" aria-label="MR.easy Home">
+      <span class="logo-mr">Mr</span><span class="logo-dot">.</span><span class="logo-easy">easy</span>
+      <span class="logo-badge">IDE / ETHIOPIA 🇪🇹</span>
+    </a>
+    <div class="file-info">
+      <i class="fa fa-file-code" aria-hidden="true"></i>
+      <span id="filename">index.mreasy</span>
+      <span class="dot-indicator" id="saved-indicator" title="Saved" aria-label="Saved"></span>
+    </div>
+  </div>
+
+  <div class="topbar-center" aria-label="Editor view">
+    <div class="tab-bar" role="tablist">
+      <div class="tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('editor')"><i class="fa fa-code" aria-hidden="true"></i> Editor</div>
+      <div class="tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('preview')"><i class="fa fa-eye" aria-hidden="true"></i> Preview</div>
+      <div class="tab active" role="tab" tabindex="0" aria-selected="true" onclick="switchTab('split')"><i class="fa fa-table-columns" aria-hidden="true"></i> Split</div>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn-icon" type="button" onclick="openTemplateModal()" title="Choose a starter template"><i class="fa fa-cubes" aria-hidden="true"></i><span>Templates</span></button>
+    <button class="btn-icon" type="button" onclick="openCliModal()" title="CLI commands reference"><i class="fa fa-terminal" aria-hidden="true"></i><span>CLI Guide</span></button>
+    <button class="btn-icon" type="button" onclick="clearCode()" title="Start fresh from zero"><i class="fa fa-trash-can" aria-hidden="true"></i><span>Clear</span></button>
+    <button class="btn-icon" type="button" onclick="copySource()" title="Copy source code"><i class="fa fa-copy" aria-hidden="true"></i><span>Copy</span></button>
+    <button class="btn-icon" type="button" onclick="exportZip()" title="Export as ZIP bundle"><i class="fa fa-file-zipper" aria-hidden="true"></i><span>ZIP</span></button>
+    <button class="btn-run" type="button" onclick="downloadSource()" title="Download .mreasy source file"><i class="fa fa-floppy-disk" aria-hidden="true"></i><span>Save .mreasy</span></button>
+    <button class="btn-icon btn-play" type="button" onclick="runCode()" title="Run and refresh preview (Ctrl+Enter)"><i class="fa fa-play" aria-hidden="true"></i><span>Run</span></button>
+  </div>
+</header>
+
+<!-- ── WORKSPACE ────────────────────────────────────────────────────────── -->
+<div class="workspace" id="workspace">
+
+  <!-- ── ICON RAIL ── -->
+  <aside class="icon-rail" aria-label="Workbench navigation">
+    <button class="rail-button active" type="button" data-rail-action="explorer" onclick="activateRail('explorer')" title="Explorer — Snippets & Language Guide" aria-label="Explorer" aria-pressed="true"><i class="fa fa-code" aria-hidden="true"></i></button>
+    <button class="rail-button" type="button" data-rail-action="search" onclick="activateRail('search')" title="Search in editor" aria-label="Search" aria-pressed="false"><i class="fa fa-magnifying-glass" aria-hidden="true"></i></button>
+    <button class="rail-button" type="button" data-rail-action="examples" onclick="activateRail('examples')" title="Load an example project" aria-label="Examples" aria-pressed="false"><i class="fa fa-layer-group" aria-hidden="true"></i></button>
+    <span class="rail-spacer"></span>
+    <button class="rail-button" type="button" data-rail-action="guide" onclick="activateRail('guide')" title="Language Reference" aria-label="Language guide" aria-pressed="false"><i class="fa fa-book" aria-hidden="true"></i></button>
+    <button class="rail-button" type="button" data-rail-action="settings" onclick="activateRail('settings')" title="Settings" aria-label="Settings" aria-pressed="false"><i class="fa fa-gear" aria-hidden="true"></i></button>
+  </aside>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar" aria-label="MR.easy sidebar">
+
+    <!-- Explorer Panel (default active) -->
+    <div class="sidebar-section active" id="panel-explorer">
+      <div class="explorer-panel">
+        <div class="sidebar-group">
+          <div class="sidebar-group-header">Snippets</div>
+          <div class="snippet-list" id="snippet-list"></div>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-header">Language Guide</div>
+          <div class="guide-items">
+            <div class="guide-item" onclick="openGuideModal('ref')"><i class="fa fa-book" aria-hidden="true"></i><span>Full Reference</span></div>
+            <div class="guide-item" onclick="openGuideModal('cheat')"><i class="fa fa-list-check" aria-hidden="true"></i><span>Cheatsheet</span></div>
+            <div class="guide-item" onclick="openCliModal()"><i class="fa fa-terminal" aria-hidden="true"></i><span>CLI Guide</span></div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="topbar-center" aria-label="Editor view">
-      <div class="tab-bar" role="tablist">
-        <div class="tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('editor')"><i class="fa fa-code" aria-hidden="true"></i> Editor</div>
-        <div class="tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('preview')"><i class="fa fa-eye" aria-hidden="true"></i> Preview</div>
-        <div class="tab active" role="tab" tabindex="0" aria-selected="true" onclick="switchTab('split')"><i class="fa fa-table-columns" aria-hidden="true"></i> Split</div>
+
+    <!-- Search Panel -->
+    <div class="sidebar-section" id="panel-search">
+      <div class="search-panel">
+        <div class="search-panel-header"><i class="fa fa-magnifying-glass"></i> Search</div>
+        <div class="search-input-wrap">
+          <input type="text" id="search-input" placeholder="Search in editor…" autocomplete="off" spellcheck="false" aria-label="Search in editor">
+          <button type="button" onclick="runSearch()" aria-label="Run search">Go</button>
+        </div>
+        <div class="search-results" id="search-results">
+          <div class="search-empty">Type a query and press Go</div>
+        </div>
       </div>
     </div>
-    <div class="topbar-right">
-      <button class="btn-icon" type="button" onclick="openTemplateModal()" title="Choose pre-made template"><i class="fa fa-cubes" aria-hidden="true"></i><span>Templates</span></button>
-      <button class="btn-icon" type="button" onclick="openCliModal()" title="Terminal CLI commands"><i class="fa fa-terminal" aria-hidden="true"></i><span>CLI Guide</span></button>
-      <button class="btn-icon" type="button" onclick="clearCode()" title="Start from 0"><i class="fa fa-trash-can" aria-hidden="true"></i><span>Start 0</span></button>
-      <button class="btn-icon" type="button" onclick="copySource()" title="Copy .mreasy source code"><i class="fa fa-copy" aria-hidden="true"></i><span>Copy</span></button>
-      <button class="btn-icon" type="button" onclick="exportZip()" title="Export ZIP bundle"><i class="fa fa-file-zipper" aria-hidden="true"></i><span>ZIP</span></button>
-      <button class="btn-run" type="button" onclick="downloadSource()" title="Download .mreasy source"><i class="fa fa-floppy-disk" aria-hidden="true"></i><span>Save .mreasy</span></button>
-      <button class="btn-icon btn-play" type="button" onclick="runCode()" title="Recompile and refresh preview"><i class="fa fa-play" aria-hidden="true"></i><span>Run</span></button>
+
+    <!-- Examples Panel -->
+    <div class="sidebar-section" id="panel-examples">
+      <div class="examples-panel">
+        <div class="examples-panel-header"><i class="fa fa-layer-group"></i> Example Projects</div>
+        <div id="examples-card-list"></div>
+      </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="sidebar-section" id="panel-settings">
+      <div class="settings-panel">
+        <div class="settings-panel-header"><i class="fa fa-gear"></i> Settings</div>
+
+        <div class="settings-group">
+          <div class="settings-group-label">Editor</div>
+          <div class="settings-row">
+            <span class="settings-label">Font Size</span>
+            <div class="settings-control">
+              <button type="button" onclick="decreaseFontSize()" aria-label="Decrease font size"><i class="fa fa-minus"></i></button>
+              <span class="settings-value" id="settings-font-label">14px</span>
+              <button type="button" onclick="increaseFontSize()" aria-label="Increase font size"><i class="fa fa-plus"></i></button>
+            </div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="setting-wrap" onchange="toggleWrap(this.checked)">
+            <span>Word Wrap</span>
+          </label>
+          <label class="settings-toggle">
+            <input type="checkbox" id="setting-autocompile" checked onchange="toggleAutoCompile(this.checked)">
+            <span>Auto-Compile on type</span>
+          </label>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group-label">Preview</div>
+          <div class="settings-row">
+            <span class="settings-label">Theme</span>
+            <div class="settings-control">
+              <button type="button" onclick="togglePreviewTheme()" style="width:auto;padding:0 10px;font-size:.62rem;" id="theme-toggle-btn">
+                <i class="fa fa-moon" id="theme-icon"></i> Dark
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group-label">Keyboard Shortcuts</div>
+          <div class="kbd-list">
+            <div class="kbd-row"><span class="kbd-label">Compile & Run</span><span class="kbd">Ctrl+Enter</span></div>
+            <div class="kbd-row"><span class="kbd-label">Save .mreasy</span><span class="kbd">Ctrl+S</span></div>
+            <div class="kbd-row"><span class="kbd-label">Indent block</span><span class="kbd">Tab</span></div>
+            <div class="kbd-row"><span class="kbd-label">Close modal</span><span class="kbd">Esc</span></div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group-label">About</div>
+          <div style="color:var(--muted);font:.62rem var(--font-mono);line-height:1.6;">
+            MR.easy v1.0.0<br>
+            Created by Biruk<br>
+            IG: @mrcute_killer 🇪🇹<br>
+            Built in Addis Ababa, Ethiopia
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── EDITOR PANEL ── -->
+  <section class="editor-panel" id="editor-panel" aria-label="MR.easy editor">
+    <div class="editor-toolbar">
+      <div class="editor-info">
+        <span class="line-col" id="line-col">Ln 1, Col 1</span>
+        <span class="lang-badge">MR.easy</span>
+      </div>
+      <div class="editor-actions">
+        <button class="mini-btn" type="button" onclick="decreaseFontSize()" title="Decrease font size" aria-label="Decrease font size"><i class="fa fa-minus" aria-hidden="true"></i></button>
+        <span class="font-size-label" id="font-size-label">14px</span>
+        <button class="mini-btn" type="button" onclick="increaseFontSize()" title="Increase font size" aria-label="Increase font size"><i class="fa fa-plus" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="quick-tags-bar" aria-label="Quick-insert language elements">
+      <span class="quick-tag-label">Insert:</span>
+      <button class="quick-chip" type="button" onclick="insertSnippet('hero')">+ hero</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('nav')">+ nav</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('grid')">+ grid</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('card')">+ card</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('badge')">+ badge</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('alert')">+ alert</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('accordion')">+ accordion</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('tabs')">+ tabs</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('stat')">+ stat</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('progress')">+ progress</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('form')">+ form</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('footer')">+ footer</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('button')">+ button</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('image')">+ image</button>
+      <button class="quick-chip" type="button" onclick="insertSnippet('divider')">+ divider</button>
+    </div>
+    <div id="codemirror-container"><textarea id="code-textarea" spellcheck="false" aria-label="MR.easy source code editor"></textarea></div>
+  </section>
+
+  <!-- ── RESIZE DIVIDER ── -->
+  <div class="divider" id="divider" onpointerdown="startResize(event)" role="separator" aria-label="Resize editor and preview panels" tabindex="0"></div>
+
+  <!-- ── PREVIEW PANEL ── -->
+  <section class="preview-panel" id="preview-panel" aria-label="Live preview output">
+    <div class="preview-toolbar">
+      <div class="preview-info">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="preview-status">Live Preview</span>
+      </div>
+      <div class="preview-actions">
+        <div class="zoom-switcher" aria-label="Preview zoom">
+          <button class="zoom-btn active" type="button" onclick="setZoom(100)" id="zoom-100">Fit</button>
+          <button class="zoom-btn" type="button" onclick="setZoom(75)" id="zoom-75">75%</button>
+          <button class="zoom-btn" type="button" onclick="setZoom(50)" id="zoom-50">50%</button>
+        </div>
+        <div class="viewport-switcher" aria-label="Preview viewport">
+          <button class="vp-btn active" type="button" onclick="setViewport('desktop', event)" title="Desktop 1280px" aria-label="Desktop"><i class="fa fa-desktop" aria-hidden="true"></i></button>
+          <button class="vp-btn" type="button" onclick="setViewport('tablet', event)" title="Tablet 768px" aria-label="Tablet"><i class="fa fa-tablet-screen-button" aria-hidden="true"></i></button>
+          <button class="vp-btn" type="button" onclick="setViewport('mobile', event)" title="Mobile 375px" aria-label="Mobile"><i class="fa fa-mobile-screen-button" aria-hidden="true"></i></button>
+        </div>
+        <button class="mini-btn" type="button" onclick="togglePreviewTheme()" title="Toggle light/dark preview" aria-label="Toggle preview theme"><i class="fa fa-moon" id="theme-icon" aria-hidden="true"></i></button>
+        <button class="mini-btn" type="button" onclick="refreshPreview()" title="Refresh preview" aria-label="Refresh preview"><i class="fa fa-rotate-right" aria-hidden="true"></i></button>
+        <button class="mini-btn" type="button" onclick="openInNewTab()" title="Open in new tab" aria-label="Open preview in new tab"><i class="fa fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="preview-frame-wrapper" id="preview-wrapper">
+      <iframe id="preview-frame" title="MR.easy live preview"></iframe>
+    </div>
+  </section>
+
+</div><!-- end .workspace -->
+
+<!-- ── STATUS BAR ── -->
+<footer class="statusbar">
+  <div class="statusbar-left">
+    <span><i class="fa fa-check-circle" aria-hidden="true"></i> MR.easy v1.0.0</span>
+    <span id="char-count">0 chars</span>
+    <span>UTF-8</span>
+  </div>
+  <div class="statusbar-right">
+    <span>IG: @mrcute_killer 🇪🇹</span>
+  </div>
+</footer>
+
+<!-- ── GUIDE / TEMPLATE MODAL ── -->
+<div class="modal-overlay" id="guide-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title"><i class="fa fa-book" aria-hidden="true"></i> MR.easy Language Reference</h2>
+      <button type="button" onclick="closeGuideModal()" aria-label="Close dialog">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ── AI ASSISTANT TOGGLE ── -->
+<button class="ai-agent-toggle" id="ai-agent-toggle" type="button" onclick="toggleAiPanel()" aria-expanded="false" aria-controls="ai-agent-panel" aria-label="Open MR.easy AI assistant" title="MR.easy AI Assistant">
+  <i class="fa fa-robot" aria-hidden="true"></i>
+  <span class="ai-agent-toggle-dot" aria-hidden="true"></span>
+</button>
+
+<!-- ── AI ASSISTANT PANEL ── -->
+<section class="ai-agent-panel" id="ai-agent-panel" role="dialog" aria-modal="false" aria-labelledby="ai-agent-title" aria-hidden="true">
+  <header class="ai-agent-header">
+    <div class="ai-agent-heading">
+      <span class="ai-agent-mark"><i class="fa fa-robot" aria-hidden="true"></i></span>
+      <div>
+        <h2 id="ai-agent-title">MR.easy AI</h2>
+        <p>Language-aware editor agent</p>
+      </div>
+    </div>
+    <div class="ai-agent-header-actions">
+      <button class="ai-agent-icon-btn ai-agent-undo" id="ai-agent-undo" type="button" onclick="undoAiEdit()" title="Undo last AI edit" aria-label="Undo last AI edit" disabled><i class="fa fa-rotate-left" aria-hidden="true"></i></button>
+      <button class="ai-agent-icon-btn" id="ai-agent-clear" type="button" onclick="clearAiConversation()" title="Clear conversation" aria-label="Clear conversation"><i class="fa fa-eraser" aria-hidden="true"></i></button>
+      <button class="ai-agent-icon-btn" id="ai-agent-close" type="button" onclick="closeAiPanel()" title="Close AI assistant" aria-label="Close AI assistant"><i class="fa fa-xmark" aria-hidden="true"></i></button>
     </div>
   </header>
 
-  <div class="workspace" id="workspace">
-    <aside class="icon-rail" aria-label="Workbench navigation">
-      <button class="rail-button active" type="button" data-rail-action="explorer" onclick="activateRail('explorer')" title="Explorer" aria-label="Explorer" aria-pressed="true"><i class="fa fa-code" aria-hidden="true"></i></button>
-      <button class="rail-button" type="button" data-rail-action="search" onclick="activateRail('search')" title="Search" aria-label="Search" aria-pressed="false"><i class="fa fa-magnifying-glass" aria-hidden="true"></i></button>
-      <button class="rail-button" type="button" data-rail-action="examples" onclick="activateRail('examples')" title="Examples" aria-label="Examples" aria-pressed="false"><i class="fa fa-layer-group" aria-hidden="true"></i></button>
-      <span class="rail-spacer"></span>
-      <button class="rail-button" type="button" data-rail-action="guide" onclick="activateRail('guide')" title="Language guide" aria-label="Language guide" aria-pressed="false"><i class="fa fa-book" aria-hidden="true"></i></button>
-      <button class="rail-button" type="button" data-rail-action="settings" onclick="activateRail('settings')" title="Settings" aria-label="Settings" aria-pressed="false"><i class="fa fa-gear" aria-hidden="true"></i></button>
-    </aside>
-
-    <aside class="sidebar" id="sidebar" aria-label="MR.easy explorer">
-      <div class="sidebar-section">
-        <div class="sidebar-label">Snippets</div>
-        <div class="snippet-list" id="snippet-list">
-          <div class="snippet-item" onclick="insertSnippet('hero')"><i class="fa fa-star" aria-hidden="true"></i><span>Hero Section</span><span class="snippet-tag">hero</span></div>
-          <div class="snippet-item" onclick="insertSnippet('nav')"><i class="fa fa-bars" aria-hidden="true"></i><span>Nav Bar</span><span class="snippet-tag">nav</span></div>
-          <div class="snippet-item" onclick="insertSnippet('grid')"><i class="fa fa-border-all" aria-hidden="true"></i><span>3-Column Grid</span><span class="snippet-tag">grid</span></div>
-          <div class="snippet-item" onclick="insertSnippet('form')"><i class="fa fa-paper-plane" aria-hidden="true"></i><span>Contact Form</span><span class="snippet-tag">form</span></div>
-          <div class="snippet-item" onclick="insertSnippet('card')"><i class="fa fa-square" aria-hidden="true"></i><span>Card Component</span><span class="snippet-tag">card</span></div>
-          <div class="snippet-item" onclick="insertSnippet('footer')"><i class="fa fa-shoe-prints" aria-hidden="true"></i><span>Footer</span><span class="snippet-tag">footer</span></div>
-        </div>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-label">Examples</div>
-        <div class="example-list" id="example-list">
-          <div class="example-item" onclick="loadExample('portfolio')"><i class="fa fa-briefcase" aria-hidden="true"></i><span>Portfolio Page</span></div>
-          <div class="example-item" onclick="loadExample('landing')"><i class="fa fa-rocket" aria-hidden="true"></i><span>Product Landing</span></div>
-          <div class="example-item" onclick="loadExample('buna')"><i class="fa fa-mug-hot" aria-hidden="true"></i><span>Buna Café Lounge</span></div>
-          <div class="example-item" onclick="loadExample('simple')"><i class="fa fa-feather" aria-hidden="true"></i><span>Minimal Starter</span></div>
-        </div>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-label">Language Guide</div>
-        <div class="guide-items">
-          <div class="guide-item" onclick="openGuideModal('ref')"><i class="fa fa-book" aria-hidden="true"></i><span>Full Reference</span></div>
-          <div class="guide-item" onclick="openGuideModal('cheat')"><i class="fa fa-list-check" aria-hidden="true"></i><span>Cheatsheet</span></div>
-        </div>
-      </div>
-    </aside>
-
-    <section class="editor-panel" id="editor-panel" aria-label="MR.easy editor">
-      <div class="editor-toolbar">
-        <div class="editor-info"><span class="line-col" id="line-col">Ln 1, Col 1</span><span class="lang-badge">MR.easy</span></div>
-        <div class="editor-actions"><button class="mini-btn" type="button" onclick="decreaseFontSize()" title="Decrease font size" aria-label="Decrease font size"><i class="fa fa-minus" aria-hidden="true"></i></button><span class="font-size-label" id="font-size-label">14px</span><button class="mini-btn" type="button" onclick="increaseFontSize()" title="Increase font size" aria-label="Increase font size"><i class="fa fa-plus" aria-hidden="true"></i></button></div>
-      </div>
-      <div class="quick-tags-bar" aria-label="Insert language elements">
-        <span class="quick-tag-label">Insert:</span>
-        <button class="quick-chip" type="button" onclick="insertSnippet('hero')">+ hero</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('nav')">+ nav</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('grid')">+ grid</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('card')">+ card</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('button')">+ button</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('badge')">+ badge</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('alert')">+ alert</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('accordion')">+ accordion</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('tabs')">+ tabs</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('stat')">+ stat</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('progress')">+ progress</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('form')">+ form</button>
-        <button class="quick-chip" type="button" onclick="insertSnippet('footer')">+ footer</button>
-      </div>
-      <div id="codemirror-container"><textarea id="code-textarea" spellcheck="false" aria-label="MR.easy source code"></textarea></div>
-    </section>
-
-    <div class="divider" id="divider" onpointerdown="startResize(event)" role="separator" aria-label="Resize editor and preview" tabindex="0"></div>
-
-    <section class="preview-panel" id="preview-panel" aria-label="Live preview">
-      <div class="preview-toolbar">
-        <div class="preview-info"><span class="status-dot" id="status-dot"></span><span id="preview-status">Live Preview</span></div>
-        <div class="preview-actions">
-          <div class="zoom-switcher" aria-label="Preview zoom"><button class="zoom-btn" type="button" onclick="setZoom(100)" id="zoom-100">Fit</button><button class="zoom-btn" type="button" onclick="setZoom(75)" id="zoom-75">75%</button><button class="zoom-btn" type="button" onclick="setZoom(50)" id="zoom-50">50%</button></div>
-          <div class="viewport-switcher" aria-label="Preview viewport"><button class="vp-btn active" type="button" onclick="setViewport('desktop', event)" title="Desktop 1280px" aria-label="Desktop preview"><i class="fa fa-desktop" aria-hidden="true"></i></button><button class="vp-btn" type="button" onclick="setViewport('tablet', event)" title="Tablet 768px" aria-label="Tablet preview"><i class="fa fa-tablet-screen-button" aria-hidden="true"></i></button><button class="vp-btn" type="button" onclick="setViewport('mobile', event)" title="Mobile 375px" aria-label="Mobile preview"><i class="fa fa-mobile-screen-button" aria-hidden="true"></i></button></div>
-          <button class="mini-btn" type="button" onclick="togglePreviewTheme()" title="Toggle light and dark preview" aria-label="Toggle preview theme"><i class="fa fa-moon" id="theme-icon" aria-hidden="true"></i></button>
-          <button class="mini-btn" type="button" onclick="refreshPreview()" title="Refresh preview" aria-label="Refresh preview"><i class="fa fa-rotate-right" aria-hidden="true"></i></button>
-          <button class="mini-btn" type="button" onclick="openInNewTab()" title="Open in new tab" aria-label="Open preview in a new tab"><i class="fa fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
-        </div>
-      </div>
-      <div class="preview-frame-wrapper" id="preview-wrapper"><iframe id="preview-frame" title="MR.easy live preview"></iframe></div>
-    </section>
-  </div>
-
-  <footer class="statusbar">
-    <div class="statusbar-left"><span><i class="fa fa-check-circle" aria-hidden="true"></i> MR.easy v1.0.0</span><span id="char-count">0 chars</span><span>UTF-8</span></div>
-    <div class="statusbar-right"><span>IG: @mrcute_killer 🇪🇹</span></div>
-  </footer>
-
-  <div class="modal-overlay" id="guide-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal">
-      <div class="modal-header"><h2 id="modal-title"><i class="fa fa-book" aria-hidden="true"></i> MR.easy Language Reference</h2><button type="button" onclick="closeGuideModal()" aria-label="Close dialog">&times;</button></div>
-      <div class="modal-body" id="modal-body"></div>
+  <form class="ai-agent-config" id="ai-agent-config">
+    <div class="ai-agent-config-row">
+      <label for="ai-provider">Provider
+        <select id="ai-provider" autocomplete="off">
+          <option value="openai">OpenAI</option>
+          <option value="anthropic">Anthropic</option>
+          <option value="gemini">Google Gemini</option>
+          <option value="openai-compatible">Any OpenAI-compatible API</option>
+        </select>
+      </label>
     </div>
-  </div>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="ai-agent-config-grid">
+      <label for="ai-api-key">API key<input id="ai-api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste key (tab only)"></label>
+      <label for="ai-model">Model<input id="ai-model" type="text" autocomplete="off" spellcheck="false"></label>
+    </div>
+    <label class="ai-endpoint-field" id="ai-endpoint-field" for="ai-endpoint">Advanced endpoint<input id="ai-endpoint" type="url" autocomplete="off" spellcheck="false"></label>
+    <div class="ai-agent-config-footer">
+      <span id="ai-config-status" role="status">Not connected</span>
+      <button class="ai-agent-connect" id="ai-connect" type="submit">Connect</button>
+    </div>
+    <p class="ai-agent-security"><i class="fa fa-shield-halved" aria-hidden="true"></i> Key stays in memory only. Works with OpenRouter, Groq, DeepSeek, Mistral, local gateways, and more.</p>
+  </form>
 
-  <button class="ai-agent-toggle" id="ai-agent-toggle" type="button" onclick="toggleAiPanel()" aria-expanded="false" aria-controls="ai-agent-panel" aria-label="Open MR.easy AI assistant" title="Open MR.easy AI assistant">
-    <i class="fa fa-robot" aria-hidden="true"></i><span class="ai-agent-toggle-dot" aria-hidden="true"></span>
-  </button>
+  <div class="ai-agent-messages" id="ai-agent-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
 
-  <section class="ai-agent-panel" id="ai-agent-panel" role="dialog" aria-modal="false" aria-labelledby="ai-agent-title" aria-hidden="true">
-    <header class="ai-agent-header">
-      <div class="ai-agent-heading"><span class="ai-agent-mark"><i class="fa fa-robot" aria-hidden="true"></i></span><div><h2 id="ai-agent-title">MR.easy AI</h2><p>Language-aware copilot</p></div></div>
-      <div class="ai-agent-header-actions"><button class="ai-agent-icon-btn" id="ai-agent-clear" type="button" onclick="clearAiConversation()" title="Clear conversation" aria-label="Clear conversation"><i class="fa fa-rotate-left" aria-hidden="true"></i></button><button class="ai-agent-icon-btn" id="ai-agent-close" type="button" onclick="closeAiPanel()" title="Close AI assistant" aria-label="Close AI assistant"><i class="fa fa-xmark" aria-hidden="true"></i></button></div>
-    </header>
+  <form class="ai-agent-composer" id="ai-agent-composer">
+    <label class="sr-only" for="ai-agent-input">Message MR.easy AI</label>
+    <textarea id="ai-agent-input" rows="2" spellcheck="true" placeholder="Ask MR.easy AI to write, edit, or explain code…" aria-describedby="ai-agent-input-hint"></textarea>
+    <div class="ai-agent-composer-footer">
+      <span id="ai-agent-input-hint">Enter to send · Shift+Enter for new line</span>
+      <div class="ai-agent-composer-actions">
+        <button class="ai-agent-stop" id="ai-agent-stop" type="button" onclick="stopAiRequest()" hidden>Stop</button>
+        <button class="ai-agent-send" id="ai-agent-send" type="submit" disabled><i class="fa fa-paper-plane" aria-hidden="true"></i><span>Send</span></button>
+      </div>
+    </div>
+  </form>
+</section>
 
-    <form class="ai-agent-config" id="ai-agent-config">
-      <div class="ai-agent-config-row"><label for="ai-provider">Provider</label><select id="ai-provider" autocomplete="off"><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option><option value="gemini">Google Gemini</option><option value="openai-compatible">OpenAI-compatible / OpenRouter</option></select></div>
-      <div class="ai-agent-config-grid"><label for="ai-api-key">API key<input id="ai-api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste key for this tab only"></label><label for="ai-model">Model<input id="ai-model" type="text" autocomplete="off" spellcheck="false"></label></div>
-      <label class="ai-endpoint-field" id="ai-endpoint-field" for="ai-endpoint">Advanced endpoint<input id="ai-endpoint" type="url" autocomplete="off" spellcheck="false"></label>
-      <div class="ai-agent-config-footer"><span id="ai-config-status" role="status">Not connected</span><button class="ai-agent-connect" id="ai-connect" type="submit">Connect</button></div>
-      <p class="ai-agent-security"><i class="fa fa-shield-halved" aria-hidden="true"></i> Key stays in memory only. Use a server proxy for production.</p>
-    </form>
-
-    <div class="ai-agent-messages" id="ai-agent-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
-
-    <form class="ai-agent-composer" id="ai-agent-composer">
-      <label class="sr-only" for="ai-agent-input">Message MR.easy AI</label>
-      <textarea id="ai-agent-input" rows="2" spellcheck="true" placeholder="Ask about your current MR.easy code…" aria-describedby="ai-agent-input-hint"></textarea>
-      <div class="ai-agent-composer-footer"><span id="ai-agent-input-hint">Enter to send · Shift+Enter for a new line</span><div class="ai-agent-composer-actions"><button class="ai-agent-stop" id="ai-agent-stop" type="button" onclick="stopAiRequest()" hidden>Stop</button><button class="ai-agent-send" id="ai-agent-send" type="submit" disabled><i class="fa fa-paper-plane" aria-hidden="true"></i><span>Send</span></button></div></div>
-    </form>
-  </section>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="compiler.js"></script>
-  <script src="editor.js"></script>
+<!-- ── SCRIPTS ── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="compiler.js"></script>
+<script src="editor.js"></script>
 </body>
 </html>

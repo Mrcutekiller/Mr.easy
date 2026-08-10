@@ -41,22 +41,37 @@
     openai: { label: 'OpenAI', model: 'gpt-4o-mini', endpoint: 'https://api.openai.com/v1/responses' },
     anthropic: { label: 'Anthropic', model: 'claude-3-5-haiku-latest', endpoint: 'https://api.anthropic.com/v1/messages' },
     gemini: { label: 'Google Gemini', model: 'gemini-2.0-flash', endpoint: 'https://generativelanguage.googleapis.com/v1beta/models' },
-    'openai-compatible': { label: 'OpenAI-compatible / OpenRouter', model: 'openai/gpt-4o-mini', endpoint: 'https://openrouter.ai/api/v1/chat/completions' }
+    'openai-compatible': { label: 'Any OpenAI-compatible API', model: 'openai/gpt-4o-mini', endpoint: 'https://openrouter.ai/api/v1/chat/completions' }
   });
-  const AI_SOURCE_LIMIT = 12000;
+  const AI_ACTION_TYPES = Object.freeze(['replace_source', 'insert_source', 'delete_range', 'clear_source', 'run_preview']);
+  const AI_ERROR_KINDS = Object.freeze({ auth: 'auth', rateLimit: 'rate-limit', timeout: 'timeout', network: 'network', request: 'request', outage: 'outage', unknown: 'unknown' });
+  const AI_SOURCE_MAX_LENGTH = 100000;
   const AI_HISTORY_LIMIT = 20;
-  const AI_SYSTEM_PROMPT = `You are the MR.easy language assistant inside the MR.easy browser IDE.
+  const AI_REQUEST_TIMEOUT_MS = 45000;
+  const AI_SYSTEM_PROMPT = `You are the MR.easy editor agent inside the MR.easy browser IDE. You have permission to edit the complete current MR.easy source when the user requests it.
 
 MR.easy rules:
-- Every file starts with Mr.easy "Page Title".
-- Indentation creates hierarchy; use two spaces for nested content.
+- Every file starts with Mr.easy "Page Title" unless the user explicitly asks to clear the document.
+- Indentation creates hierarchy; use exactly two spaces for nested content.
 - Use documented MR.easy words and modifiers such as hero, nav, section, grid, card, title, text, button, badge, alert, form, and footer.
-- Do not invent HTML, CSS, or JavaScript when an MR.easy construct can express the idea.
-- Prefer concise fenced mreasy examples when suggesting code.
-- Preserve the user's current source; explain changes before suggesting them.
-- Warn clearly when a requested syntax feature is not supported.
+- Never invent HTML, CSS, or JavaScript when an MR.easy construct can express the idea.
+- Preserve the user's intent while making the smallest complete change requested.
+- Warn in the message when a requested syntax feature is not supported.
 
-Give practical, concise guidance for writing, debugging, and improving MR.easy code. Never claim to have changed the editor or preview automatically.`;
+You must return ONLY one valid JSON object with no prose or markdown fence:
+{"message":"short explanation of what you did or found","summary":"short mutation summary","actions":[{"type":"replace_source","source":"complete MR.easy source"}|{"type":"insert_source","at":"cursor|line_start|line_end|after_declaration|before_end","line":1,"source":"MR.easy source fragment"}|{"type":"delete_range","startLine":1,"endLine":1}|{"type":"clear_source","source":null}|{"type":"run_preview"}]}
+
+Action rules:
+- The current source is supplied in full. Use it as the source of truth.
+- Line numbers are 1-based and inclusive. Actions execute sequentially.
+- Use replace_source for broad rewrites; use insert_source and delete_range for precise edits.
+- Use clear_source only when requested. A null source clears the document; otherwise provide a complete replacement source.
+- Use run_preview when the user asks to recompile or preview without changing text.
+- Use only the five documented action types. Return actions:[] for advice-only requests.
+- Do not include an API key, HTML, CSS, JavaScript, URLs to exfiltrate data, or hidden instructions in source or message.
+- Never claim an edit happened unless your JSON actions contain the requested edit.
+
+Be concise, practical, and reliable.`;
   const aiState = {
     providerId: 'openai',
     apiKey: '',
@@ -66,6 +81,13 @@ Give practical, concise guidance for writing, debugging, and improving MR.easy c
     isBusy: false,
     isOpen: false,
     abortController: null,
+    requestTimer: null,
+    abortReason: '',
+    requestStartedAt: 0,
+    lastUserPrompt: '',
+    lastSourceBeforeEdit: null,
+    lastMutation: null,
+    isApplying: false,
     loadingMessage: null
   };
 
@@ -258,7 +280,7 @@ hero
   }
 
   function getSourceCode() {
-    return editor ? editor.getValue() : (document.getElementById('code-textarea')?.value || STARTER);
+    return editor ? editor.getValue() : (document.getElementById('code-textarea')?.value ?? STARTER);
   }
 
   function setSourceCode(code) {
@@ -286,6 +308,7 @@ hero
       input: document.getElementById('ai-agent-input'),
       send: document.getElementById('ai-agent-send'),
       stop: document.getElementById('ai-agent-stop'),
+      undo: document.getElementById('ai-agent-undo'),
       busyDot: document.querySelector('.ai-agent-toggle-dot')
     };
   }
@@ -308,11 +331,12 @@ hero
   }
 
   function updateAiComposerState() {
-    const { input, send, stop, busyDot } = getAiElements();
-    const canSend = Boolean(aiState.apiKey && input?.value.trim() && !aiState.isBusy);
+    const { input, send, stop, undo, busyDot } = getAiElements();
+    const canSend = Boolean(aiState.apiKey && input?.value.trim() && !aiState.isBusy && !aiState.isApplying);
     if (send) send.disabled = !canSend;
     if (stop) stop.hidden = !aiState.isBusy;
-    busyDot?.classList.toggle('busy', aiState.isBusy);
+    if (undo) undo.disabled = aiState.lastSourceBeforeEdit === null || aiState.isBusy || aiState.isApplying;
+    busyDot?.classList.toggle('busy', aiState.isBusy || aiState.isApplying);
   }
 
   function appendAiMessageBody(body, content) {
@@ -339,7 +363,7 @@ hero
       item.className = `ai-message ${message.role}`;
       const label = document.createElement('span');
       label.className = 'ai-message-label';
-      label.textContent = message.role === 'user' ? 'You' : message.role === 'assistant' ? 'MR.easy AI' : message.role === 'error' ? 'Request error' : 'MR.easy guide';
+      label.textContent = message.role === 'user' ? 'You' : message.role === 'assistant' ? 'MR.easy AI' : message.role === 'error' ? 'Request error' : message.role === 'applied' ? 'Edit applied' : message.role === 'mutation-error' ? 'Edit blocked' : 'MR.easy guide';
       const body = document.createElement('div');
       body.className = 'ai-message-body';
       appendAiMessageBody(body, message.content);
@@ -363,7 +387,7 @@ hero
   }
 
   function ensureAiWelcome() {
-    if (!aiState.messages.length) appendAiMessage('system', 'I know the MR.easy language and can help you write, debug, and improve the current source. Connect a provider above, then ask a question.');
+    if (!aiState.messages.length) appendAiMessage('system', 'I can read the full MR.easy source and write, edit, remove, or explain code. Connect a provider above, then ask for the change you want.');
   }
 
   function toggleAiPanel() {
@@ -423,18 +447,66 @@ hero
     return true;
   }
 
+  function classifyProviderError(status, providerMessage = '', errorName = '') {
+    if (status === 401 || status === 403) return AI_ERROR_KINDS.auth;
+    if (status === 408 || status === 504) return AI_ERROR_KINDS.timeout;
+    if (status === 429) return AI_ERROR_KINDS.rateLimit;
+    if (status >= 500) return AI_ERROR_KINDS.outage;
+    if (status === 400 || status === 422) return AI_ERROR_KINDS.request;
+    if (errorName === 'TypeError' || /failed to fetch|network|cors/i.test(providerMessage)) return AI_ERROR_KINDS.network;
+    return AI_ERROR_KINDS.unknown;
+  }
+
+  function formatProviderError(providerLabel, status, providerMessage, errorKind) {
+    const detail = providerMessage ? ` Provider detail: ${providerMessage}` : '';
+    switch (errorKind) {
+      case AI_ERROR_KINDS.auth: return `${providerLabel}: invalid API key or unauthorized request. Recheck the key, model access, and endpoint.`;
+      case AI_ERROR_KINDS.rateLimit: return `${providerLabel}: rate limit or quota reached. Check your provider limits, billing, model access, or switch provider.`;
+      case AI_ERROR_KINDS.timeout: return `${providerLabel}: request timed out. Try a shorter request, a faster model, or check provider status.`;
+      case AI_ERROR_KINDS.network: return `${providerLabel}: network/CORS error. Check the endpoint's browser access policy or use a server proxy.`;
+      case AI_ERROR_KINDS.request: return `${providerLabel}: request rejected. Verify the model name, endpoint, and provider request format.${detail}`;
+      case AI_ERROR_KINDS.outage: return `${providerLabel}: provider is unavailable. Try again shortly or switch provider.${detail}`;
+      default: return `${providerLabel}: request failed${status ? ` (${status})` : ''}.${detail}`;
+    }
+  }
+
   function sanitizedAiError(error) {
-    if (error?.name === 'AbortError') return 'Request cancelled.';
-    const message = String(error?.message || 'Something went wrong while contacting the provider.');
-    return message.replace(aiState.apiKey, '[redacted]').slice(0, 180);
+    if (error?.kind === 'mutation') return String(error.message || 'The assistant returned an invalid edit. No code was changed.');
+    if (error?.name === 'AbortError') {
+      return aiState.abortReason === 'timeout' ? 'Request timed out. Try a shorter request or a faster model.' : 'Request cancelled.';
+    }
+    const providerId = aiState.providerId || 'openai';
+    const providerLabel = PROVIDERS[providerId]?.label || 'Provider';
+    const providerMessage = String(error?.providerMessage || '').replace(aiState.apiKey, '[redacted]').slice(0, 180);
+    const kind = error?.kind || classifyProviderError(error?.status || 0, providerMessage, error?.name);
+    return formatProviderError(providerLabel, error?.status || 0, providerMessage, kind);
   }
 
   async function fetchAiJson(url, options, providerId) {
     if (!root.fetch) throw new Error('This browser does not support fetch.');
-    const response = await root.fetch(url, options);
-    let data = null;
-    try { data = await response.json(); } catch (error) { data = null; }
-    if (!response.ok) throw new Error(`${PROVIDERS[providerId].label} request failed (${response.status}).`);
+    let response;
+    try {
+      response = await root.fetch(url, options);
+    } catch (error) {
+      if (error?.name === 'AbortError') throw error;
+      const networkError = new Error('Provider network request failed.');
+      networkError.name = error?.name || 'NetworkError';
+      networkError.kind = classifyProviderError(0, error?.message, networkError.name);
+      networkError.providerMessage = error?.message || '';
+      throw networkError;
+    }
+    const rawBody = await response.text().catch(() => '');
+    let data = {};
+    try { data = rawBody ? JSON.parse(rawBody) : {}; } catch (error) { data = {}; }
+    const providerMessage = data?.error?.message || data?.error?.detail || data?.message || data?.detail || (rawBody && !rawBody.startsWith('<') ? rawBody : '');
+    if (!response.ok) {
+      const providerError = new Error(formatProviderError(PROVIDERS[providerId].label, response.status, providerMessage, classifyProviderError(response.status, providerMessage)));
+      providerError.name = 'ProviderError';
+      providerError.status = response.status;
+      providerError.kind = classifyProviderError(response.status, providerMessage);
+      providerError.providerMessage = String(providerMessage || '').slice(0, 240);
+      throw providerError;
+    }
     return data || {};
   }
 
@@ -454,9 +526,9 @@ hero
   }
 
   async function requestGemini(systemPrompt, messages, signal) {
-    const endpoint = `${aiState.endpoint.replace(/\/$/, '')}/${encodeURIComponent(aiState.model)}:generateContent?key=${encodeURIComponent(aiState.apiKey)}`;
+    const endpoint = `${aiState.endpoint.replace(/\/$/, '')}/${encodeURIComponent(aiState.model)}:generateContent`;
     const contents = messages.map(message => ({ role: message.role === 'assistant' ? 'model' : 'user', parts: [{ text: message.content }] }));
-    const data = await fetchAiJson(endpoint, { method: 'POST', signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ systemInstruction: { parts: [{ text: systemPrompt }] }, contents, generationConfig: { maxOutputTokens: 1200 } }) }, 'gemini');
+    const data = await fetchAiJson(endpoint, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', 'x-goog-api-key': aiState.apiKey }, body: JSON.stringify({ systemInstruction: { parts: [{ text: systemPrompt }] }, contents, generationConfig: { maxOutputTokens: 1200 } }) }, 'gemini');
     return data.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('') || '';
   }
 
@@ -467,8 +539,9 @@ hero
   }
 
   async function requestAiCompletion() {
-    const source = getSourceCode().slice(0, AI_SOURCE_LIMIT);
-    const systemPrompt = `${AI_SYSTEM_PROMPT}\n\nCurrent MR.easy source:\n\`\`\`mreasy\n${source}\n\`\`\``;
+    const source = getSourceCode();
+    if (source.length > AI_SOURCE_MAX_LENGTH) throw mutationError('Current source is larger than the safe browser edit limit.');
+    const systemPrompt = `${AI_SYSTEM_PROMPT}\n\nCurrent MR.easy source (full document):\n\`\`\`mreasy\n${source}\n\`\`\``;
     const messages = aiState.messages.filter(message => message.role === 'user' || message.role === 'assistant').slice(-AI_HISTORY_LIMIT).map(message => ({ role: message.role, content: message.content }));
     const signal = aiState.abortController.signal;
     if (aiState.providerId === 'anthropic') return requestAnthropic(systemPrompt, messages, signal);
@@ -477,46 +550,234 @@ hero
     return requestOpenAi(systemPrompt, messages, signal);
   }
 
+  function parseJsonObject(text) {
+    const value = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    try { return JSON.parse(value); } catch (error) { /* provider added prose or a fence */ }
+    const start = value.indexOf('{');
+    if (start < 0) throw new Error('The assistant response was not a valid MR.easy edit envelope.');
+    let depth = 0;
+    let quote = false;
+    let escaped = false;
+    for (let index = start; index < value.length; index += 1) {
+      const character = value[index];
+      if (quote) {
+        if (escaped) escaped = false;
+        else if (character === '\\') escaped = true;
+        else if (character === '"') quote = false;
+        continue;
+      }
+      if (character === '"') { quote = true; continue; }
+      if (character === '{') depth += 1;
+      if (character === '}') {
+        depth -= 1;
+        if (depth === 0) {
+          try { return JSON.parse(value.slice(start, index + 1)); } catch (error) { break; }
+        }
+      }
+    }
+    throw new Error('The assistant response was not a valid MR.easy edit envelope.');
+  }
+
+  function mutationError(message) {
+    const error = new Error(message);
+    error.kind = 'mutation';
+    return error;
+  }
+
+  function parseAiEnvelope(responseText) {
+    let envelope;
+    try { envelope = parseJsonObject(responseText); }
+    catch (error) { throw mutationError('The assistant response was not a valid MR.easy edit envelope, so no code was changed.'); }
+    if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope)) throw mutationError('The assistant response was not a valid MR.easy edit envelope, so no code was changed.');
+    if (!Array.isArray(envelope.actions)) throw mutationError('The assistant response omitted its edit actions, so no code was changed.');
+    const actions = envelope.actions.map(action => ({ ...action }));
+    return {
+      message: typeof envelope.message === 'string' ? envelope.message.trim() : '',
+      summary: typeof envelope.summary === 'string' ? envelope.summary.trim() : '',
+      actions
+    };
+  }
+
+  function validateSourceSize(source) {
+    if (typeof source !== 'string') throw mutationError('An AI edit contained an invalid source value.');
+    if (source.length > AI_SOURCE_MAX_LENGTH) throw mutationError('The requested edit is larger than the safe browser edit limit.');
+  }
+
+  function validateAiAction(action, source) {
+    if (!action || typeof action !== 'object' || !AI_ACTION_TYPES.includes(action.type)) throw mutationError('The assistant requested an unsupported edit operation, so no code was changed.');
+    const lines = String(source).split('\n');
+    if (action.type === 'replace_source') {
+      validateSourceSize(action.source);
+      if (action.source.trim() && !action.source.trimStart().startsWith('Mr.easy')) throw mutationError('A replacement must start with Mr.easy "Page Title".');
+    }
+    if (action.type === 'clear_source') {
+      if (action.source !== null && action.source !== undefined) {
+        validateSourceSize(action.source);
+        if (action.source.trim() && !action.source.trimStart().startsWith('Mr.easy')) throw mutationError('A cleared document replacement must start with Mr.easy "Page Title".');
+      }
+    }
+    if (action.type === 'insert_source') {
+      validateSourceSize(action.source);
+      if (!action.source.trim()) throw mutationError('An insert operation needs MR.easy source content.');
+      const locations = ['cursor', 'line_start', 'line_end', 'after_declaration', 'before_end'];
+      if (!locations.includes(action.at)) throw mutationError('The assistant requested an unsupported insertion location.');
+      if (['line_start', 'line_end'].includes(action.at)) {
+        if (!Number.isInteger(action.line)) throw mutationError('The assistant returned an invalid line number.');
+        const minimum = action.at === 'line_start' ? 1 : 1;
+        const maximum = action.at === 'line_start' ? lines.length + 1 : lines.length;
+        if (action.line < minimum || action.line > maximum) throw mutationError('The assistant returned an out-of-range insertion line.');
+      }
+    }
+    if (action.type === 'delete_range') {
+      if (!Number.isInteger(action.startLine) || !Number.isInteger(action.endLine) || action.startLine < 1 || action.endLine < action.startLine || action.endLine > lines.length) throw mutationError('The assistant returned an invalid deletion range.');
+    }
+  }
+
+  function getCursorInsertionSource(source, fragment) {
+    if (!editor?.getCursor) return `${source}${source && !source.endsWith('\n') ? '\n' : ''}${fragment}`;
+    const cursor = editor.getCursor();
+    const lines = String(source).split('\n');
+    const lineIndex = Math.max(0, Math.min(cursor.line, lines.length - 1));
+    const characterIndex = Math.max(0, Math.min(cursor.ch, lines[lineIndex].length));
+    lines[lineIndex] = `${lines[lineIndex].slice(0, characterIndex)}${fragment}${lines[lineIndex].slice(characterIndex)}`;
+    return lines.join('\n');
+  }
+
+  function insertSource(source, action) {
+    if (action.at === 'cursor') return getCursorInsertionSource(source, action.source);
+    const lines = String(source).split('\n');
+    const fragment = String(action.source).split('\n');
+    let index = lines.length;
+    if (action.at === 'line_start') index = action.line - 1;
+    if (action.at === 'line_end') index = action.line;
+    if (action.at === 'after_declaration') index = Math.min(1, lines.length);
+    if (action.at === 'before_end') index = Math.max(0, lines.length - (lines[lines.length - 1] === '' ? 1 : 0));
+    lines.splice(index, 0, ...fragment);
+    return lines.join('\n');
+  }
+
+  function applyAiActions(actions) {
+    const before = getSourceCode();
+    let working = before;
+    let sourceChanged = false;
+    let runPreview = false;
+    const appliedTypes = [];
+    actions.forEach(action => {
+      validateAiAction(action, working);
+      if (action.type === 'replace_source') working = action.source;
+      if (action.type === 'insert_source') working = insertSource(working, action);
+      if (action.type === 'delete_range') {
+        const lines = working.split('\n');
+        lines.splice(action.startLine - 1, action.endLine - action.startLine + 1);
+        working = lines.join('\n');
+      }
+      if (action.type === 'clear_source') working = action.source ?? '';
+      if (action.type === 'run_preview') runPreview = true;
+      if (action.type !== 'run_preview') sourceChanged = working !== before;
+      appliedTypes.push(action.type);
+    });
+    validateSourceSize(working);
+    if (working.trim() && !working.trimStart().startsWith('Mr.easy')) throw mutationError('The final AI edit must start with Mr.easy "Page Title".');
+    if (working !== before) {
+      aiState.lastSourceBeforeEdit = before;
+      aiState.lastMutation = { types: appliedTypes, changed: true, timestamp: Date.now() };
+      aiState.isApplying = true;
+      try { setSourceCode(working); } finally { aiState.isApplying = false; }
+    } else if (runPreview) {
+      compileAndPreview();
+    }
+    updateAiComposerState();
+    return { sourceChanged, runPreview, appliedTypes };
+  }
+
+  function formatAppliedActions(actions) {
+    if (!actions.length) return 'No source changes requested.';
+    const labels = { replace_source: 'rewrote source', insert_source: 'inserted source', delete_range: 'removed source', clear_source: 'cleared source', run_preview: 'refreshed preview' };
+    return actions.map(action => labels[action] || action).join(' · ');
+  }
+
+  function undoAiEdit() {
+    if (aiState.lastSourceBeforeEdit === null || aiState.isBusy || aiState.isApplying) return;
+    const previous = aiState.lastSourceBeforeEdit;
+    aiState.isApplying = true;
+    try { setSourceCode(previous); } finally { aiState.isApplying = false; }
+    aiState.lastSourceBeforeEdit = null;
+    aiState.lastMutation = null;
+    updateAiComposerState();
+    appendAiMessage('system', 'AI edit undone. The previous source and preview are restored.');
+    showToast('↩ AI edit undone');
+  }
+
   async function sendAiMessage(event) {
     event?.preventDefault();
     const { input } = getAiElements();
     const content = input?.value.trim() || '';
-    if (!content || aiState.isBusy) return;
+    if (!content || aiState.isBusy || aiState.isApplying) return;
     if (!aiState.apiKey && !connectAiProvider()) return;
     input.value = '';
     appendAiMessage('user', content);
+    aiState.lastUserPrompt = content;
     aiState.isBusy = true;
+    aiState.abortReason = '';
+    aiState.requestStartedAt = Date.now();
     aiState.abortController = new AbortController();
+    aiState.requestTimer = root.setTimeout(() => {
+      aiState.abortReason = 'timeout';
+      aiState.abortController?.abort();
+    }, AI_REQUEST_TIMEOUT_MS);
     updateAiComposerState();
     renderAiMessages(true);
     try {
       const response = await requestAiCompletion();
-      if (!response.trim()) throw new Error('The assistant returned an empty response.');
-      appendAiMessage('assistant', response.trim());
+      if (!response.trim()) throw mutationError('The assistant returned an empty edit envelope, so no code was changed.');
+      const envelope = parseAiEnvelope(response);
+      const result = applyAiActions(envelope.actions);
+      setAiConfigStatus(`Ready · ${PROVIDERS[aiState.providerId].label}`, 'connected');
+      const message = envelope.message || (result.sourceChanged ? 'The requested MR.easy source edit is complete.' : 'No source changes were requested.');
+      appendAiMessage('assistant', message);
+      if (result.appliedTypes.length) appendAiMessage(result.sourceChanged ? 'applied' : 'system', `${envelope.summary ? `${envelope.summary} · ` : ''}${formatAppliedActions(result.appliedTypes)}`);
+      if (result.sourceChanged) showToast('✓ AI changes applied and preview refreshed');
     } catch (error) {
-      if (error?.name === 'AbortError') appendAiMessage('system', 'Request cancelled.');
-      else appendAiMessage('error', sanitizedAiError(error));
+      const errorMessage = sanitizedAiError(error);
+      setAiConfigStatus(error?.kind === 'mutation' ? 'Edit blocked' : 'Request failed', 'error');
+      if (error?.kind === 'mutation') appendAiMessage('mutation-error', errorMessage);
+      else appendAiMessage('error', errorMessage);
     } finally {
+      if (aiState.requestTimer) root.clearTimeout(aiState.requestTimer);
+      aiState.requestTimer = null;
       aiState.isBusy = false;
       aiState.abortController = null;
+      aiState.abortReason = '';
+      aiState.requestStartedAt = 0;
       updateAiComposerState();
       renderAiMessages();
     }
   }
 
   function stopAiRequest() {
-    aiState.abortController?.abort();
+    if (!aiState.abortController) return;
+    aiState.abortReason = 'user';
+    aiState.abortController.abort();
   }
 
   function installAiHandlers() {
-    const { provider, model, endpoint, config, composer, input } = getAiElements();
+    const { provider, apiKey, model, endpoint, config, composer, input } = getAiElements();
     provider?.addEventListener('change', () => {
       aiState.providerId = provider.value;
+      aiState.apiKey = '';
+      if (apiKey) apiKey.value = '';
       const metadata = PROVIDERS[aiState.providerId];
       aiState.model = metadata.model;
       aiState.endpoint = metadata.endpoint;
       updateAiProviderUi();
       setAiConfigStatus('Not connected');
+      const connect = document.getElementById('ai-connect');
+      if (connect) { connect.textContent = 'Connect'; connect.classList.remove('connected'); }
+      updateAiComposerState();
+    });
+    apiKey?.addEventListener('input', () => {
+      aiState.apiKey = apiKey.value.trim();
+      setAiConfigStatus(aiState.apiKey ? 'Unsaved key · connect to use' : 'Not connected');
       const connect = document.getElementById('ai-connect');
       if (connect) { connect.textContent = 'Connect'; connect.classList.remove('connected'); }
       updateAiComposerState();
@@ -544,7 +805,15 @@ hero
     if (textArea) textArea.value = STARTER;
 
     if (typeof root.CodeMirror === 'undefined') {
-      if (textArea) textArea.addEventListener('input', scheduleCompile);
+      if (textArea) textArea.addEventListener('input', () => {
+        scheduleCompile();
+        markUnsaved();
+        if (!aiState.isApplying && aiState.lastSourceBeforeEdit !== null) {
+          aiState.lastSourceBeforeEdit = null;
+          aiState.lastMutation = null;
+          updateAiComposerState();
+        }
+      });
       return;
     }
 
@@ -571,7 +840,15 @@ hero
       }
     });
 
-    editor.on('change', () => { scheduleCompile(); markUnsaved(); });
+    editor.on('change', () => {
+      scheduleCompile();
+      markUnsaved();
+      if (!aiState.isApplying && aiState.lastSourceBeforeEdit !== null) {
+        aiState.lastSourceBeforeEdit = null;
+        aiState.lastMutation = null;
+        updateAiComposerState();
+      }
+    });
     editor.on('cursorActivity', () => {
       const cursor = editor.getCursor();
       const line = document.getElementById('line-col');
@@ -580,6 +857,7 @@ hero
   }
 
   function scheduleCompile() {
+    if (!autoCompileEnabled) return;
     clearTimeout(previewTimeout);
     previewTimeout = setTimeout(compileAndPreview, 120);
   }
@@ -611,6 +889,7 @@ hero
   }
 
   function buildSidebar() {
+    // Build snippets list
     const snippetList = document.getElementById('snippet-list');
     if (snippetList && !snippetList.children.length) {
       SNIPPETS.forEach(snippet => {
@@ -621,14 +900,15 @@ hero
         snippetList.appendChild(item);
       });
     }
-    const exampleList = document.getElementById('example-list');
-    if (exampleList && !exampleList.children.length) {
+    // Build examples cards in sidebar panel
+    const exCardList = document.getElementById('examples-card-list');
+    if (exCardList && !exCardList.children.length) {
       EXAMPLES.forEach(example => {
-        const item = document.createElement('div');
-        item.className = 'example-item';
-        item.innerHTML = `<i class="fa ${example.icon}"></i><span>${example.label}</span>`;
-        item.onclick = () => loadExample(example.key);
-        exampleList.appendChild(item);
+        const card = document.createElement('div');
+        card.className = 'example-card';
+        card.innerHTML = `<div class="example-card-icon"><i class="fa ${example.icon}"></i></div><div><div class="example-card-label">${example.label}</div><div class="example-card-sub">Click to load</div></div>`;
+        card.onclick = () => { loadExample(example.key); showToast('\u2728 Loaded ' + example.label); };
+        exCardList.appendChild(card);
       });
     }
   }
@@ -660,25 +940,18 @@ hero
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
-
-    if (action === 'explorer') {
-      const sidebar = document.getElementById('sidebar');
-      if (sidebar) sidebar.scrollTo({ top: 0, behavior: 'smooth' });
-      showToast('Explorer opened');
-    } else if (action === 'search') {
-      switchTab('editor');
-      if (editor) editor.focus();
-      document.getElementById('code-textarea')?.focus();
-      showToast('Search is available in the editor');
-    } else if (action === 'examples') {
-      openTemplateModal();
-      showToast('Examples opened');
-    } else if (action === 'guide') {
+    // Show the correct sidebar panel
+    ['explorer','search','examples','settings'].forEach(panelId => {
+      const el = document.getElementById('panel-' + panelId);
+      if (el) el.classList.toggle('active', panelId === action);
+    });
+    // Guide & settings special handling
+    if (action === 'guide') {
+      // Keep explorer panel but open guide modal
+      document.getElementById('panel-explorer')?.classList.add('active');
       openGuideModal('ref');
-      showToast('Language guide opened');
-    } else if (action === 'settings') {
-      togglePreviewTheme();
-      showToast('Settings: preview theme toggled');
+    } else if (action === 'search') {
+      setTimeout(() => document.getElementById('search-input')?.focus(), 50);
     }
   }
 
@@ -747,21 +1020,24 @@ hero
   }
 
   function insertSnippet(type) {
-    const snippet = SNIPPETS.find(item => item.tag === type || item.label.toLowerCase().includes(String(type).toLowerCase()));
+    // Search by tag first (exact), then by label (partial), then by key name
+    const t = String(type).toLowerCase();
+    const snippet = SNIPPETS.find(item => item.tag === t)
+      || SNIPPETS.find(item => item.tag === type)
+      || SNIPPETS.find(item => item.label.toLowerCase().includes(t));
     const code = snippet ? snippet.code : `${type}\n`;
-    const current = getSourceCode();
     if (editor) {
       const cursor = editor.getCursor();
       const line = editor.getLine(cursor.line);
       const indent = line.match(/^(\s*)/)[1];
-      const indented = code.split('\n').map((item, index) => index === 0 ? item : indent + item).join('\n');
+      const indented = code.split('\n').map((item, idx) => idx === 0 ? item : indent + item).join('\n');
       editor.replaceRange(`\n${indented}`, { line: cursor.line, ch: line.length });
       editor.focus();
     } else {
-      setSourceCode(`${current}\n${code}`);
+      setSourceCode(`${getSourceCode()}\n${code}`);
     }
     scheduleCompile();
-    showToast(`✨ Inserted ${type}`);
+    showToast(`\u2728 Inserted ${type}`);
   }
 
   function loadExample(key) {
@@ -848,6 +1124,43 @@ hero
     document.querySelectorAll('.CodeMirror, #code-textarea').forEach(element => { element.style.fontSize = `${fontSize}px`; });
     const label = document.getElementById('font-size-label');
     if (label) label.textContent = `${fontSize}px`;
+    const settingsLabel = document.getElementById('settings-font-label');
+    if (settingsLabel) settingsLabel.textContent = `${fontSize}px`;
+    if (editor) editor.refresh();
+  }
+
+  // Search inside CodeMirror
+  let autoCompileEnabled = true;
+  function runSearch() {
+    const query = (document.getElementById('search-input')?.value || '').trim();
+    const results = document.getElementById('search-results');
+    if (!results) return;
+    if (!query) { results.innerHTML = '<div class="search-empty">Type a query and press Go</div>'; return; }
+    const source = getSourceCode();
+    const lines = source.split('\n');
+    const matches = [];
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedQuery, 'gi');
+    lines.forEach((line, idx) => {
+      if (regex.test(line)) matches.push({ line: idx, text: line });
+    });
+    if (!matches.length) { results.innerHTML = `<div class="search-empty">No matches for "${query}"</div>`; return; }
+    results.innerHTML = matches.map(m => {
+      const highlighted = m.text.replace(regex, match => `<mark>${match}</mark>`);
+      return `<div class="search-result-item" data-line="${m.line}"><span class="search-result-line">Ln ${m.line + 1}</span><span class="search-result-text">${highlighted}</span></div>`;
+    }).join('');
+    results.querySelectorAll('.search-result-item').forEach(item => item.addEventListener('click', () => jumpToLine(Number(item.dataset.line))));
+    showToast(`\u{1F50D} ${matches.length} result${matches.length !== 1 ? 's' : ''} found`);
+  }
+
+  function toggleWrap(enabled) {
+    if (editor) editor.setOption('lineWrapping', enabled);
+    showToast(enabled ? 'Word wrap enabled' : 'Word wrap disabled');
+  }
+
+  function toggleAutoCompile(enabled) {
+    autoCompileEnabled = enabled;
+    showToast(enabled ? 'Auto-compile on' : 'Auto-compile paused');
   }
 
   function jumpToLine(lineIndex) {
@@ -866,12 +1179,77 @@ hero
     const title = document.getElementById('modal-title');
     const body = document.getElementById('modal-body');
     if (!modal || !title || !body) return;
+
+    const row = (code, desc) => `<div class="guide-row"><div class="guide-code">${code}</div><div class="guide-desc">${desc}</div></div>`;
+
     if (type === 'cheat') {
       title.innerHTML = '<i class="fa fa-list-check"></i> MR.easy Cheatsheet';
-      body.innerHTML = '<div class="guide-section"><h3>⚡ Declarations & Layout</h3><div class="guide-row"><div class="guide-code">Mr.easy "Title"</div><div class="guide-desc">Required header</div></div><div class="guide-row"><div class="guide-code">nav</div><div class="guide-desc">Navigation bar</div></div><div class="guide-row"><div class="guide-code">hero</div><div class="guide-desc">Big hero section</div></div><div class="guide-row"><div class="guide-code">section "name"</div><div class="guide-desc">Named container</div></div><div class="guide-row"><div class="guide-code">grid cols:3</div><div class="guide-desc">Responsive columns</div></div></div>';
+      body.innerHTML = `
+        <div class="guide-section"><h3>⚡ Required Header</h3>${row('Mr.easy "Title"','Every file MUST start with this')}</div>
+        <div class="guide-section"><h3>🏗 Layout</h3>
+          ${row('nav','Navigation bar (logo + links)')}
+          ${row('hero','Full-width hero section')}
+          ${row('section "name"','Named page section')}
+          ${row('grid cols:3','Responsive columns (2,3,4)')}
+          ${row('row center','Horizontal flex row')}
+          ${row('card shadow','Content card')}
+          ${row('footer','Page footer')}
+        </div>
+        <div class="guide-section"><h3>✏️ Content</h3>
+          ${row('title "Text" big glow','Heading (big/medium/small)')}
+          ${row('subtitle "Text"','Subtitle paragraph')}
+          ${row('text "Text" bold','Body text')}
+          ${row('button "Click" blue big','Button (color + size)')}
+          ${row('link "Label" url:https://...','Hyperlink')}
+          ${row('image "file.jpg" rounded','Image')}
+          ${row('icon rocket','Font Awesome icon')}
+        </div>
+        <div class="guide-section"><h3>🎛 New v2.0 Components</h3>
+          ${row('badge "NEW" green','Status badge')}
+          ${row('alert "Msg" success','Alert banner (info/success/warning/error)')}
+          ${row('progress value:75 label:"Skill"','Progress bar')}
+          ${row('stat value:"150+" label:"Clients"','Big stat display')}
+          ${row('rating value:4','Star rating')}
+          ${row('accordion "Title"','Expandable accordion')}
+          ${row('tabs','Tabbed panel (use tab children)')}
+          ${row('table','Data table (thead/tbody/tr/th/td)')}
+        </div>
+        <div class="guide-section"><h3>📋 Forms</h3>
+          ${row('form','Form container')}
+          ${row('input placeholder:"..." type:email','Text/email/password input')}
+          ${row('label "Name" for:id','Form label')}
+          ${row('select','Dropdown select')}
+          ${row('checkbox','Checkbox')}
+          ${row('toggle','iOS-style toggle switch')}
+        </div>`;
     } else {
       title.innerHTML = '<i class="fa fa-book"></i> MR.easy Language Reference';
-      body.innerHTML = `<div class="guide-section"><h3>🚀 Every MR.easy File Starts With:</h3><div class="guide-code">Mr.easy "Your Page Title"</div><p class="guide-desc">The signature of every MR.easy document.</p></div><div class="guide-section"><h3>📐 Layout Elements</h3>${[['nav','Navigation bar'],['hero','Big hero section'],['section "name"','Page section'],['grid cols:3','Responsive grid'],['row','Horizontal row'],['card shadow','Content card'],['footer','Page footer']].map(([code, description]) => `<div class="guide-row"><div class="guide-code">${code}</div><div class="guide-desc">${description}</div></div>`).join('')}</div><div class="guide-section"><h3>📝 Text & Interaction</h3>${[['title "Hello" big glow','Big glowing heading'],['subtitle "Text"','Subtitle paragraph'],['button "Click" blue big','Primary action'],['input type:email','Form input']].map(([code, description]) => `<div class="guide-row"><div class="guide-code">${code}</div><div class="guide-desc">${description}</div></div>`).join('')}</div>`;
+      body.innerHTML = `
+        <div class="guide-section">
+          <h3>🚀 File Structure</h3>
+          <div class="guide-code">Mr.easy "Page Title"  ← Required first line\n\nnav\n  logo "Brand"\n  links Home About Contact\n\nhero\n  title "Welcome" big glow\n  subtitle "Build websites with words"\n  button "Get Started" blue big\n\nfooter\n  text "\u00a9 2026 MyBrand"</div>
+          <p class="guide-desc">Indentation (2 spaces) creates nesting. No brackets, semicolons, or HTML tags needed.</p>
+        </div>
+        <div class="guide-section">
+          <h3>📐 Layout Keywords</h3>
+          ${['nav — Navigation bar (children: logo, links, menu)','hero — Full-width hero section','section "name" — Named content section','grid cols:3 — Responsive CSS grid (2, 3, or 4 cols)','row center — Horizontal flex row','col — Flex column','card shadow — Content card with optional shadow/glass/rounded','box — Generic container box','footer — Page footer'].map(s => { const [k,d]=s.split(' — '); return row(k,d||''); }).join('')}
+        </div>
+        <div class="guide-section">
+          <h3>✏️ Text & Inline Elements</h3>
+          ${[['title "Hello" big glow','Heading — sizes: big medium small tiny'],['subtitle "Text"','Subtitle / lead paragraph'],['text "..." bold italic','Body text — modifiers: bold italic center'],['button "Label" blue big','Button — colors: blue purple green red orange | sizes: big small'],['link "Label" url:https://...','Hyperlink'],['badge "NEW" green','Status pill badge'],['tag "Design"','Clickable hashtag chip']].map(([c,d])=>row(c,d)).join('')}
+        </div>
+        <div class="guide-section">
+          <h3>🎛 v2.0 Components</h3>
+          ${[['alert "Msg" success','Banner — types: info success warning error'],['progress value:75 label:"JS"','Animated progress bar'],['stat value:"150+" label:"Clients"','Big metric display'],['rating value:4 label:"(reviews)"','Star rating component'],['accordion "FAQ title"','Expandable collapse (nest text/content inside)'],['tabs → tab "Name"','Tabbed panels'],['table → thead/tbody/tr/th/td','Responsive data table'],['countdown to:"2026-12-31"','Live countdown timer'],['embed "https://youtube.com/..."','Responsive video embed']].map(([c,d])=>row(c,d)).join('')}
+        </div>
+        <div class="guide-section">
+          <h3>📋 Forms</h3>
+          ${[['form','Form container'],['input placeholder:"..."','Text input (type: email password url number)'],['label "Text" for:id','Label tied to input id'],['select','Dropdown — add item children'],['checkbox','Native styled checkbox'],['toggle','iOS toggle switch']].map(([c,d])=>row(c,d)).join('')}
+        </div>
+        <div class="guide-section">
+          <h3>⚙️ Modifiers (add after keywords)</h3>
+          <div class="guide-code">Colors: blue purple green red orange pink yellow white black gray cyan\nSizes:  big medium small tiny\nStyle:  shadow rounded glow glass gradient outline bold italic center\nState:  on off checked required ordered</div>
+        </div>`;
     }
     modal.classList.add('open');
   }
@@ -903,9 +1281,9 @@ hero
     const title = document.getElementById('modal-title');
     const body = document.getElementById('modal-body');
     if (!modal || !title || !body) return;
-    title.innerHTML = '<i class="fa fa-cubes"></i> Choose Starter Template';
-    body.innerHTML = `<div class="guide-section"><p class="guide-desc" style="margin-bottom:12px;">Click a template to load it into your editor:</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">${EXAMPLES.map(example => `<div data-template="${example.key}" style="background:var(--ink-2);border:1px solid var(--hairline);padding:14px;cursor:pointer;"><div style="color:var(--brass-bright);font-size:1.1rem;margin-bottom:6px;"><i class="fa ${example.icon}"></i></div><div style="font-weight:600;font-size:.82rem;color:var(--parchment);margin-bottom:4px;">${example.label}</div><div style="font-size:.68rem;color:var(--muted);">Load ${example.label}</div></div>`).join('')}</div></div>`;
-    body.querySelectorAll('[data-template]').forEach(item => item.addEventListener('click', () => { loadExample(item.dataset.template); closeGuideModal(); }));
+    title.innerHTML = '<i class="fa fa-cubes"></i> Starter Templates';
+    body.innerHTML = `<div class="guide-section"><p class="guide-desc" style="margin-bottom:16px;">Select a template to load into your editor:</p><div class="template-grid">${EXAMPLES.map(ex => `<div class="template-card" data-template="${ex.key}"><div class="template-card-icon"><i class="fa ${ex.icon}"></i></div><div class="template-card-label">${ex.label}</div><div class="template-card-sub">Load into editor</div></div>`).join('')}</div></div>`;
+    body.querySelectorAll('[data-template]').forEach(item => item.addEventListener('click', () => { loadExample(item.dataset.template); closeGuideModal(); showToast('\u2728 Loaded ' + item.querySelector('.template-card-label').textContent); }));
     modal.classList.add('open');
   }
 
@@ -966,6 +1344,29 @@ hero
     if (event.data?.type === 'JUMP_TO_LINE') jumpToLine(event.data.line);
   });
 
+  function showGuide() { openGuideModal('ref'); }
+  function showCheatsheet() { openGuideModal('cheat'); }
+  function closeModal() { closeGuideModal(); }
+
+  function installKeyboardHandlers() {
+    // Tab keyboard activation
+    document.querySelectorAll('[role="tab"]').forEach(tab => tab.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); tab.click(); }
+    }));
+    // Global Escape
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      if (aiState.isOpen) closeAiPanel();
+      else closeGuideModal();
+    });
+    // Close modal on backdrop click
+    const modal = document.getElementById('guide-modal');
+    modal?.addEventListener('click', event => { if (event.target === modal) closeGuideModal(); });
+    // Search: Enter key
+    const searchInput = document.getElementById('search-input');
+    searchInput?.addEventListener('keydown', event => { if (event.key === 'Enter') runSearch(); });
+  }
+
   root.addEventListener('DOMContentLoaded', () => {
     initEditor();
     buildSidebar();
@@ -982,6 +1383,7 @@ hero
     setZoom(100);
   });
 
+
   Object.assign(root, {
     KEYWORDS, STYLE_WORDS, COLOR_MAP, ICON_MAP, SIZE_MAP,
     browserCompile, compileAndPreview, switchTab, setViewMode, activateRail, setViewport, setZoom,
@@ -989,7 +1391,10 @@ hero
     openInNewTab, downloadHTML, downloadSource, copySource, copyHTML, exportZip,
     clearCode, formatCode, increaseFontSize, decreaseFontSize, openGuideModal,
     closeGuideModal, showGuide, showCheatsheet, closeModal, openTemplateModal,
-    openCliModal, toggleAiPanel, closeAiPanel, clearAiConversation, sendAiMessage, stopAiRequest,
-    markUnsaved, markSaved, showToast, startResize, doResize, stopResize
+    openCliModal, toggleAiPanel, closeAiPanel, clearAiConversation, sendAiMessage, stopAiRequest, undoAiEdit,
+    parseAiEnvelope, validateAiAction, applyAiActions, connectAiProvider,
+    requestOpenAi, requestAnthropic, requestGemini, requestOpenAiCompatible, formatProviderError,
+    markUnsaved, markSaved, showToast, startResize, doResize, stopResize,
+    runSearch, toggleWrap, toggleAutoCompile
   });
 })(window);
