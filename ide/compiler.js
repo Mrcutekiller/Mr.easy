@@ -34,56 +34,43 @@
     return escapeHtml(value).replace(/`/g, '&#96;');
   }
 
-  const STARTER = `Mr.easy "My Amazing Website"
+  const STARTER = `Mr.easy "Styled Website — Powered by MR.easy"
 
-# 👋 Welcome to MR.easy!
-# Rule 1: Every file MUST start with: Mr.easy "Page Title"
-# Rule 2: No brackets {}, no semicolons ;, no HTML tags needed!
-# Rule 3: Indent with 2 spaces to nest elements inside sections!
+# 👋 Welcome to MR.easy v2.0 with Rich Custom Styling!
+# 🎨 You can set font size:32, text color:#e8b45a, background bg:#141210 or bg:url(...)
 
-# 💡 Follow developer for more tips: IG @mrcute_killer
+nav bg:#0f0d0b color:#f2ead8
+  logo "MyBrand" size:22 color:#e8b45a
+  links Services Features Pricing Contact
 
-nav
-  logo "MyBrand"
-  links Home About Contact
-
-hero
-  title "Build Websites Fast" big glow
-  subtitle "MR.easy is the simplest language to make beautiful websites"
+hero bg:#080706 padding:90
+  badge "STYLING SUPPORT" purple
+  title "Design Websites With Words" size:52 color:#f2ead8 glow
+  subtitle "Custom font sizes, text colors, background images, and rich layouts" size:20 color:#a69a86
   spacer size:24
   row center
-    button "Get Started" blue big
-    button "See Examples" outline
+    button "Get Started" bg:#c8963a color:#080706 size:big
+    button "See Features" outline size:big
 
-section "features"
-  title "Why MR.easy?" medium center
-  spacer size:16
-  grid cols:3
-    card shadow
-      icon rocket
-      title "Super Fast" small
-      text "Build a full website in under 5 minutes"
-    card shadow
-      icon bolt
-      title "Easy to Learn" small
-      text "If you can write a list, you can use MR.easy"
-    card shadow
-      icon heart
-      title "Beautiful" small
-      text "Every page looks stunning by default"
+section "features" bg:#0f0d0b padding:60
+  title "Custom Styles & Colors" size:32 color:#e8b45a center
+  spacer size:20
+  grid cols:3 gap:24
+    card bg:#141210 radius:16 shadow
+      icon rocket color:#e8b45a size:36
+      title "Custom Colors" size:20 color:#f2ead8
+      text "Set text color:#e8b45a or bg:#1d1915 on any element" color:#a69a86
+    card bg:#141210 radius:16 shadow
+      icon bolt color:#4a7a2e size:36
+      title "Text Sizes" size:20 color:#f2ead8
+      text "Control text size with size:32, size:18 or big/medium/small" color:#a69a86
+    card bg:#141210 radius:16 shadow
+      icon gem color:#8b2020 size:36
+      title "Hero Backgrounds" size:20 color:#f2ead8
+      text "Add custom background colors or background images easily" color:#a69a86
 
-section "contact"
-  title "Get in Touch" medium center
-  spacer
-  form
-    label "Your Name" for:name
-    input placeholder:"Your name" id:name
-    label "Email" for:email
-    input type:email placeholder:"you@email.com" id:email
-    button "Send Message" blue
-
-footer
-  text "Made with ❤️ using Mr.easy — IG @mrcute_killer 🇪🇹"
+footer bg:#080706 color:#62584a
+  text "Made with ❤️ in Ethiopia 🇪🇹 — IG @mrcute_killer" color:#a69a86
 `;
 
   function registerCodeMirrorMode() {
@@ -243,26 +230,67 @@ footer
       return `<i class="mr-icon fa ${escapeAttribute(icon)}" data-line="${lineIndex}"${style ? ` style="${style}"` : ''} aria-hidden="true"></i>`;
     }
 
+    function getBlockStyle(tokens) {
+      const styles = [];
+      const colorToken = tokens.find(token => COLOR_MAP[token.toLowerCase()]);
+      const color = getProp(tokens, 'color') || (colorToken ? COLOR_MAP[colorToken.toLowerCase()] : null);
+      const bg = getProp(tokens, 'background') || getProp(tokens, 'bg') || getProp(tokens, 'image') || getProp(tokens, 'bg-image');
+      const padding = getProp(tokens, 'padding');
+      const minH = getProp(tokens, 'min-height');
+      const align = getProp(tokens, 'align');
+
+      if (color) styles.push(`color:${color}`);
+      if (bg) {
+        if (bg.includes('.') || bg.includes('url(') || bg.includes('http')) {
+          const url = bg.startsWith('url(') ? bg : `url('${bg}')`;
+          styles.push(`background:linear-gradient(180deg, rgba(15,23,42,0.7) 0%, rgba(15,23,42,0.85) 100%), ${url} center/cover no-repeat`);
+        } else {
+          styles.push(`background:${COLOR_MAP[bg.toLowerCase()] || bg}`);
+        }
+      }
+      if (padding) styles.push(`padding:${/^\d+$/.test(padding) ? padding + 'px' : padding}`);
+      if (minH) styles.push(`min-height:${/^\d+$/.test(minH) ? minH + 'vh' : minH}`);
+      if (align || hasMod(tokens, 'center')) styles.push(`text-align:${align || 'center'}`);
+
+      return styles.length ? `style="${styles.map(escapeAttribute).join(';')}"` : '';
+    }
+
+    function getInlineStyle(tokens) {
+      const styles = [];
+      const colorToken = tokens.find(token => COLOR_MAP[token.toLowerCase()]);
+      const color = getProp(tokens, 'color') || (colorToken ? COLOR_MAP[colorToken.toLowerCase()] : null);
+      const sizeProp = getProp(tokens, 'size') || getProp(tokens, 'font-size');
+      const align = getProp(tokens, 'align');
+
+      if (color) styles.push(`color:${color}`);
+      if (sizeProp) {
+        styles.push(`font-size:${/^\d+$/.test(sizeProp) ? sizeProp + 'px' : sizeProp}`);
+      }
+      if (align || hasMod(tokens, 'center')) styles.push(`text-align:${align || 'center'}`);
+
+      return styles.length ? `style="${styles.map(escapeAttribute).join(';')}"` : '';
+    }
+
     function renderBlock(type, tokens, children, lineIndex) {
       const label = getLabel(tokens) || '';
       const id = (label || type).replace(/\s+/g, '-').toLowerCase();
-      const background = getProp(tokens, 'background') || getProp(tokens, 'bg');
       const columns = getProp(tokens, 'cols');
       const gap = getProp(tokens, 'gap');
       const lineAttr = `data-line="${lineIndex}"`;
+      const blockStyle = getBlockStyle(tokens);
 
       switch (type) {
-        case 'nav': return `<nav class="mr-nav" ${lineAttr} ${background ? `style="background:${background}"` : ''}>${children}</nav>`;
-        case 'hero': return `<div class="mr-hero" ${lineAttr}><div class="mr-hero-inner">${children}</div></div>`;
-        case 'section': return `<section id="${id}" class="mr-section" ${lineAttr} ${background ? `style="background:${background}"` : ''}>${children}</section>`;
-        case 'header': return `<div class="mr-header" ${lineAttr}>${children}</div>`;
-        case 'footer': return `<footer class="mr-footer" ${lineAttr}>${children}</footer>`;
+        case 'nav': return `<nav class="mr-nav" ${lineAttr} ${blockStyle}>${children}</nav>`;
+        case 'hero': return `<div class="mr-hero" ${lineAttr} ${blockStyle}><div class="mr-hero-inner">${children}</div></div>`;
+        case 'section': return `<section id="${id}" class="mr-section" ${lineAttr} ${blockStyle}>${children}</section>`;
+        case 'header': return `<div class="mr-header" ${lineAttr} ${blockStyle}>${children}</div>`;
+        case 'footer': return `<footer class="mr-footer" ${lineAttr} ${blockStyle}>${children}</footer>`;
         case 'row': return `<div class="mr-row" ${lineAttr} style="${hasMod(tokens, 'center') ? 'justify-content:center;' : ''}${gap ? `gap:${gap}px;` : ''}">${children}</div>`;
         case 'column':
         case 'col': return `<div class="mr-column" ${lineAttr}>${children}</div>`;
         case 'grid': return `<div class="mr-grid" ${lineAttr} style="${columns ? `grid-template-columns:repeat(${columns},1fr);` : ''}${gap ? `gap:${gap}px;` : ''}">${children}</div>`;
-        case 'card': return `<div class="mr-card${hasMod(tokens, 'glass') ? ' glass' : ''}" ${lineAttr} ${background ? `style="background:${background}"` : ''}>${children}</div>`;
-        case 'box': return `<div class="mr-box" ${lineAttr}>${children}</div>`;
+        case 'card': return `<div class="mr-card${hasMod(tokens, 'glass') ? ' glass' : ''}" ${lineAttr} ${blockStyle}>${children}</div>`;
+        case 'box': return `<div class="mr-box" ${lineAttr} ${blockStyle}>${children}</div>`;
         case 'list': return `<ul class="mr-list" ${lineAttr}>${children}</ul>`;
         case 'form': return `<form class="mr-form" ${lineAttr} onsubmit="return false">${children}</form>`;
         case 'accordion': {
@@ -278,38 +306,43 @@ footer
           const tabId = `mr-tab-${lineIndex}`;
           return `<div class="mr-tab-item"><button type="button" class="mr-tab-btn" role="tab" aria-selected="false" data-tab-target="${tabId}" ${lineAttr} onclick="window.mrSelectTab(this)">${escapeHtml(label || 'Tab')}</button><div class="mr-tab-pane" role="tabpanel" id="${tabId}" ${lineAttr}>${children}</div></div>`;
         }
-        default: return `<div ${lineAttr}>${children}</div>`;
+        default: return `<div ${lineAttr} ${blockStyle}>${children}</div>`;
       }
     }
 
     function renderInline(type, tokens, lineIndex) {
       const label = getLabel(tokens) || '';
-      const colorToken = tokens.find(token => COLOR_MAP[token.toLowerCase()]);
-      const color = getProp(tokens, 'color') || (colorToken ? COLOR_MAP[colorToken.toLowerCase()] : null);
-      const size = tokens.find(token => SIZE_MAP.includes(token.toLowerCase()));
+      const sizeToken = tokens.find(token => SIZE_MAP.includes(token.toLowerCase()));
       const prop = key => getProp(tokens, key);
       const lineAttr = `data-line="${lineIndex}"`;
+      const inlineStyle = getInlineStyle(tokens);
 
       switch (type) {
         case 'title': {
-          const tag = size === 'big' ? 'h1' : size === 'medium' ? 'h2' : size === 'small' ? 'h3' : 'h2';
-          const classes = `mr-title${size ? ` mr-size-${size}` : ''}${hasMod(tokens, 'glow') ? ' mr-glow' : ''}`;
-          return `<${tag} class="${classes}" ${lineAttr} ${color ? `style="color:${escapeAttribute(color)}"` : ''}>${escapeHtml(resolveVars(label))}</${tag}>`;
+          const tag = sizeToken === 'big' ? 'h1' : sizeToken === 'medium' ? 'h2' : sizeToken === 'small' ? 'h3' : 'h2';
+          const classes = `mr-title${sizeToken ? ` mr-size-${sizeToken}` : ''}${hasMod(tokens, 'glow') ? ' mr-glow' : ''}`;
+          return `<${tag} class="${classes}" ${lineAttr} ${inlineStyle}>${escapeHtml(resolveVars(label))}</${tag}>`;
         }
-        case 'subtitle': return `<p class="mr-subtitle" ${lineAttr} ${color ? `style="color:${escapeAttribute(color)}"` : ''}>${escapeHtml(resolveVars(label))}</p>`;
-        case 'text': return `<p class="mr-text" ${lineAttr} ${color ? `style="color:${escapeAttribute(color)}"` : ''}>${escapeHtml(resolveVars(label))}</p>`;
+        case 'subtitle': return `<p class="mr-subtitle" ${lineAttr} ${inlineStyle}>${escapeHtml(resolveVars(label))}</p>`;
+        case 'text': return `<p class="mr-text" ${lineAttr} ${inlineStyle}>${escapeHtml(resolveVars(label))}</p>`;
         case 'label': return `<label class="mr-label" ${lineAttr} for="${escapeAttribute(prop('for') || '')}">${escapeHtml(resolveVars(label))}</label>`;
         case 'item': return `<li class="mr-item" ${lineAttr}>${escapeHtml(resolveVars(label))}</li>`;
         case 'button': {
           const buttonColor = btnColor(tokens);
-          const sizeClass = size === 'big' ? 'mr-btn-big' : size === 'small' ? 'mr-btn-small' : '';
+          const sizeClass = sizeToken === 'big' ? 'mr-btn-big' : sizeToken === 'small' ? 'mr-btn-small' : '';
           const outlineClass = hasMod(tokens, 'outline') ? 'mr-btn-outline' : '';
           const action = prop('action') || '';
-          const style = buttonColor && !outlineClass ? `background:${buttonColor.background};box-shadow:${buttonColor.boxShadow}` : '';
+          const customBg = prop('bg') || prop('background');
+          let style = buttonColor && !outlineClass ? `background:${buttonColor.background};box-shadow:${buttonColor.boxShadow}` : '';
+          if (customBg) style = `background:${COLOR_MAP[customBg.toLowerCase()] || customBg}`;
+          const customColor = prop('color');
+          if (customColor) style += `;color:${COLOR_MAP[customColor.toLowerCase()] || customColor}`;
+          const customSize = prop('size');
+          if (customSize) style += `;font-size:${/^\d+$/.test(customSize) ? customSize + 'px' : customSize}`;
           const actionMarkup = action ? ` onclick="${escapeAttribute(resolveAction(action))}"` : '';
           return `<button type="button" class="mr-button ${sizeClass} ${outlineClass}" ${lineAttr}${style ? ` style="${style}"` : ''}${actionMarkup}>${escapeHtml(resolveVars(label || 'Button'))}</button>`;
         }
-        case 'link': return `<a class="mr-link" ${lineAttr} href="${escapeAttribute(prop('url') || '#')}" ${color ? `style="color:${escapeAttribute(color)}"` : ''}>${escapeHtml(label || prop('url') || 'Link')}</a>`;
+        case 'link': return `<a class="mr-link" ${lineAttr} href="${escapeAttribute(prop('url') || '#')}" ${inlineStyle}>${escapeHtml(label || prop('url') || 'Link')}</a>`;
         case 'image': {
           const source = prop('src') || label || '';
           const dimensions = `${prop('width') ? `width:${escapeAttribute(prop('width'))}px;` : ''}${prop('height') ? `height:${escapeAttribute(prop('height'))}px;` : ''}`;

@@ -213,23 +213,50 @@ ${js}
   /** Resolve a color name or hex value */
   color(val) { return COLOR_MAP[val] || val || null; }
 
+  /** Resolve background color or background image URL */
+  bgStyle(val, imageVal) {
+    const src = imageVal || val;
+    if (!src) return null;
+    if (src.includes('.') || src.includes('url(') || src.includes('http')) {
+      const url = src.startsWith('url(') ? src : `url('${src}')`;
+      return `linear-gradient(180deg, rgba(15,23,42,0.7) 0%, rgba(15,23,42,0.85) 100%), ${url} center/cover no-repeat`;
+    }
+    return this.color(src);
+  }
+
   // ── LAYOUT NODES ───────────────────────────────────────────────────────────
 
   Nav(node) {
+    const { background, bg, color: clr } = node.props || {};
+    const s = this.style({ background: this.color(background || bg), color: this.color(clr) });
     const inner = this.compileChildren(node.children);
-    return `<nav class="mr-nav">${inner}</nav>`;
+    return `<nav class="mr-nav" ${s}>${inner}</nav>`;
   }
 
   Hero(node) {
-    const m   = this.mods(node);
-    const cls = ['mr-hero', m.includes('center') ? 'mr-center' : 'mr-center'].join(' ');
-    const bg  = node.props?.background ? `background:${this.color(node.props.background)};` : '';
-    return `<div class="${cls}" ${bg ? `style="${bg}"` : ''}>\n<div class="mr-hero-inner">\n${this.compileChildren(node.children)}\n</div>\n</div>`;
+    const m = this.mods(node);
+    const { background, bg, image, color: clr, align, padding, 'min-height': mh } = node.props || {};
+    const bgVal = this.bgStyle(background || bg, image);
+    const s = this.style({
+      background: bgVal,
+      color: this.color(clr),
+      'min-height': mh ? (typeof mh === 'number' ? mh + 'vh' : mh) : null,
+      padding: padding ? (typeof padding === 'number' ? padding + 'px' : padding) : null,
+      'text-align': m.includes('center') ? 'center' : align
+    });
+    const cls = ['mr-hero', m.includes('center') ? 'mr-center' : ''].filter(Boolean).join(' ');
+    return `<div class="${cls}" ${s}>\n<div class="mr-hero-inner">\n${this.compileChildren(node.children)}\n</div>\n</div>`;
   }
 
   Section(node) {
-    const { label, id, background, color: clr, 'min-height': mh, full } = node.props || {};
-    const s   = this.style({ background: this.color(background), color: this.color(clr), 'min-height': mh ? mh + 'vh' : null });
+    const { label, id, background, bg, image, color: clr, padding, 'min-height': mh, full } = node.props || {};
+    const bgVal = this.bgStyle(background || bg, image);
+    const s = this.style({
+      background: bgVal,
+      color: this.color(clr),
+      padding: padding ? (typeof padding === 'number' ? padding + 'px' : padding) : null,
+      'min-height': mh ? (typeof mh === 'number' ? mh + 'vh' : mh) : null
+    });
     const cls = full === 'on' ? 'mr-section-full' : 'mr-section';
     const sid = id || label?.replace(/\s+/g, '-').toLowerCase() || '';
     return `<section id="${sid}" class="${cls}" ${s}>\n${this.compileChildren(node.children)}\n</section>`;
@@ -240,7 +267,9 @@ ${js}
   }
 
   Footer(node) {
-    return `<footer class="mr-footer">\n${this.compileChildren(node.children)}\n</footer>`;
+    const { background, bg, color: clr } = node.props || {};
+    const s = this.style({ background: this.color(background || bg), color: this.color(clr) });
+    return `<footer class="mr-footer" ${s}>\n${this.compileChildren(node.children)}\n</footer>`;
   }
 
   Row(node) {
@@ -266,15 +295,28 @@ ${js}
   }
 
   Card(node) {
-    const m   = this.mods(node);
+    const m = this.mods(node);
     const cls = this.cls('mr-card', node);
-    const { background, color: clr, padding } = node.props || {};
-    const s   = this.style({ background: this.color(background), color: this.color(clr), padding: padding ? padding + 'px' : null });
+    const { background, bg, image, color: clr, padding, radius } = node.props || {};
+    const bgVal = this.bgStyle(background || bg, image);
+    const s = this.style({
+      background: bgVal,
+      color: this.color(clr),
+      padding: padding ? (typeof padding === 'number' ? padding + 'px' : padding) : null,
+      'border-radius': radius ? (typeof radius === 'number' ? radius + 'px' : radius) : null
+    });
     return `<div class="${cls}" ${s}>\n${this.compileChildren(node.children)}\n</div>`;
   }
 
   Box(node) {
-    return `<div class="mr-box">\n${this.compileChildren(node.children)}\n</div>`;
+    const { background, bg, color: clr, padding, radius } = node.props || {};
+    const s = this.style({
+      background: this.color(background || bg),
+      color: this.color(clr),
+      padding: padding ? (typeof padding === 'number' ? padding + 'px' : padding) : null,
+      'border-radius': radius ? (typeof radius === 'number' ? radius + 'px' : radius) : null
+    });
+    return `<div class="mr-box" ${s}>\n${this.compileChildren(node.children)}\n</div>`;
   }
 
   List(node) {
@@ -291,8 +333,9 @@ ${js}
   // ── NAV HELPERS ────────────────────────────────────────────────────────────
 
   Logo(node) {
-    const { label } = node.props || {};
-    return `<div class="mr-nav-logo">${this.esc(this.vars_(label || 'Mr.easy'))}</div>`;
+    const { label, color: clr, size } = node.props || {};
+    const s = this.style({ color: this.color(clr), 'font-size': size ? (typeof size === 'number' ? size + 'px' : size) : null });
+    return `<div class="mr-nav-logo" ${s}>${this.esc(this.vars_(label || 'Mr.easy'))}</div>`;
   }
 
   Links(node) {
@@ -314,28 +357,39 @@ ${js}
   // ── TEXT NODES ─────────────────────────────────────────────────────────────
 
   Title(node) {
-    const { label, color: clr, align } = node.props || {};
-    const m   = this.mods(node);
+    const { label, color: clr, size, align } = node.props || {};
+    const m = this.mods(node);
     const tag = m.includes('big') ? 'h1' : m.includes('medium') ? 'h2' : m.includes('small') ? 'h3' : 'h2';
-    const s   = this.style({ color: this.color(clr), 'text-align': m.includes('center') ? 'center' : align });
+    const sizeVal = size ? (typeof size === 'number' || /^\d+$/.test(size) ? size + 'px' : size) : null;
+    const s = this.style({
+      color: this.color(clr),
+      'font-size': sizeVal,
+      'text-align': m.includes('center') ? 'center' : align
+    });
     const cls = this.cls('mr-title', node);
     return `<${tag} class="${cls}" ${s}>${this.vars_(label)}</${tag}>`;
   }
 
   Subtitle(node) {
-    const { label, color: clr, align } = node.props || {};
+    const { label, color: clr, size, align } = node.props || {};
     const m = this.mods(node);
-    const s = this.style({ color: this.color(clr), 'text-align': m.includes('center') ? 'center' : align });
+    const sizeVal = size ? (typeof size === 'number' || /^\d+$/.test(size) ? size + 'px' : size) : null;
+    const s = this.style({
+      color: this.color(clr),
+      'font-size': sizeVal,
+      'text-align': m.includes('center') ? 'center' : align
+    });
     return `<p class="mr-subtitle" ${s}>${this.vars_(label)}</p>`;
   }
 
   Text(node) {
     const { label, color: clr, size, align, weight } = node.props || {};
     const m = this.mods(node);
+    const sizeVal = size ? (typeof size === 'number' || /^\d+$/.test(size) ? size + 'px' : size) : null;
     const s = this.style({
       color: this.color(clr),
       'text-align': m.includes('center') ? 'center' : align,
-      'font-size': size ? size + 'px' : null,
+      'font-size': sizeVal,
       'font-weight': m.includes('bold') ? '700' : weight
     });
     return `<p class="mr-text" ${s}>${this.vars_(label)}</p>`;
