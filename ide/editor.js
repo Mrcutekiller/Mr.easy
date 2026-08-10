@@ -1112,6 +1112,8 @@ hero
     root.mreasyPreviewTheme = isDarkTheme ? 'dark' : 'light';
     const icon = document.getElementById('theme-icon');
     if (icon) icon.className = isDarkTheme ? 'fa fa-moon' : 'fa fa-sun';
+    const wrapper = document.getElementById('preview-wrapper');
+    if (wrapper) wrapper.classList.toggle('light', !isDarkTheme);
     compileAndPreview();
     showToast(`Preview switched to ${isDarkTheme ? 'Dark' : 'Light'} Mode`);
   }
