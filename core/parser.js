@@ -9,6 +9,25 @@
 
 const { TOKEN_TYPES } = require('./lexer');
 
+// Keywords that start a new statement — collectProps() must stop before these
+const STATEMENT_KEYWORDS = new Set([
+  'nav', 'hero', 'section', 'header', 'footer',
+  'row', 'column', 'col', 'grid', 'card', 'box',
+  'list', 'form',
+  'title', 'subtitle', 'text', 'label', 'item',
+  'button', 'link', 'image', 'img', 'video', 'icon',
+  'input', 'logo', 'divider', 'spacer',
+  'menu', 'links', 'set', 'if', 'else', 'end',
+  'repeat', 'times', 'animate', 'show', 'hide',
+  'component', 'use', 'function', 'call',
+  'accordion', 'tabs', 'tab', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+  'page', 'navbar', 'sidebar', 'modal', 'dropdown',
+  'steps', 'step', 'testimonial',
+  'badge', 'tag', 'alert', 'progress', 'avatar',
+  'quote', 'code', 'stat', 'select', 'checkbox',
+  'toggle', 'embed', 'rating', 'countdown',
+]);
+
 class ASTNode {
   constructor(type, props = {}) {
     this.type = type;
@@ -156,12 +175,16 @@ class Parser {
       case 'td':        return this.parseInline('td');
 
       default:
+        // Only warn for truly unknown tokens, not bare words that might be values
+        if (t.type === TOKEN_TYPES.KEYWORD) {
+          this.errors.push(`Unknown keyword "${t.value}" at line ${t.line}`);
+        }
         this.consume();
         return null;
     }
   }
 
-  /** Collect inline tokens on the same logical line (until INDENT, DEDENT, or EOF) */
+  /** Collect inline tokens on the same logical line (until INDENT, DEDENT, EOF, or next statement keyword) */
   collectProps() {
     const props    = { modifiers: [] };
     const children = [];
@@ -173,6 +196,12 @@ class Parser {
       this.current.type !== TOKEN_TYPES.EOF
     ) {
       const t = this.current;
+
+      // Stop if we hit a keyword that starts a new statement (e.g. "text", "button", "title")
+      if ((t.type === TOKEN_TYPES.KEYWORD || t.type === TOKEN_TYPES.WORD) &&
+          STATEMENT_KEYWORDS.has(t.value)) {
+        break;
+      }
 
       if (t.type === TOKEN_TYPES.STRING) {
         if (!props.label) props.label = t.value;
@@ -216,7 +245,35 @@ class Parser {
     this.consume(); // keyword
     const props    = this.collectProps();
     const children = this.collectChildren();
-    return new ASTNode(type, { props, children });
+    const elseChildren = [];
+
+    // Handle else branch for if blocks
+    if (type === 'if') {
+      while (this.check(TOKEN_TYPES.KEYWORD, 'else')) {
+        this.consume(); // 'else'
+        // else can have its own block or be inline
+        if (this.check(TOKEN_TYPES.INDENT)) {
+          const elseKids = this.collectChildren();
+          elseChildren.push(...elseKids);
+        } else {
+          // inline else: collect until next keyword at same level or EOF
+          while (
+            this.current &&
+            this.current.type !== TOKEN_TYPES.KEYWORD &&
+            this.current.type !== TOKEN_TYPES.EOF
+          ) {
+            const node = this.parseStatement();
+            if (node) elseChildren.push(node);
+          }
+        }
+      }
+      // Consume end keyword if present
+      while (this.check(TOKEN_TYPES.KEYWORD, 'end')) {
+        this.consume();
+      }
+    }
+
+    return new ASTNode(type, { props, children, elseChildren });
   }
 
   parseInline(type) {

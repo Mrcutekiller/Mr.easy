@@ -596,7 +596,8 @@ const builtinStyles = `
   .mr-dropdown-btn:hover { border-color:var(--mr-primary); }
   .mr-dropdown-menu { position:absolute; top:calc(100% + 8px); left:0; background:var(--mr-dark2); border:1px solid var(--mr-border); border-radius:12px; min-width:180px; padding:6px; box-shadow:0 20px 40px rgba(0,0,0,0.4); opacity:0; pointer-events:none; transform:translateY(-8px); transition:all 0.2s; z-index:100; }
   .mr-dropdown:hover .mr-dropdown-menu,
-  .mr-dropdown:focus-within .mr-dropdown-menu { opacity:1; pointer-events:auto; transform:translateY(0); }
+  .mr-dropdown:focus-within .mr-dropdown-menu,
+  .mr-dropdown.open .mr-dropdown-menu { opacity:1; pointer-events:auto; transform:translateY(0); }
   .mr-dropdown-menu .mr-nav-item { display:block; padding:10px 14px; border-radius:8px; color:var(--mr-muted); font-size:0.9rem; }
   .mr-dropdown-menu .mr-nav-item:hover { background:rgba(99,102,241,0.1); color:var(--mr-text); }
 

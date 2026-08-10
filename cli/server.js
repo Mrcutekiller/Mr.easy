@@ -54,7 +54,17 @@ function startServer(cwd) {
 
   // ── HTTP Server ────────────────────────────────────────────────────────────
   const server = http.createServer((req, res) => {
-    const url = req.url === '/' ? '/index.html' : req.url;
+    const requestUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    let url = requestUrl.pathname || '/';
+
+    // Keep relative IDE assets rooted under /ide/ instead of resolving from /.
+    if (url === '/ide') {
+      res.writeHead(301, { Location: '/ide/' });
+      res.end();
+      return;
+    }
+    if (url === '/') url = '/index.html';
+    if (url === '/ide/') url = '/ide/index.html';
 
     // Serve compiled preview
     if (url === '/index.html' || url === '/__preview__') {
@@ -75,9 +85,10 @@ function startServer(cwd) {
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
       const ext = path.extname(filePath);
       const mimeTypes = {
+        '.html': 'text/html; charset=utf-8',
         '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
         '.gif': 'image/gif', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
-        '.css': 'text/css', '.js': 'text/javascript', '.woff2': 'font/woff2',
+        '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.woff2': 'font/woff2',
       };
       res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream' });
       fs.createReadStream(filePath).pipe(res);

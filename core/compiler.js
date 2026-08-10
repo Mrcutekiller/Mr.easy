@@ -89,6 +89,7 @@ ${js}
       case 'spacer':      return this.Spacer(node);
       case 'set':         return this.Set(node);
       case 'repeat':      return this.Repeat(node);
+      case 'if':          return this.If(node);
       case 'component':   return this.ComponentDef(node);
       case 'use':         return this.Use(node);
       case 'function':    return this.FunctionDef(node);
@@ -257,7 +258,7 @@ ${js}
 
   Form(node) {
     const { action, method, id } = node.props || {};
-    return `<form class="mr-form" action="${action || '#'}" method="${method || 'post'}" id="${id || 'mr-form'}">\n${this.compileChildren(node.children)}\n</form>`;
+    return `<form class="mr-form" action="${this.esc(action || '#')}" method="${this.esc(method || 'post')}" id="${this.esc(id || 'mr-form')}">\n${this.compileChildren(node.children)}\n</form>`;
   }
 
   // ── NAV HELPERS ────────────────────────────────────────────────────────────
@@ -328,8 +329,8 @@ ${js}
   Button(node) {
     const { label, action, id } = node.props || {};
     const cls     = this.cls('mr-button', node);
-    const onClick = action ? `onclick="${this.resolveAction(action)}"` : '';
-    return `<button class="${cls}" ${onClick} id="${id || ''}">${this.esc(label || 'Button')}</button>`;
+    const onClick = action ? `onclick="${this.esc(this.resolveAction(action))}"` : '';
+    return `<button class="${cls}" ${onClick} id="${this.esc(id || '')}">${this.esc(label || 'Button')}</button>`;
   }
 
   Link(node) {
@@ -362,7 +363,7 @@ ${js}
   Input(node) {
     const { type, placeholder, id, name, value } = node.props || {};
     const m = this.mods(node);
-    return `<input class="mr-input" type="${type || 'text'}" placeholder="${this.esc(placeholder || '')}" id="${id || ''}" name="${name || id || ''}" ${m.includes('required') ? 'required' : ''} value="${this.esc(value || '')}">`;
+    return `<input class="mr-input" type="${this.esc(type || 'text')}" placeholder="${this.esc(placeholder || '')}" id="${this.esc(id || '')}" name="${this.esc(name || id || '')}" ${m.includes('required') ? 'required' : ''} value="${this.esc(value || '')}">`;
   }
 
   Spacer(node) {
@@ -379,7 +380,16 @@ ${js}
   }
 
   Repeat(node) {
-    const count = parseInt(node.props?.count || 1);
+    let count = node.props?.count || 1;
+    // Resolve variable name if it's a string
+    if (typeof count === 'string' && this.vars[count] !== undefined) {
+      count = this.vars[count];
+    }
+    count = parseInt(count);
+    if (isNaN(count) || count < 0) {
+      this.extraJS.push(`console.warn('MR.easy: repeat count is invalid or NaN');`);
+      return '';
+    }
     let out = '';
     for (let i = 0; i < count; i++) {
       this.vars['index']  = i + 1;
@@ -387,6 +397,63 @@ ${js}
       out += this.compileChildren(node.children);
     }
     return out;
+  }
+
+  If(node) {
+    const rawCond = node.props?.label || node.props?.condition || (node.props?.modifiers && node.props.modifiers[0]) || '';
+    const body      = this.compileChildren(node.children);
+    const elseBody  = this.compileChildren(node.elseChildren || []);
+
+    // Evaluate simple conditions
+    const isTruthy = this.evaluateCondition(rawCond);
+
+    // For compile-time known conditions, inline the result
+    if (isTruthy === true)  return body;
+    if (isTruthy === false) return elseBody;
+
+    // Unknown condition — emit runtime JS
+    const condJS = this.jsCondition(rawCond);
+    const safeBody   = body.replace(/`/g, '\\`');
+    const safeElse   = elseBody.replace(/`/g, '\\`');
+    return `<script>if(${condJS}){document.currentInsertAdjacentHTML('beforeend',\`${safeBody}\`)}else{document.currentInsertAdjacentHTML('beforeend',\`${safeElse}\`)}</script>`;
+  }
+
+  /** Try to evaluate a condition at compile time */
+  evaluateCondition(cond) {
+    if (!cond || cond === '' || cond === 'true' || cond === 'on') return true;
+    if (cond === 'false' || cond === 'off' || cond === 'null' || cond === 'undefined') return false;
+    // Check if variable is set and truthy
+    if (this.vars[cond] !== undefined) return !!this.vars[cond];
+    // Check if it's a comparison
+    const cmpMatch = cond.match(/^(\w+)\s*(==|!=|>|<|>=|<=)\s*(.+)$/);
+    if (cmpMatch) {
+      const [, left, op, right] = cmpMatch;
+      const lv = this.vars[left] ?? left;
+      const rv = this.vars[right] ?? right;
+      const ln = Number(lv), rn = Number(rv);
+      const l = isNaN(ln) ? lv : ln;
+      const r = isNaN(rn) ? rv : rn;
+      switch (op) {
+        case '==': return l == r;
+        case '!=': return l != r;
+        case '>':  return l > r;
+        case '<':  return l < r;
+        case '>=': return l >= r;
+        case '<=': return l <= r;
+      }
+    }
+    return null; // can't evaluate at compile time
+  }
+
+  /** Convert a condition string to JS expression */
+  jsCondition(cond) {
+    if (!cond || cond === '' || cond === 'true') return 'true';
+    if (cond === 'false') return 'false';
+    // Replace variable names with their values
+    return String(cond).replace(/\b(\w+)\b/g, (m) => {
+      if (this.vars[m] !== undefined) return JSON.stringify(this.vars[m]);
+      return m;
+    });
   }
 
   ComponentDef(node) {
@@ -415,11 +482,21 @@ ${js}
 
   Animate(node) {
     const { label: effect, target, delay } = node.props || {};
-    this.extraJS.push(`
-document.querySelectorAll('${target ? '#' + target : '.mr-animate'}').forEach(function(el) {
-  el.classList.add('mr-anim-${effect || 'float'}');
-  if ('${delay}') el.style.animationDelay = '${delay}ms';
+    const selector = target ? `#${target}` : '.mr-anim-target';
+    const animClass = `mr-anim-${effect || 'float'}`;
+    const delayVal = delay ? parseInt(delay) : 0;
+    if (!isNaN(delayVal) && delayVal > 0) {
+      this.extraJS.push(`
+document.querySelectorAll('${selector}').forEach(function(el) {
+  el.classList.add('${animClass}');
+  el.style.animationDelay = '${delayVal}ms';
 });`);
+    } else {
+      this.extraJS.push(`
+document.querySelectorAll('${selector}').forEach(function(el) {
+  el.classList.add('${animClass}');
+});`);
+    }
     return '';
   }
 
@@ -431,10 +508,10 @@ document.querySelectorAll('${target ? '#' + target : '.mr-animate'}').forEach(fu
     let css = ':root {';
     if (primary) css += `--mr-primary:${this.color(primary) || primary};--mr-secondary:${this.color(primary) || primary};`;
     if (font)    css += `--mr-font:'${font}',system-ui,sans-serif;`;
-    if (background) css += `} body { background:${this.color(background) || background};`;
     css += '}';
+    if (background) css += ` body { background:${this.color(background) || background}; }`;
     if (theme === 'light') {
-      css += 'body{background:#f8fafc;color:#0f172a;}.mr-card{background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.08);}.mr-nav{background:rgba(248,250,252,0.9);}.mr-text,.mr-muted{color:#475569;}.mr-subtitle{color:#64748b;}';
+      css += ' body{background:#f8fafc;color:#0f172a;}.mr-card{background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.08);}.mr-nav{background:rgba(248,250,252,0.9);}.mr-text,.mr-muted{color:#475569;}.mr-subtitle{color:#64748b;}';
       this.pageStyle.light = true;
     }
     this.extraCSS.push(`<style>${css}</style>`);
@@ -644,7 +721,22 @@ document.querySelectorAll('${target ? '#' + target : '.mr-animate'}').forEach(fu
   Dropdown(node) {
     const { label } = node.props || {};
     const body = this.compileChildren(node.children);
-    return `<div class="mr-dropdown"><button class="mr-dropdown-btn">${this.esc(label||'Options')} ▾</button><div class="mr-dropdown-menu">${body}</div></div>`;
+    const did = `dd_${Math.random().toString(36).slice(2,7)}`;
+    this.extraJS.push(`
+(function(){
+  var dd = document.getElementById('${did}');
+  if (!dd) return;
+  var btn = dd.querySelector('.mr-dropdown-btn');
+  if (!btn) return;
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    dd.classList.toggle('open');
+  });
+  document.addEventListener('click', function() {
+    dd.classList.remove('open');
+  });
+})();`);
+    return `<div class="mr-dropdown" id="${did}"><button class="mr-dropdown-btn">${this.esc(label||'Options')} ▾</button><div class="mr-dropdown-menu">${body}</div></div>`;
   }
 
   resolveAction(action) {

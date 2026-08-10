@@ -165,7 +165,7 @@ mreasy help            # Show help
 
 ## Web IDE
 
-Open `ide/index.html` in your browser for the full AI-style web IDE with:
+Open `ide/` in your browser for the full AI-style web IDE with:
 - ✨ Syntax highlighting
 - 🔴 Live preview (split pane)
 - 📋 Snippet library

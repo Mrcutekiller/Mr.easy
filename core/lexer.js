@@ -214,6 +214,10 @@ class Lexer {
     // Check for property:value (e.g. cols:3, color:blue)
     if (this.current === ':') {
       this.advance(); // skip ':'
+      // Skip optional whitespace after colon
+      while (this.pos < this.source.length && (this.current === ' ' || this.current === '\t')) {
+        this.advance();
+      }
       let val = '';
       if (this.current === '"' || this.current === "'") {
         const q = this.current; this.advance();

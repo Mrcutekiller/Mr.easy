@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node cli/index.js run",
     "build": "node scripts/build-site.js",
-    "ide": "node cli/ide-server.js"
+    "ide": "node cli/index.js run"
   },
   "keywords": ["mreasy", "language", "web", "compiler", "html"],
   "author": "Biruk",

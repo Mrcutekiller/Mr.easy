@@ -2,8 +2,10 @@
   "version": 2,
   "outputDirectory": "dist",
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/ide", "destination": "/ide/", "permanent": true }
+  ],
   "rewrites": [
-    { "source": "/ide", "destination": "/ide/index.html" },
     { "source": "/ide/", "destination": "/ide/index.html" }
   ]
 }
