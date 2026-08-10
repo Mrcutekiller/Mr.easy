@@ -1,0 +1,205 @@
+Mr.easy "NexaStudio — Premium Creative Agency"
+
+# ═══════════════════════════════════════════════════════════
+#  NexaStudio — Full Premium MR.easy Test File
+#  Tests: nav, hero, section, grid, card, row, button,
+#         form, input, label, icon, text, title, subtitle,
+#         spacer, divider, footer, list, item, image
+#  Written in MR.easy by @mrcute_killer 🇪🇹
+# ═══════════════════════════════════════════════════════════
+
+nav
+  logo "NexaStudio"
+  links Home Work Services Pricing Contact
+
+hero
+  title "We Build Digital Dreams" big glow
+  subtitle "Premium websites. Powerful brands. Built in days — not months."
+  spacer size:28
+  row center
+    button "Start a Project" blue big action:scroll
+    button "See Our Work" outline big
+
+section "about"
+  title "Who We Are" medium center
+  spacer size:12
+  subtitle "A world-class creative studio built to help brands dominate the digital space."
+  spacer size:32
+  grid cols:3
+    card shadow
+      icon rocket
+      title "We Move Fast" small
+      text "From idea to live website in under 7 days. No long waits, no delays."
+    card shadow
+      icon bolt
+      title "We Build Bold" small
+      text "We create experiences that stop scrolls and turn visitors into customers."
+    card shadow
+      icon star
+      title "We Deliver Quality" small
+      text "Every pixel is crafted with precision. No templates. 100% custom."
+
+divider
+
+section "services"
+  title "What We Do" medium center
+  spacer size:8
+  subtitle "Everything you need to go from zero to launch."
+  spacer size:32
+  grid cols:2
+    card shadow
+      icon paint-brush
+      title "Brand Identity" small
+      spacer size:8
+      text "Logo design, color systems, typography, and full brand guidelines."
+      spacer size:16
+      button "Learn More" outline small
+    card shadow
+      icon code
+      title "Web Development" small
+      spacer size:8
+      text "Fast, responsive, and beautiful websites built with modern technology."
+      spacer size:16
+      button "Learn More" outline small
+    card shadow
+      icon mobile-screen
+      title "Mobile Design" small
+      spacer size:8
+      text "App UI/UX that feels native, smooth, and delightful on every device."
+      spacer size:16
+      button "Learn More" outline small
+    card shadow
+      icon chart-line
+      title "Growth Strategy" small
+      spacer size:8
+      text "SEO, analytics, and conversion optimization to grow your audience."
+      spacer size:16
+      button "Learn More" outline small
+
+section "stats"
+  title "Our Numbers Speak" medium center
+  spacer size:32
+  row center
+    card shadow
+      title "150+" small
+      text "Projects Delivered"
+    card shadow
+      title "98%" small
+      text "Client Satisfaction"
+    card shadow
+      title "12" small
+      text "Countries Served"
+    card shadow
+      title "4.9★" small
+      text "Average Rating"
+
+divider
+
+section "work"
+  title "Recent Work" medium center
+  spacer size:8
+  subtitle "A selection of projects we are proud of."
+  spacer size:32
+  grid cols:3
+    card shadow
+      title "Buna Coffee 🇪🇹" small
+      text "Brand identity + website for an Ethiopian specialty coffee brand."
+      spacer size:12
+      button "View Project" blue small
+    card shadow
+      title "TechFlow SaaS" small
+      text "Full product landing page for a B2B software company."
+      spacer size:12
+      button "View Project" blue small
+    card shadow
+      title "Zenith Apparel" small
+      text "E-commerce experience for a modern fashion startup."
+      spacer size:12
+      button "View Project" blue small
+    card shadow
+      title "MediLink Health" small
+      text "Healthcare platform UI connecting patients and doctors."
+      spacer size:12
+      button "View Project" blue small
+    card shadow
+      title "CryptoVault" small
+      text "Web3 dashboard and marketing site for a DeFi product."
+      spacer size:12
+      button "View Project" blue small
+    card shadow
+      title "LearnUp EdTech" small
+      text "Online learning platform used by 20,000+ students worldwide."
+      spacer size:12
+      button "View Project" blue small
+
+section "pricing"
+  title "Simple Pricing" medium center
+  spacer size:8
+  subtitle "No hidden fees. No surprises. Just great work."
+  spacer size:32
+  grid cols:3
+    card shadow
+      title "Starter" small
+      spacer size:8
+      text "$499 — Perfect for personal brands and small businesses getting online."
+      spacer size:12
+      list
+        item "1-page website"
+        item "Mobile responsive"
+        item "Contact form"
+        item "1 revision round"
+      spacer size:16
+      button "Get Started" outline small
+    card shadow
+      title "Pro ★" small
+      spacer size:8
+      text "$1,499 — For growing businesses that need a serious online presence."
+      spacer size:12
+      list
+        item "Up to 5 pages"
+        item "Custom animations"
+        item "SEO setup"
+        item "3 revision rounds"
+        item "30 days support"
+      spacer size:16
+      button "Most Popular" blue small
+    card shadow
+      title "Enterprise" small
+      spacer size:8
+      text "$4,999 — Full-scale digital product design and development."
+      spacer size:12
+      list
+        item "Unlimited pages"
+        item "Custom features"
+        item "Priority support"
+        item "Monthly reports"
+        item "Dedicated manager"
+      spacer size:16
+      button "Contact Us" outline small
+
+divider
+
+section "contact"
+  title "Let's Work Together" medium center
+  spacer size:8
+  subtitle "Tell us about your project and we'll get back to you within 24 hours."
+  spacer size:32
+  form
+    row
+      label "Your Name" for:name
+      input type:text placeholder:"e.g. Biruk Tadesse" id:name
+    row
+      label "Email Address" for:email
+      input type:email placeholder:"biruk@example.com" id:email
+    row
+      label "Your Budget" for:budget
+      input type:text placeholder:"e.g. $500 — $2,000" id:budget
+    label "Project Description" for:message
+    input type:text placeholder:"Tell us what you need..." id:message
+    spacer size:16
+    button "Send My Project Brief" blue big
+
+footer
+  row center
+    text "© 2025 NexaStudio — Built with MR.easy 🇪🇹"
+    text "IG: @mrcute_killer"
