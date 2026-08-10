@@ -817,6 +817,22 @@ hero
       return;
     }
 
+    if (root.CodeMirror && !root.CodeMirror.helpers?.hint?.mreasy) {
+      root.CodeMirror.registerHelper('hint', 'mreasy', function (cm) {
+        const cursor = cm.getCursor();
+        const token = cm.getTokenAt(cursor);
+        const start = token.start;
+        const end = cursor.ch;
+        const word = token.string.slice(0, end - start).toLowerCase();
+        const list = [...KEYWORDS, ...STYLE_WORDS].filter(item => item.toLowerCase().startsWith(word));
+        return {
+          list: list,
+          from: root.CodeMirror.Pos(cursor.line, start),
+          to: root.CodeMirror.Pos(cursor.line, end)
+        };
+      });
+    }
+
     editor = root.CodeMirror.fromTextArea(textArea, {
       value: STARTER,
       mode: 'mreasy',
@@ -835,8 +851,15 @@ hero
           if (cm.somethingSelected()) cm.indentSelection('add');
           else cm.replaceSelection('  ', 'end');
         },
+        'Ctrl-Space': 'autocomplete',
         'Ctrl-Enter': compileAndPreview,
-        'Ctrl-S': () => { compileAndPreview(); showToast('✓ Compiled & saved'); }
+        'Ctrl-S': () => { exportZip(); }
+      }
+    });
+
+    editor.on('keyup', (cm, event) => {
+      if (!cm.state.completionActive && event.keyCode >= 65 && event.keyCode <= 90) {
+        cm.showHint({ completeSingle: false });
       }
     });
 
@@ -862,18 +885,82 @@ hero
     previewTimeout = setTimeout(compileAndPreview, 120);
   }
 
+  let activeErrorLines = [];
+  function clearErrorHighlights() {
+    if (editor && activeErrorLines.length) {
+      activeErrorLines.forEach(lineIdx => editor.removeLineClass(lineIdx, 'background', 'cm-error-line'));
+      activeErrorLines = [];
+    }
+  }
+
+  function setErrorNotice(lineIndex, message) {
+    const bar = document.getElementById('error-notice-bar');
+    const text = document.getElementById('error-notice-text');
+    if (bar && text) {
+      text.textContent = `Line ${lineIndex + 1}: ${message}`;
+      bar.style.display = 'flex';
+      bar.dataset.errorLine = lineIndex;
+    }
+    if (editor && lineIndex >= 0) {
+      editor.addLineClass(lineIndex, 'background', 'cm-error-line');
+      activeErrorLines.push(lineIndex);
+    }
+  }
+
+  function dismissErrorNotice() {
+    const bar = document.getElementById('error-notice-bar');
+    if (bar) bar.style.display = 'none';
+  }
+
+  function jumpToFirstError() {
+    const bar = document.getElementById('error-notice-bar');
+    const lineIndex = Number(bar?.dataset?.errorLine ?? 0);
+    if (!isNaN(lineIndex)) jumpToLine(lineIndex);
+  }
+
   function compileAndPreview() {
     const source = getSourceCode();
     writeStoredSource(source);
     const count = document.getElementById('char-count');
     if (count) count.textContent = `${source.length} chars`;
 
+    clearErrorHighlights();
+    dismissErrorNotice();
+
+    const lines = source.split('\n');
+    let hasError = false;
+
+    // Rule 1: Declaration header required on line 1
+    const firstNonEmptyIdx = lines.findIndex(l => l.trim().length > 0 && !l.trim().startsWith('#'));
+    if (firstNonEmptyIdx >= 0 && !lines[firstNonEmptyIdx].trim().startsWith('Mr.easy')) {
+      setErrorNotice(firstNonEmptyIdx, 'Declaration required — every file MUST start with Mr.easy "Title"');
+      hasError = true;
+    } else if (firstNonEmptyIdx < 0) {
+      setErrorNotice(0, 'Empty document — add Mr.easy "Title" to start');
+      hasError = true;
+    }
+
+    // Check for unclosed quote on lines
+    lines.forEach((line, idx) => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) return;
+      let quoteCount = 0;
+      for (let i = 0; i < line.length; i++) {
+        if (line[i] === '"' && (i === 0 || line[i-1] !== '\\')) quoteCount++;
+      }
+      if (quoteCount % 2 !== 0) {
+        setErrorNotice(idx, 'Unclosed quotation mark (missing closing ")');
+        hasError = true;
+      }
+    });
+
     try {
       const frame = document.getElementById('preview-frame');
       if (frame) frame.srcdoc = browserCompile(source, { isDarkTheme });
-      setCompilerStatus(true);
-      markSaved();
+      setCompilerStatus(!hasError, hasError ? { message: 'Syntax issues found' } : null);
+      if (!hasError) markSaved();
     } catch (error) {
+      setErrorNotice(0, error.message);
       setCompilerStatus(false, error);
     }
   }
@@ -977,6 +1064,16 @@ hero
     const viewport = PREVIEW_VIEWPORTS[activeViewport];
     if (!wrapper || !frame || !viewport) return;
 
+    if (activeViewport === 'desktop') {
+      frame.style.width = '100%';
+      frame.style.height = '100%';
+      frame.style.left = '0';
+      frame.style.top = '0';
+      frame.style.transform = 'none';
+      wrapper.dataset.scale = '1.000';
+      return;
+    }
+
     const availableWidth = Math.max(wrapper.clientWidth - 24, 1);
     const availableHeight = Math.max(wrapper.clientHeight - 24, 1);
     const fitScale = Math.min(1, availableWidth / viewport.width);
@@ -1062,7 +1159,39 @@ hero
     } catch (error) { showToast(`❌ ${error.message}`); }
   }
 
-  function downloadSource() { downloadBlob(getSourceCode(), 'index.mreasy', 'text/plain'); showToast('⬇️ Downloaded index.mreasy'); }
+  function downloadSource() { exportZip(); }
+
+  function formatCode() {
+    const source = getSourceCode();
+    const lines = source.split('\n');
+    let currentIndent = 0;
+    const blockKeywords = ['nav', 'hero', 'section', 'grid', 'card', 'box', 'list', 'form', 'accordion', 'tabs', 'tab', 'table', 'thead', 'tbody', 'tr', 'repeat'];
+
+    const formattedLines = lines.map(rawLine => {
+      const trimmed = rawLine.trim();
+      if (!trimmed) return '';
+      if (trimmed.startsWith('#')) return '  '.repeat(currentIndent) + trimmed;
+
+      if (trimmed.startsWith('Mr.easy')) {
+        currentIndent = 0;
+        return trimmed;
+      }
+
+      const firstWord = trimmed.split(/\s+/)[0].toLowerCase();
+      const lineIndent = '  '.repeat(currentIndent);
+
+      if (blockKeywords.includes(firstWord)) {
+        const result = lineIndent + trimmed;
+        currentIndent += 1;
+        return result;
+      }
+
+      return lineIndent + trimmed;
+    });
+
+    setSourceCode(formattedLines.join('\n'));
+    showToast('✨ Code auto-formatted!');
+  }
 
   function downloadBlob(content, filename, type) {
     const link = document.createElement('a');
@@ -1395,6 +1524,6 @@ hero
     parseAiEnvelope, validateAiAction, applyAiActions, connectAiProvider,
     requestOpenAi, requestAnthropic, requestGemini, requestOpenAiCompatible, formatProviderError,
     markUnsaved, markSaved, showToast, startResize, doResize, stopResize,
-    runSearch, toggleWrap, toggleAutoCompile
+    runSearch, toggleWrap, toggleAutoCompile, dismissErrorNotice, jumpToFirstError
   });
 })(window);

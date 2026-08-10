@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -39,8 +40,7 @@
     <button class="btn-icon" type="button" onclick="openCliModal()" title="CLI commands reference"><i class="fa fa-terminal" aria-hidden="true"></i><span>CLI Guide</span></button>
     <button class="btn-icon" type="button" onclick="clearCode()" title="Start fresh from zero"><i class="fa fa-trash-can" aria-hidden="true"></i><span>Clear</span></button>
     <button class="btn-icon" type="button" onclick="copySource()" title="Copy source code"><i class="fa fa-copy" aria-hidden="true"></i><span>Copy</span></button>
-    <button class="btn-icon" type="button" onclick="exportZip()" title="Export as ZIP bundle"><i class="fa fa-file-zipper" aria-hidden="true"></i><span>ZIP</span></button>
-    <button class="btn-run" type="button" onclick="downloadSource()" title="Download .mreasy source file"><i class="fa fa-floppy-disk" aria-hidden="true"></i><span>Save .mreasy</span></button>
+    <button class="btn-run" type="button" onclick="exportZip()" title="Download full website ZIP bundle (source + compiled HTML)"><i class="fa fa-file-zipper" aria-hidden="true"></i><span>Download ZIP</span></button>
     <button class="btn-icon btn-play" type="button" onclick="runCode()" title="Run and refresh preview (Ctrl+Enter)"><i class="fa fa-play" aria-hidden="true"></i><span>Run</span></button>
   </div>
 </header>
@@ -170,10 +170,16 @@
         <span class="lang-badge">MR.easy</span>
       </div>
       <div class="editor-actions">
+        <button class="mini-btn" type="button" onclick="formatCode()" title="Auto-format MR.easy code" aria-label="Auto-format code"><i class="fa fa-wand-magic-sparkles" aria-hidden="true"></i></button>
         <button class="mini-btn" type="button" onclick="decreaseFontSize()" title="Decrease font size" aria-label="Decrease font size"><i class="fa fa-minus" aria-hidden="true"></i></button>
         <span class="font-size-label" id="font-size-label">14px</span>
         <button class="mini-btn" type="button" onclick="increaseFontSize()" title="Increase font size" aria-label="Increase font size"><i class="fa fa-plus" aria-hidden="true"></i></button>
       </div>
+    </div>
+    <div class="error-notice-bar" id="error-notice-bar" style="display:none;" onclick="jumpToFirstError()">
+      <i class="fa fa-circle-exclamation" aria-hidden="true"></i>
+      <span id="error-notice-text">Syntax Notice</span>
+      <button type="button" class="error-notice-close" onclick="event.stopPropagation(); dismissErrorNotice()" aria-label="Dismiss error notice">&times;</button>
     </div>
     <div class="quick-tags-bar" aria-label="Quick-insert language elements">
       <span class="quick-tag-label">Insert:</span>
@@ -319,6 +325,7 @@
 <!-- ── SCRIPTS ── -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="compiler.js"></script>
 <script src="editor.js"></script>
