@@ -399,19 +399,20 @@ html, body {
 .vp-btn.active, .vp-btn:hover { color: var(--primary2); background: var(--surface); }
 
 .preview-frame-wrapper {
-  flex: 1; display: block;
-  background: #000; overflow: auto; position: relative;
-  width: 100%; height: 100%;
+  flex: 1; display: block; overflow: hidden; position: relative;
+  background: var(--bg);
 }
-.preview-frame-wrapper.tablet,
+.preview-frame-wrapper.tablet {
+  display: flex; align-items: center; justify-content: center; background: #111;
+}
 .preview-frame-wrapper.mobile {
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: center; background: #111;
 }
-.preview-frame-wrapper.tablet iframe { width: 768px; height: 95%; border-radius: 12px; box-shadow: 0 0 40px rgba(0,0,0,0.8); transform: none !important; }
-.preview-frame-wrapper.mobile iframe { width: 375px; height: 90%; border-radius: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.8); transform: none !important; }
+.preview-frame-wrapper.tablet #preview-frame { width: 768px !important; height: 90% !important; border-radius: 12px; box-shadow: 0 0 40px rgba(0,0,0,0.8); zoom: 1 !important; }
+.preview-frame-wrapper.mobile #preview-frame { width: 375px !important; height: 85% !important; border-radius: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.8); zoom: 1 !important; }
 
 #preview-frame {
-  width: 100%; height: 100%; border: none; background: var(--bg); display: block;
+  width: 100%; height: 100%; border: none; background: #09080A; display: block;
 }
 
 /* ── STATUS BAR ─────────────────────────────────────────────────── */
@@ -503,18 +504,15 @@ html, body {
       <i class="fa fa-trash-can"></i> Start 0
     </button>
     <button class="btn-icon" onclick="copySource()" title="Copy .mreasy source code">
-      <i class="fa fa-copy"></i> Copy .mreasy
+      <i class="fa fa-copy"></i> Copy
     </button>
-    <button class="btn-run" onclick="downloadSource()" title="Download .mreasy file">
-      <i class="fa fa-file-arrow-down"></i> Save .mreasy
-    </button>
-    <button class="btn-icon" onclick="downloadHTML()" title="Export Compiled HTML Website">
-      <i class="fa fa-globe"></i> Export HTML
-    </button>
-    <button class="btn-icon" onclick="exportZip()" title="Export complete ZIP bundle">
+    <button class="btn-icon" onclick="exportZip()" title="Export ZIP bundle (HTML + source + README)">
       <i class="fa fa-file-zipper"></i> ZIP
     </button>
-    <button class="btn-icon" onclick="runCode()" title="Recompile preview">
+    <button class="btn-run" onclick="downloadSource()" title="Download .mreasy source file">
+      <i class="fa fa-floppy-disk"></i> Save .mreasy
+    </button>
+    <button class="btn-icon btn-play" onclick="runCode()" title="Recompile & refresh preview">
       <i class="fa fa-play"></i> Run
     </button>
   </div>
@@ -629,16 +627,16 @@ html, body {
       </div>
       <div class="preview-actions">
         <div class="zoom-switcher">
-          <button class="zoom-btn" onclick="setZoom(100)" id="zoom-100" title="100% Native View">100%</button>
-          <button class="zoom-btn active" onclick="setZoom(75)" id="zoom-75" title="75% Desktop Scale">75%</button>
-          <button class="zoom-btn" onclick="setZoom(50)" id="zoom-50" title="50% Compact Scale">50%</button>
+          <button class="zoom-btn active" onclick="setZoom(100)" id="zoom-100" title="100% Native View">100%</button>
+          <button class="zoom-btn" onclick="setZoom(75)" id="zoom-75" title="75% Scaled">75%</button>
+          <button class="zoom-btn" onclick="setZoom(50)" id="zoom-50" title="50% Compact">50%</button>
         </div>
         <div class="viewport-switcher">
           <button class="vp-btn active" onclick="setViewport('desktop')" title="Desktop"><i class="fa fa-desktop"></i></button>
           <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet"><i class="fa fa-tablet-screen-button"></i></button>
           <button class="vp-btn" onclick="setViewport('mobile')" title="Mobile"><i class="fa fa-mobile-screen-button"></i></button>
         </div>
-        <button class="mini-btn" onclick="togglePreviewTheme()" title="Toggle Preview Light/Dark Mode"><i class="fa fa-moon" id="theme-icon"></i></button>
+        <button class="mini-btn" onclick="togglePreviewTheme()" title="Toggle Light/Dark Preview"><i class="fa fa-moon" id="theme-icon"></i></button>
         <button class="mini-btn" onclick="refreshPreview()" title="Refresh"><i class="fa fa-rotate-right"></i></button>
         <button class="mini-btn" onclick="openInNewTab()" title="Open in New Tab"><i class="fa fa-arrow-up-right-from-square"></i></button>
       </div>
@@ -1273,12 +1271,7 @@ function setViewMode(mode) {
   if (!ws) return;
   ws.classList.remove('editor-only','preview-only');
   if (mode === 'editor')  ws.classList.add('editor-only');
-  if (mode === 'preview') {
-    ws.classList.add('preview-only');
-    setZoom(100);
-  } else if (mode === 'split') {
-    setZoom(80);
-  }
+  if (mode === 'preview') ws.classList.add('preview-only');
   if (editor) editor.refresh();
 }
 
@@ -1295,7 +1288,7 @@ function setViewport(vp) {
   setZoom(vp === 'desktop' ? currentZoom : 100);
 }
 
-let currentZoom = 80;
+let currentZoom = 100;
 let isDarkTheme = true;
 
 function setZoom(level) {
@@ -1304,21 +1297,11 @@ function setZoom(level) {
   const btn = document.getElementById(`zoom-${level}`);
   if (btn) btn.classList.add('active');
 
-  const frame = document.getElementById('preview-frame');
-  if (frame) {
-    if (level === 100) {
-      frame.style.transform = 'none';
-      frame.style.width = '100%';
-      frame.style.height = '100%';
-    } else {
-      const scale = level / 100;
-      const widthPct = (100 / scale).toFixed(2);
-      const heightPct = (100 / scale).toFixed(2);
-      frame.style.transform = `scale(${scale})`;
-      frame.style.transformOrigin = '0 0';
-      frame.style.width = `${widthPct}%`;
-      frame.style.height = `${heightPct}%`;
-    }
+  // Use CSS zoom on the wrapper — this properly changes the internal
+  // layout viewport of the iframe, unlike transform:scale which doesn't
+  const wrapper = document.getElementById('preview-wrapper');
+  if (wrapper && !wrapper.classList.contains('tablet') && !wrapper.classList.contains('mobile')) {
+    wrapper.style.zoom = level === 100 ? '' : (level / 100);
   }
 }
 
