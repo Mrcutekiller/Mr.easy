@@ -1473,6 +1473,7 @@ hero
     if (!workspace || !editorPanel || !previewPanel) return;
     const rect = workspace.getBoundingClientRect();
     const sidebarWidth = (sidebar?.offsetWidth || 0) + (rail?.offsetWidth || 0);
+    const totalWidth = rect.width - sidebarWidth;
     const offset = event.clientX - rect.left - sidebarWidth;
     const percent = Math.max(15, Math.min(85, (offset / totalWidth) * 100));
     const editorPct = percent * (totalWidth / rect.width);
