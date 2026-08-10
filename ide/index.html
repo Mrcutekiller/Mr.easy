@@ -400,19 +400,38 @@ html, body {
 
 .preview-frame-wrapper {
   flex: 1; display: block; overflow: hidden; position: relative;
-  background: var(--bg);
+  background: #09080A;
 }
+/* Tablet / Mobile device frames */
 .preview-frame-wrapper.tablet {
-  display: flex; align-items: center; justify-content: center; background: #111;
+  display: flex; align-items: center; justify-content: center; background: #0a0a0a;
 }
 .preview-frame-wrapper.mobile {
-  display: flex; align-items: center; justify-content: center; background: #111;
+  display: flex; align-items: center; justify-content: center; background: #0a0a0a;
 }
-.preview-frame-wrapper.tablet #preview-frame { width: 768px !important; height: 90% !important; border-radius: 12px; box-shadow: 0 0 40px rgba(0,0,0,0.8); zoom: 1 !important; }
-.preview-frame-wrapper.mobile #preview-frame { width: 375px !important; height: 85% !important; border-radius: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.8); zoom: 1 !important; }
+.preview-frame-wrapper.tablet #preview-frame {
+  width: 768px !important;
+  transform: none !important;
+  height: 90% !important;
+  border-radius: 12px; box-shadow: 0 0 60px rgba(0,0,0,0.9);
+}
+.preview-frame-wrapper.mobile #preview-frame {
+  width: 375px !important;
+  transform: none !important;
+  height: 85% !important;
+  border-radius: 24px; box-shadow: 0 0 60px rgba(0,0,0,0.9);
+}
 
+/* The iframe itself — fixed desktop width, scaled by JS */
 #preview-frame {
-  width: 100%; height: 100%; border: none; background: #09080A; display: block;
+  position: absolute;
+  top: 0; left: 0;
+  width: 1280px;       /* fixed desktop internal viewport */
+  height: 100%;
+  border: none;
+  background: #09080A;
+  transform-origin: 0 0;
+  /* transform: scale(X) set by JS */
 }
 
 /* ── STATUS BAR ─────────────────────────────────────────────────── */
@@ -627,18 +646,18 @@ html, body {
       </div>
       <div class="preview-actions">
         <div class="zoom-switcher">
-          <button class="zoom-btn active" onclick="setZoom(100)" id="zoom-100" title="100% Native View">100%</button>
-          <button class="zoom-btn" onclick="setZoom(75)" id="zoom-75" title="75% Scaled">75%</button>
-          <button class="zoom-btn" onclick="setZoom(50)" id="zoom-50" title="50% Compact">50%</button>
+          <button class="zoom-btn" onclick="setZoom(100)" id="zoom-100" title="Fit panel (auto scale)">Fit</button>
+          <button class="zoom-btn" onclick="setZoom(75)" id="zoom-75" title="75% of fit scale">75%</button>
+          <button class="zoom-btn" onclick="setZoom(50)" id="zoom-50" title="50% of fit scale">50%</button>
         </div>
         <div class="viewport-switcher">
-          <button class="vp-btn active" onclick="setViewport('desktop')" title="Desktop"><i class="fa fa-desktop"></i></button>
-          <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet"><i class="fa fa-tablet-screen-button"></i></button>
-          <button class="vp-btn" onclick="setViewport('mobile')" title="Mobile"><i class="fa fa-mobile-screen-button"></i></button>
+          <button class="vp-btn active" onclick="setViewport('desktop')" title="Desktop 1280px"><i class="fa fa-desktop"></i></button>
+          <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet 768px"><i class="fa fa-tablet-screen-button"></i></button>
+          <button class="vp-btn" onclick="setViewport('mobile')" title="Mobile 375px"><i class="fa fa-mobile-screen-button"></i></button>
         </div>
-        <button class="mini-btn" onclick="togglePreviewTheme()" title="Toggle Light/Dark Preview"><i class="fa fa-moon" id="theme-icon"></i></button>
+        <button class="mini-btn" onclick="togglePreviewTheme()" title="Toggle Light/Dark"><i class="fa fa-moon" id="theme-icon"></i></button>
         <button class="mini-btn" onclick="refreshPreview()" title="Refresh"><i class="fa fa-rotate-right"></i></button>
-        <button class="mini-btn" onclick="openInNewTab()" title="Open in New Tab"><i class="fa fa-arrow-up-right-from-square"></i></button>
+        <button class="mini-btn" onclick="openInNewTab()" title="Open in new tab"><i class="fa fa-arrow-up-right-from-square"></i></button>
       </div>
     </div>
     <div class="preview-frame-wrapper" id="preview-wrapper">
@@ -836,6 +855,12 @@ window.addEventListener('DOMContentLoaded', () => {
   } else {
     setTimeout(() => compileAndPreview(), 100);
   }
+
+  // Auto-scale preview to fit panel on resize
+  const wrapper = document.getElementById('preview-wrapper');
+  if (wrapper && window.ResizeObserver) {
+    new ResizeObserver(() => applyPreviewScale()).observe(wrapper);
+  }
 });
 
 function getSourceCode() {
@@ -907,6 +932,7 @@ function initEditor() {
 
 function compileAndPreview() {
   const source = getSourceCode();
+  try { localStorage.setItem('mreasy_code', source); } catch(e) {}
   const chars  = source.length;
   const charEl = document.getElementById('char-count');
   if (charEl) charEl.textContent = `${chars} chars`;
@@ -914,8 +940,13 @@ function compileAndPreview() {
   try {
     const html  = browserCompile(source);
     const frame = document.getElementById('preview-frame');
-    if (frame) frame.srcdoc = html;
-    
+    if (frame) {
+      frame.srcdoc = html;
+      // Apply scale right away so the iframe renders at the correct size
+      // Use a tiny delay to let the wrapper finish layout first
+      setTimeout(applyPreviewScale, 0);
+    }
+
     const dot = document.getElementById('status-dot');
     if (dot) {
       dot.style.background = '#22c55e';
@@ -1288,21 +1319,38 @@ function setViewport(vp) {
   setZoom(vp === 'desktop' ? currentZoom : 100);
 }
 
-let currentZoom = 100;
+let currentZoom = 100;   // percentage of "fit" scale
 let isDarkTheme = true;
+const DESKTOP_VP = 1280; // internal viewport the iframe always renders at
+
+// applyPreviewScale — called after resize or zoom change.
+// The iframe is always 1280px wide internally. We scale it down so the
+// full desktop layout fits in the split pane — like Webflow / Figma.
+function applyPreviewScale() {
+  const wrapper = document.getElementById('preview-wrapper');
+  const frame   = document.getElementById('preview-frame');
+  if (!wrapper || !frame) return;
+  if (wrapper.classList.contains('tablet') || wrapper.classList.contains('mobile')) return;
+
+  const panelW  = wrapper.clientWidth  || wrapper.offsetWidth  || 500;
+  const panelH  = wrapper.clientHeight || wrapper.offsetHeight || 500;
+
+  // Scale that makes 1280px fit the panel at 100% zoom
+  const fitScale   = panelW / DESKTOP_VP;
+  const finalScale = fitScale * (currentZoom / 100);
+
+  frame.style.width  = DESKTOP_VP + 'px';
+  frame.style.height = Math.ceil(panelH / finalScale) + 'px';
+  frame.style.transform       = `scale(${finalScale})`;
+  frame.style.transformOrigin = '0 0';
+}
 
 function setZoom(level) {
   currentZoom = level;
   document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById(`zoom-${level}`);
   if (btn) btn.classList.add('active');
-
-  // Use CSS zoom on the wrapper — this properly changes the internal
-  // layout viewport of the iframe, unlike transform:scale which doesn't
-  const wrapper = document.getElementById('preview-wrapper');
-  if (wrapper && !wrapper.classList.contains('tablet') && !wrapper.classList.contains('mobile')) {
-    wrapper.style.zoom = level === 100 ? '' : (level / 100);
-  }
+  applyPreviewScale();
 }
 
 window.addEventListener('message', (e) => {
