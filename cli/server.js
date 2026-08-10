@@ -131,10 +131,15 @@ function startServer(cwd, customPort) {
   });
 
   // ── File Watcher ───────────────────────────────────────────────────────────
+  const watchPath = cwd.replace(/\\/g, '/') + '/**/*.mreasy';
+  const entryPath = entryFile.replace(/\\/g, '/');
+
   if (chokidar) {
-    const watcher = chokidar.watch(path.join(cwd, '**/*.mreasy'), {
+    const watcher = chokidar.watch([watchPath, entryPath], {
       ignoreInitial: true,
-      ignored: /node_modules/
+      ignored: /(^|[\/\\])\..|node_modules|dist/,
+      usePolling: true,
+      interval: 300
     });
 
     watcher.on('change', (fp) => {
@@ -155,10 +160,12 @@ function startServer(cwd, customPort) {
     });
   } else {
     // Fallback: poll with fs.watch
-    fs.watch(entryFile, () => {
-      console.log(chalk.cyan('  ↻ File changed — reloading...'));
-      broadcast('reload', {});
-    });
+    try {
+      fs.watch(entryFile, () => {
+        console.log(chalk.cyan('  ↻ File changed — reloading...'));
+        broadcast('reload', {});
+      });
+    } catch {}
   }
 }
 

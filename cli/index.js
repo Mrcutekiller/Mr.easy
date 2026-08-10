@@ -98,27 +98,10 @@ function newProject(name) {
 
   const starter = `Mr.easy "${name}"
 
-# Welcome to your MR.easy website!
-# Edit index.mreasy and watch the live preview update!
-
-nav
-  logo "${name}"
-  links Home About Contact
-
 hero
-  title "Welcome to ${name}" big glow
-  subtitle "Built with MR.easy — the simple web language"
-  spacer size:20
-  row center
-    button "Get Started" blue big
-    button "Learn More" outline
-
-section "about"
-  title "About" medium
-  text "We build amazing things with MR.easy"
-
-footer
-  text "Made with MR.easy"
+  title "${name}" big glow
+  subtitle "Edit index.mreasy to build your custom website!"
+  button "Get Started" blue big
 `;
 
   fs.writeFileSync(path.join(dir, 'index.mreasy'), starter);
