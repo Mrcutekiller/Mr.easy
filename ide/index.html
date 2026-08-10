@@ -25,9 +25,9 @@
     </div>
     <div class="topbar-center" aria-label="Editor view">
       <div class="tab-bar" role="tablist">
-        <div class="tab" role="tab" tabindex="0" onclick="switchTab('editor')"><i class="fa fa-code" aria-hidden="true"></i> Editor</div>
-        <div class="tab" role="tab" tabindex="0" onclick="switchTab('preview')"><i class="fa fa-eye" aria-hidden="true"></i> Preview</div>
-        <div class="tab active" role="tab" tabindex="0" onclick="switchTab('split')"><i class="fa fa-table-columns" aria-hidden="true"></i> Split</div>
+        <div class="tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('editor')"><i class="fa fa-code" aria-hidden="true"></i> Editor</div>
+        <div class="tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('preview')"><i class="fa fa-eye" aria-hidden="true"></i> Preview</div>
+        <div class="tab active" role="tab" tabindex="0" aria-selected="true" onclick="switchTab('split')"><i class="fa fa-table-columns" aria-hidden="true"></i> Split</div>
       </div>
     </div>
     <div class="topbar-right">
@@ -43,12 +43,12 @@
 
   <div class="workspace" id="workspace">
     <aside class="icon-rail" aria-label="Workbench navigation">
-      <button class="rail-button active" type="button" title="Explorer" aria-label="Explorer"><i class="fa fa-code" aria-hidden="true"></i></button>
-      <button class="rail-button" type="button" title="Search" aria-label="Search"><i class="fa fa-magnifying-glass" aria-hidden="true"></i></button>
-      <button class="rail-button" type="button" title="Examples" aria-label="Examples"><i class="fa fa-layer-group" aria-hidden="true"></i></button>
+      <button class="rail-button active" type="button" data-rail-action="explorer" onclick="activateRail('explorer')" title="Explorer" aria-label="Explorer" aria-pressed="true"><i class="fa fa-code" aria-hidden="true"></i></button>
+      <button class="rail-button" type="button" data-rail-action="search" onclick="activateRail('search')" title="Search" aria-label="Search" aria-pressed="false"><i class="fa fa-magnifying-glass" aria-hidden="true"></i></button>
+      <button class="rail-button" type="button" data-rail-action="examples" onclick="activateRail('examples')" title="Examples" aria-label="Examples" aria-pressed="false"><i class="fa fa-layer-group" aria-hidden="true"></i></button>
       <span class="rail-spacer"></span>
-      <button class="rail-button" type="button" title="Language guide" aria-label="Language guide"><i class="fa fa-book" aria-hidden="true"></i></button>
-      <button class="rail-button" type="button" title="Settings" aria-label="Settings"><i class="fa fa-gear" aria-hidden="true"></i></button>
+      <button class="rail-button" type="button" data-rail-action="guide" onclick="activateRail('guide')" title="Language guide" aria-label="Language guide" aria-pressed="false"><i class="fa fa-book" aria-hidden="true"></i></button>
+      <button class="rail-button" type="button" data-rail-action="settings" onclick="activateRail('settings')" title="Settings" aria-label="Settings" aria-pressed="false"><i class="fa fa-gear" aria-hidden="true"></i></button>
     </aside>
 
     <aside class="sidebar" id="sidebar" aria-label="MR.easy explorer">
@@ -105,7 +105,7 @@
       <div id="codemirror-container"><textarea id="code-textarea" spellcheck="false" aria-label="MR.easy source code"></textarea></div>
     </section>
 
-    <div class="divider" id="divider" onmousedown="startResize(event)" role="separator" aria-label="Resize editor and preview"></div>
+    <div class="divider" id="divider" onpointerdown="startResize(event)" role="separator" aria-label="Resize editor and preview" tabindex="0"></div>
 
     <section class="preview-panel" id="preview-panel" aria-label="Live preview">
       <div class="preview-toolbar">
@@ -134,6 +134,33 @@
     </div>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <button class="ai-agent-toggle" id="ai-agent-toggle" type="button" onclick="toggleAiPanel()" aria-expanded="false" aria-controls="ai-agent-panel" aria-label="Open MR.easy AI assistant" title="Open MR.easy AI assistant">
+    <i class="fa fa-robot" aria-hidden="true"></i><span class="ai-agent-toggle-dot" aria-hidden="true"></span>
+  </button>
+
+  <section class="ai-agent-panel" id="ai-agent-panel" role="dialog" aria-modal="false" aria-labelledby="ai-agent-title" aria-hidden="true">
+    <header class="ai-agent-header">
+      <div class="ai-agent-heading"><span class="ai-agent-mark"><i class="fa fa-robot" aria-hidden="true"></i></span><div><h2 id="ai-agent-title">MR.easy AI</h2><p>Language-aware copilot</p></div></div>
+      <div class="ai-agent-header-actions"><button class="ai-agent-icon-btn" id="ai-agent-clear" type="button" onclick="clearAiConversation()" title="Clear conversation" aria-label="Clear conversation"><i class="fa fa-rotate-left" aria-hidden="true"></i></button><button class="ai-agent-icon-btn" id="ai-agent-close" type="button" onclick="closeAiPanel()" title="Close AI assistant" aria-label="Close AI assistant"><i class="fa fa-xmark" aria-hidden="true"></i></button></div>
+    </header>
+
+    <form class="ai-agent-config" id="ai-agent-config">
+      <div class="ai-agent-config-row"><label for="ai-provider">Provider</label><select id="ai-provider" autocomplete="off"><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option><option value="gemini">Google Gemini</option><option value="openai-compatible">OpenAI-compatible / OpenRouter</option></select></div>
+      <div class="ai-agent-config-grid"><label for="ai-api-key">API key<input id="ai-api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste key for this tab only"></label><label for="ai-model">Model<input id="ai-model" type="text" autocomplete="off" spellcheck="false"></label></div>
+      <label class="ai-endpoint-field" id="ai-endpoint-field" for="ai-endpoint">Advanced endpoint<input id="ai-endpoint" type="url" autocomplete="off" spellcheck="false"></label>
+      <div class="ai-agent-config-footer"><span id="ai-config-status" role="status">Not connected</span><button class="ai-agent-connect" id="ai-connect" type="submit">Connect</button></div>
+      <p class="ai-agent-security"><i class="fa fa-shield-halved" aria-hidden="true"></i> Key stays in memory only. Use a server proxy for production.</p>
+    </form>
+
+    <div class="ai-agent-messages" id="ai-agent-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+
+    <form class="ai-agent-composer" id="ai-agent-composer">
+      <label class="sr-only" for="ai-agent-input">Message MR.easy AI</label>
+      <textarea id="ai-agent-input" rows="2" spellcheck="true" placeholder="Ask about your current MR.easy code…" aria-describedby="ai-agent-input-hint"></textarea>
+      <div class="ai-agent-composer-footer"><span id="ai-agent-input-hint">Enter to send · Shift+Enter for a new line</span><div class="ai-agent-composer-actions"><button class="ai-agent-stop" id="ai-agent-stop" type="button" onclick="stopAiRequest()" hidden>Stop</button><button class="ai-agent-send" id="ai-agent-send" type="submit" disabled><i class="fa fa-paper-plane" aria-hidden="true"></i><span>Send</span></button></div></div>
+    </form>
+  </section>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>

@@ -21,10 +21,10 @@ try { openPkg = require('open'); } catch { openPkg = null; }
 
 const { compileFile, compile } = require('../core/index');
 
-const PORT      = process.env.PORT || 3000;
-const WS_PORT   = PORT + 1;
+function startServer(cwd, customPort) {
+  const PORT    = customPort || process.env.PORT || 3000;
+  const WS_PORT = PORT + 1;
 
-function startServer(cwd) {
   // Find the entry file
   const rcPath = path.join(cwd, '.mreasyrc');
   let entry = 'index.mreasy';

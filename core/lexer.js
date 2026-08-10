@@ -38,15 +38,18 @@ const KEYWORDS = new Set([
   // Logic
   'set', 'repeat', 'times', 'if', 'else', 'end',
   'show', 'hide', 'animate',
+  'for', 'while', 'each', 'in', 'of', 'to',
   // Component system
-  'component', 'use', 'function', 'call',
+  'component', 'use', 'function', 'call', 'define', 'import', 'from',
+  // Head/Meta
+  'head', 'meta', 'link',
   // Style shortcuts (can follow any element)
   'big', 'medium', 'small', 'tiny',
   'glow', 'shadow', 'rounded', 'outline', 'bold', 'italic',
   'dark', 'light', 'gradient', 'glass',
   'center', 'left', 'right',
   'blue', 'red', 'green', 'purple', 'orange', 'pink',
-  'yellow', 'white', 'black', 'gray',
+  'yellow', 'white', 'black', 'gray', 'cyan',
   'on', 'off',
 ]);
 

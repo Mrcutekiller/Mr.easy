@@ -27,9 +27,47 @@
   let currentView = 'split';
   let previewTimeout;
   let currentZoom = 100;
+  let activeViewport = 'desktop';
   let isDarkTheme = true;
   let isResizing = false;
-  const DESKTOP_VP = 1280;
+  let scaleFrame;
+  const PREVIEW_VIEWPORTS = Object.freeze({
+    desktop: { width: 1280, minHeight: 900 },
+    tablet: { width: 768, minHeight: 900 },
+    mobile: { width: 375, minHeight: 760 }
+  });
+
+  const PROVIDERS = Object.freeze({
+    openai: { label: 'OpenAI', model: 'gpt-4o-mini', endpoint: 'https://api.openai.com/v1/responses' },
+    anthropic: { label: 'Anthropic', model: 'claude-3-5-haiku-latest', endpoint: 'https://api.anthropic.com/v1/messages' },
+    gemini: { label: 'Google Gemini', model: 'gemini-2.0-flash', endpoint: 'https://generativelanguage.googleapis.com/v1beta/models' },
+    'openai-compatible': { label: 'OpenAI-compatible / OpenRouter', model: 'openai/gpt-4o-mini', endpoint: 'https://openrouter.ai/api/v1/chat/completions' }
+  });
+  const AI_SOURCE_LIMIT = 12000;
+  const AI_HISTORY_LIMIT = 20;
+  const AI_SYSTEM_PROMPT = `You are the MR.easy language assistant inside the MR.easy browser IDE.
+
+MR.easy rules:
+- Every file starts with Mr.easy "Page Title".
+- Indentation creates hierarchy; use two spaces for nested content.
+- Use documented MR.easy words and modifiers such as hero, nav, section, grid, card, title, text, button, badge, alert, form, and footer.
+- Do not invent HTML, CSS, or JavaScript when an MR.easy construct can express the idea.
+- Prefer concise fenced mreasy examples when suggesting code.
+- Preserve the user's current source; explain changes before suggesting them.
+- Warn clearly when a requested syntax feature is not supported.
+
+Give practical, concise guidance for writing, debugging, and improving MR.easy code. Never claim to have changed the editor or preview automatically.`;
+  const aiState = {
+    providerId: 'openai',
+    apiKey: '',
+    model: PROVIDERS.openai.model,
+    endpoint: PROVIDERS.openai.endpoint,
+    messages: [],
+    isBusy: false,
+    isOpen: false,
+    abortController: null,
+    loadingMessage: null
+  };
 
   const SNIPPETS = [
     { icon: 'fa-file', label: 'Page Start', tag: 'decl', code: 'Mr.easy "Page Title"\n' },
@@ -209,6 +247,16 @@ hero
 ` }
   ];
 
+  function readStoredSource() {
+    try { return root.localStorage.getItem('mreasy_code') || ''; }
+    catch (error) { return ''; }
+  }
+
+  function writeStoredSource(source) {
+    try { root.localStorage.setItem('mreasy_code', source); }
+    catch (error) { /* private browsing or storage restrictions */ }
+  }
+
   function getSourceCode() {
     return editor ? editor.getValue() : (document.getElementById('code-textarea')?.value || STARTER);
   }
@@ -220,6 +268,273 @@ hero
       if (textArea) textArea.value = code;
     }
     compileAndPreview();
+  }
+
+  function getAiElements() {
+    return {
+      toggle: document.getElementById('ai-agent-toggle'),
+      panel: document.getElementById('ai-agent-panel'),
+      provider: document.getElementById('ai-provider'),
+      apiKey: document.getElementById('ai-api-key'),
+      model: document.getElementById('ai-model'),
+      endpoint: document.getElementById('ai-endpoint'),
+      endpointField: document.getElementById('ai-endpoint-field'),
+      config: document.getElementById('ai-agent-config'),
+      configStatus: document.getElementById('ai-config-status'),
+      messages: document.getElementById('ai-agent-messages'),
+      composer: document.getElementById('ai-agent-composer'),
+      input: document.getElementById('ai-agent-input'),
+      send: document.getElementById('ai-agent-send'),
+      stop: document.getElementById('ai-agent-stop'),
+      busyDot: document.querySelector('.ai-agent-toggle-dot')
+    };
+  }
+
+  function setAiConfigStatus(message, state = '') {
+    const { configStatus } = getAiElements();
+    if (!configStatus) return;
+    configStatus.textContent = message;
+    configStatus.className = state;
+  }
+
+  function updateAiProviderUi() {
+    const { provider, model, endpoint, endpointField } = getAiElements();
+    const metadata = PROVIDERS[aiState.providerId];
+    if (!metadata) return;
+    if (provider && provider.value !== aiState.providerId) provider.value = aiState.providerId;
+    if (model && document.activeElement !== model) model.value = aiState.model;
+    if (endpoint && document.activeElement !== endpoint) endpoint.value = aiState.endpoint;
+    endpointField?.classList.toggle('visible', aiState.providerId === 'openai-compatible');
+  }
+
+  function updateAiComposerState() {
+    const { input, send, stop, busyDot } = getAiElements();
+    const canSend = Boolean(aiState.apiKey && input?.value.trim() && !aiState.isBusy);
+    if (send) send.disabled = !canSend;
+    if (stop) stop.hidden = !aiState.isBusy;
+    busyDot?.classList.toggle('busy', aiState.isBusy);
+  }
+
+  function appendAiMessageBody(body, content) {
+    const parts = String(content || '').split(/```(?:mreasy|mr\.easy)?\s*([\s\S]*?)```/gi);
+    parts.forEach((part, index) => {
+      if (!part) return;
+      if (index % 2 === 1) {
+        const code = document.createElement('code');
+        code.textContent = part.trim();
+        body.appendChild(code);
+      } else {
+        body.appendChild(document.createTextNode(part));
+      }
+    });
+  }
+
+  function renderAiMessages(forceScroll = false) {
+    const { messages } = getAiElements();
+    if (!messages) return;
+    const nearBottom = messages.scrollHeight - messages.scrollTop - messages.clientHeight < 48;
+    messages.replaceChildren();
+    aiState.messages.forEach(message => {
+      const item = document.createElement('article');
+      item.className = `ai-message ${message.role}`;
+      const label = document.createElement('span');
+      label.className = 'ai-message-label';
+      label.textContent = message.role === 'user' ? 'You' : message.role === 'assistant' ? 'MR.easy AI' : message.role === 'error' ? 'Request error' : 'MR.easy guide';
+      const body = document.createElement('div');
+      body.className = 'ai-message-body';
+      appendAiMessageBody(body, message.content);
+      item.append(label, body);
+      messages.appendChild(item);
+    });
+    if (aiState.isBusy) {
+      const loading = document.createElement('article');
+      loading.className = 'ai-message assistant ai-loading';
+      loading.setAttribute('aria-label', 'MR.easy AI is thinking');
+      loading.textContent = 'MR.easy AI is thinking…';
+      messages.appendChild(loading);
+    }
+    if (forceScroll || nearBottom) requestAnimationFrame(() => { messages.scrollTop = messages.scrollHeight; });
+  }
+
+  function appendAiMessage(role, content) {
+    aiState.messages.push({ role, content: String(content || '') });
+    if (aiState.messages.length > AI_HISTORY_LIMIT) aiState.messages.splice(0, aiState.messages.length - AI_HISTORY_LIMIT);
+    renderAiMessages(true);
+  }
+
+  function ensureAiWelcome() {
+    if (!aiState.messages.length) appendAiMessage('system', 'I know the MR.easy language and can help you write, debug, and improve the current source. Connect a provider above, then ask a question.');
+  }
+
+  function toggleAiPanel() {
+    aiState.isOpen = !aiState.isOpen;
+    const { toggle, panel, input } = getAiElements();
+    toggle?.setAttribute('aria-expanded', String(aiState.isOpen));
+    toggle?.setAttribute('aria-label', aiState.isOpen ? 'Close MR.easy AI assistant' : 'Open MR.easy AI assistant');
+    panel?.classList.toggle('open', aiState.isOpen);
+    panel?.setAttribute('aria-hidden', String(!aiState.isOpen));
+    if (aiState.isOpen) {
+      ensureAiWelcome();
+      updateAiProviderUi();
+      renderAiMessages();
+      setTimeout(() => (aiState.apiKey ? input : getAiElements().apiKey)?.focus(), 0);
+    } else {
+      toggle?.focus();
+    }
+  }
+
+  function closeAiPanel() {
+    if (!aiState.isOpen) return;
+    aiState.isOpen = false;
+    const { toggle, panel } = getAiElements();
+    toggle?.setAttribute('aria-expanded', 'false');
+    toggle?.setAttribute('aria-label', 'Open MR.easy AI assistant');
+    panel?.classList.remove('open');
+    panel?.setAttribute('aria-hidden', 'true');
+    toggle?.focus();
+  }
+
+  function clearAiConversation() {
+    if (aiState.isBusy) stopAiRequest();
+    aiState.messages = [];
+    ensureAiWelcome();
+    renderAiMessages(true);
+  }
+
+  function connectAiProvider() {
+    const { provider, apiKey, model, endpoint } = getAiElements();
+    const metadata = PROVIDERS[provider?.value] || PROVIDERS.openai;
+    const key = apiKey?.value.trim() || '';
+    if (!key) {
+      setAiConfigStatus('API key required', 'error');
+      apiKey?.focus();
+      updateAiComposerState();
+      return false;
+    }
+    aiState.providerId = provider.value;
+    aiState.apiKey = key;
+    aiState.model = model?.value.trim() || metadata.model;
+    aiState.endpoint = endpoint?.value.trim() || metadata.endpoint;
+    setAiConfigStatus(`Ready · ${metadata.label}`, 'connected');
+    const connect = document.getElementById('ai-connect');
+    if (connect) { connect.textContent = 'Connected'; connect.classList.add('connected'); }
+    updateAiProviderUi();
+    updateAiComposerState();
+    return true;
+  }
+
+  function sanitizedAiError(error) {
+    if (error?.name === 'AbortError') return 'Request cancelled.';
+    const message = String(error?.message || 'Something went wrong while contacting the provider.');
+    return message.replace(aiState.apiKey, '[redacted]').slice(0, 180);
+  }
+
+  async function fetchAiJson(url, options, providerId) {
+    if (!root.fetch) throw new Error('This browser does not support fetch.');
+    const response = await root.fetch(url, options);
+    let data = null;
+    try { data = await response.json(); } catch (error) { data = null; }
+    if (!response.ok) throw new Error(`${PROVIDERS[providerId].label} request failed (${response.status}).`);
+    return data || {};
+  }
+
+  function requestHeaders(apiKey, extra = {}) {
+    return { 'Content-Type': 'application/json', ...extra };
+  }
+
+  async function requestOpenAi(systemPrompt, messages, signal) {
+    const data = await fetchAiJson(aiState.endpoint, { method: 'POST', signal, headers: requestHeaders(aiState.apiKey, { Authorization: `Bearer ${aiState.apiKey}` }), body: JSON.stringify({ model: aiState.model, input: [{ role: 'system', content: systemPrompt }, ...messages] }) }, 'openai');
+    const text = data.output_text || data.output?.flatMap(item => item.content || []).filter(item => item.type === 'output_text').map(item => item.text).join('');
+    return text || '';
+  }
+
+  async function requestAnthropic(systemPrompt, messages, signal) {
+    const data = await fetchAiJson(aiState.endpoint, { method: 'POST', signal, headers: requestHeaders(aiState.apiKey, { 'x-api-key': aiState.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }), body: JSON.stringify({ model: aiState.model, max_tokens: 1200, system: systemPrompt, messages }) }, 'anthropic');
+    return data.content?.filter(item => item.type === 'text').map(item => item.text).join('') || '';
+  }
+
+  async function requestGemini(systemPrompt, messages, signal) {
+    const endpoint = `${aiState.endpoint.replace(/\/$/, '')}/${encodeURIComponent(aiState.model)}:generateContent?key=${encodeURIComponent(aiState.apiKey)}`;
+    const contents = messages.map(message => ({ role: message.role === 'assistant' ? 'model' : 'user', parts: [{ text: message.content }] }));
+    const data = await fetchAiJson(endpoint, { method: 'POST', signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ systemInstruction: { parts: [{ text: systemPrompt }] }, contents, generationConfig: { maxOutputTokens: 1200 } }) }, 'gemini');
+    return data.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('') || '';
+  }
+
+  async function requestOpenAiCompatible(systemPrompt, messages, signal) {
+    const data = await fetchAiJson(aiState.endpoint, { method: 'POST', signal, headers: requestHeaders(aiState.apiKey, { Authorization: `Bearer ${aiState.apiKey}` }), body: JSON.stringify({ model: aiState.model, messages: [{ role: 'system', content: systemPrompt }, ...messages] }) }, 'openai-compatible');
+    const content = data.choices?.[0]?.message?.content;
+    return Array.isArray(content) ? content.map(item => item.text || '').join('') : content || '';
+  }
+
+  async function requestAiCompletion() {
+    const source = getSourceCode().slice(0, AI_SOURCE_LIMIT);
+    const systemPrompt = `${AI_SYSTEM_PROMPT}\n\nCurrent MR.easy source:\n\`\`\`mreasy\n${source}\n\`\`\``;
+    const messages = aiState.messages.filter(message => message.role === 'user' || message.role === 'assistant').slice(-AI_HISTORY_LIMIT).map(message => ({ role: message.role, content: message.content }));
+    const signal = aiState.abortController.signal;
+    if (aiState.providerId === 'anthropic') return requestAnthropic(systemPrompt, messages, signal);
+    if (aiState.providerId === 'gemini') return requestGemini(systemPrompt, messages, signal);
+    if (aiState.providerId === 'openai-compatible') return requestOpenAiCompatible(systemPrompt, messages, signal);
+    return requestOpenAi(systemPrompt, messages, signal);
+  }
+
+  async function sendAiMessage(event) {
+    event?.preventDefault();
+    const { input } = getAiElements();
+    const content = input?.value.trim() || '';
+    if (!content || aiState.isBusy) return;
+    if (!aiState.apiKey && !connectAiProvider()) return;
+    input.value = '';
+    appendAiMessage('user', content);
+    aiState.isBusy = true;
+    aiState.abortController = new AbortController();
+    updateAiComposerState();
+    renderAiMessages(true);
+    try {
+      const response = await requestAiCompletion();
+      if (!response.trim()) throw new Error('The assistant returned an empty response.');
+      appendAiMessage('assistant', response.trim());
+    } catch (error) {
+      if (error?.name === 'AbortError') appendAiMessage('system', 'Request cancelled.');
+      else appendAiMessage('error', sanitizedAiError(error));
+    } finally {
+      aiState.isBusy = false;
+      aiState.abortController = null;
+      updateAiComposerState();
+      renderAiMessages();
+    }
+  }
+
+  function stopAiRequest() {
+    aiState.abortController?.abort();
+  }
+
+  function installAiHandlers() {
+    const { provider, model, endpoint, config, composer, input } = getAiElements();
+    provider?.addEventListener('change', () => {
+      aiState.providerId = provider.value;
+      const metadata = PROVIDERS[aiState.providerId];
+      aiState.model = metadata.model;
+      aiState.endpoint = metadata.endpoint;
+      updateAiProviderUi();
+      setAiConfigStatus('Not connected');
+      const connect = document.getElementById('ai-connect');
+      if (connect) { connect.textContent = 'Connect'; connect.classList.remove('connected'); }
+      updateAiComposerState();
+    });
+    model?.addEventListener('input', () => { aiState.model = model.value.trim(); updateAiComposerState(); });
+    endpoint?.addEventListener('input', () => { aiState.endpoint = endpoint.value.trim(); });
+    config?.addEventListener('submit', event => { event.preventDefault(); connectAiProvider(); });
+    composer?.addEventListener('submit', sendAiMessage);
+    input?.addEventListener('input', updateAiComposerState);
+    input?.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        composer?.requestSubmit();
+      }
+    });
+    updateAiProviderUi();
+    ensureAiWelcome();
+    updateAiComposerState();
   }
 
   function initEditor() {
@@ -271,7 +586,7 @@ hero
 
   function compileAndPreview() {
     const source = getSourceCode();
-    try { root.localStorage.setItem('mreasy_code', source); } catch (error) { /* private browsing */ }
+    writeStoredSource(source);
     const count = document.getElementById('char-count');
     if (count) count.textContent = `${source.length} chars`;
 
@@ -319,10 +634,13 @@ hero
   }
 
   function switchTab(mode) {
+    if (!['editor', 'preview', 'split'].includes(mode)) return;
     currentView = mode;
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    const tabIndex = ['editor', 'preview', 'split'].indexOf(mode);
-    if (tabIndex !== -1) document.querySelectorAll('.tab')[tabIndex]?.classList.add('active');
+    document.querySelectorAll('.tab').forEach((tab, index) => {
+      const isActive = ['editor', 'preview', 'split'][index] === mode;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-selected', String(isActive));
+    });
     setViewMode(mode);
   }
 
@@ -333,40 +651,90 @@ hero
     if (mode === 'editor') workspace.classList.add('editor-only');
     if (mode === 'preview') workspace.classList.add('preview-only');
     if (editor) editor.refresh();
-    setTimeout(applyPreviewScale, 0);
+    schedulePreviewScale();
+  }
+
+  function activateRail(action) {
+    document.querySelectorAll('[data-rail-action]').forEach(button => {
+      const active = button.dataset.railAction === action;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+
+    if (action === 'explorer') {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar) sidebar.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Explorer opened');
+    } else if (action === 'search') {
+      switchTab('editor');
+      if (editor) editor.focus();
+      document.getElementById('code-textarea')?.focus();
+      showToast('Search is available in the editor');
+    } else if (action === 'examples') {
+      openTemplateModal();
+      showToast('Examples opened');
+    } else if (action === 'guide') {
+      openGuideModal('ref');
+      showToast('Language guide opened');
+    } else if (action === 'settings') {
+      togglePreviewTheme();
+      showToast('Settings: preview theme toggled');
+    }
   }
 
   function setViewport(viewport, sourceEvent) {
-    document.querySelectorAll('.vp-btn').forEach(button => button.classList.remove('active'));
+    if (!PREVIEW_VIEWPORTS[viewport]) return;
+    activeViewport = viewport;
+    const viewportButtons = document.querySelectorAll('.vp-btn');
+    viewportButtons.forEach(button => button.classList.remove('active'));
     const eventTarget = sourceEvent?.target || root.event?.target;
     const button = eventTarget?.closest?.('.vp-btn');
     if (button) button.classList.add('active');
+    else viewportButtons[['desktop', 'tablet', 'mobile'].indexOf(viewport)]?.classList.add('active');
     const frame = document.getElementById('preview-frame');
     const wrapper = document.getElementById('preview-wrapper');
     if (frame) frame.className = viewport === 'desktop' ? '' : viewport;
     if (wrapper) wrapper.className = `preview-frame-wrapper ${viewport === 'desktop' ? '' : viewport}`;
-    setZoom(viewport === 'desktop' ? currentZoom : 100);
+    applyPreviewScale();
   }
 
   function applyPreviewScale() {
     const wrapper = document.getElementById('preview-wrapper');
     const frame = document.getElementById('preview-frame');
-    if (!wrapper || !frame || wrapper.classList.contains('tablet') || wrapper.classList.contains('mobile')) return;
-    const width = wrapper.clientWidth || 500;
-    const height = wrapper.clientHeight || 500;
-    const fitScale = width / DESKTOP_VP;
-    const scale = fitScale * (currentZoom / 100);
-    frame.style.width = `${DESKTOP_VP}px`;
-    frame.style.height = `${Math.ceil(height / scale)}px`;
+    const viewport = PREVIEW_VIEWPORTS[activeViewport];
+    if (!wrapper || !frame || !viewport) return;
+
+    const availableWidth = Math.max(wrapper.clientWidth - 24, 1);
+    const availableHeight = Math.max(wrapper.clientHeight - 24, 1);
+    const fitScale = Math.min(1, availableWidth / viewport.width);
+    const scale = Math.max(0.25, fitScale * (currentZoom / 100));
+    const frameHeight = Math.max(viewport.minHeight, Math.ceil(availableHeight / scale));
+    const scaledWidth = viewport.width * scale;
+    const left = Math.max(12, Math.floor((wrapper.clientWidth - scaledWidth) / 2));
+
+    frame.style.width = `${viewport.width}px`;
+    frame.style.height = `${frameHeight}px`;
+    frame.style.left = `${left}px`;
+    frame.style.top = '12px';
     frame.style.transform = `scale(${scale})`;
-    frame.style.transformOrigin = '0 0';
+    frame.style.transformOrigin = 'top left';
+    wrapper.dataset.scale = scale.toFixed(3);
+  }
+
+  function schedulePreviewScale() {
+    if (scaleFrame) root.cancelAnimationFrame?.(scaleFrame);
+    scaleFrame = root.requestAnimationFrame ? root.requestAnimationFrame(() => {
+      scaleFrame = null;
+      applyPreviewScale();
+    }) : setTimeout(() => { scaleFrame = null; applyPreviewScale(); }, 0);
   }
 
   function setZoom(level) {
-    currentZoom = level;
+    const allowed = [50, 75, 100];
+    currentZoom = allowed.includes(Number(level)) ? Number(level) : 100;
     document.querySelectorAll('.zoom-btn').forEach(button => button.classList.remove('active'));
-    document.getElementById(`zoom-${level}`)?.classList.add('active');
-    applyPreviewScale();
+    document.getElementById(`zoom-${currentZoom}`)?.classList.add('active');
+    schedulePreviewScale();
   }
 
   function togglePreviewTheme() {
@@ -428,14 +796,31 @@ hero
     setTimeout(() => URL.revokeObjectURL(link.href), 0);
   }
 
-  function copySource() {
-    root.navigator.clipboard?.writeText(getSourceCode()).then(() => showToast('📋 MR.easy source copied to clipboard!'));
+  async function copyText(text, successMessage) {
+    try {
+      if (root.navigator.clipboard?.writeText) {
+        await root.navigator.clipboard.writeText(text);
+      } else {
+        const helper = document.createElement('textarea');
+        helper.value = text;
+        helper.setAttribute('readonly', '');
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        document.body.appendChild(helper);
+        helper.select();
+        const copied = document.execCommand('copy');
+        helper.remove();
+        if (!copied) throw new Error('Clipboard access is unavailable');
+      }
+      showToast(successMessage);
+    } catch (error) {
+      showToast(`❌ ${error.message || 'Clipboard access is unavailable'}`);
+    }
   }
 
-  function copyHTML() {
-    try { root.navigator.clipboard?.writeText(browserCompile(getSourceCode(), { isDarkTheme })).then(() => showToast('📋 HTML copied to clipboard!')); }
-    catch (error) { showToast(`❌ ${error.message}`); }
-  }
+  function copySource() { copyText(getSourceCode(), '📋 MR.easy source copied to clipboard!'); }
+
+  function copyHTML() { copyText(browserCompile(getSourceCode(), { isDarkTheme }), '📋 HTML copied to clipboard!'); }
 
   function exportZip() {
     try {
@@ -492,6 +877,23 @@ hero
   }
 
   function closeGuideModal() { document.getElementById('guide-modal')?.classList.remove('open'); }
+  function installKeyboardHandlers() {
+    document.querySelectorAll('[role="tab"]').forEach(tab => tab.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        tab.click();
+      }
+    }));
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      if (aiState.isOpen) closeAiPanel();
+      else closeGuideModal();
+    });
+    const modal = document.getElementById('guide-modal');
+    modal?.addEventListener('click', event => {
+      if (event.target === modal) closeGuideModal();
+    });
+  }
   function showGuide() { openGuideModal('ref'); }
   function showCheatsheet() { openGuideModal('cheat'); }
   function closeModal() { closeGuideModal(); }
@@ -521,11 +923,14 @@ hero
   function markSaved() { document.getElementById('saved-indicator')?.classList.remove('unsaved'); }
   function showToast(message) { const toast = document.getElementById('toast'); if (!toast) return; toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
 
-  function startResize() {
+  function startResize(event) {
+    event?.preventDefault();
     isResizing = true;
     document.getElementById('divider')?.classList.add('dragging');
+    document.addEventListener('pointermove', doResize);
+    document.addEventListener('pointerup', stopResize, { once: true });
     document.addEventListener('mousemove', doResize);
-    document.addEventListener('mouseup', stopResize);
+    document.addEventListener('mouseup', stopResize, { once: true });
   }
 
   function doResize(event) {
@@ -543,15 +948,18 @@ hero
     const percent = Math.max(20, Math.min(80, (offset / totalWidth) * 100));
     editorPanel.style.flex = `0 0 ${percent}%`;
     previewPanel.style.flex = `0 0 ${100 - percent}%`;
-    applyPreviewScale();
+    schedulePreviewScale();
   }
 
   function stopResize() {
     isResizing = false;
     document.getElementById('divider')?.classList.remove('dragging');
+    document.removeEventListener('pointermove', doResize);
+    document.removeEventListener('pointerup', stopResize);
     document.removeEventListener('mousemove', doResize);
     document.removeEventListener('mouseup', stopResize);
     if (editor) editor.refresh();
+    schedulePreviewScale();
   }
 
   root.addEventListener('message', event => {
@@ -561,22 +969,27 @@ hero
   root.addEventListener('DOMContentLoaded', () => {
     initEditor();
     buildSidebar();
+    installKeyboardHandlers();
+    installAiHandlers();
     setViewMode('split');
-    const saved = root.localStorage.getItem('mreasy_code');
-    if (saved && saved.trim()) setSourceCode(saved);
+    const saved = readStoredSource();
+    if (saved.trim()) setSourceCode(saved);
     else setTimeout(compileAndPreview, 100);
     const wrapper = document.getElementById('preview-wrapper');
-    if (wrapper && root.ResizeObserver) new root.ResizeObserver(applyPreviewScale).observe(wrapper);
+    if (wrapper && root.ResizeObserver) new root.ResizeObserver(schedulePreviewScale).observe(wrapper);
+    root.addEventListener('resize', schedulePreviewScale);
+    setViewport('desktop');
     setZoom(100);
   });
 
   Object.assign(root, {
     KEYWORDS, STYLE_WORDS, COLOR_MAP, ICON_MAP, SIZE_MAP,
-    browserCompile, compileAndPreview, switchTab, setViewMode, setViewport, setZoom,
+    browserCompile, compileAndPreview, switchTab, setViewMode, activateRail, setViewport, setZoom,
     togglePreviewTheme, insertSnippet, loadExample, runCode, refreshPreview,
     openInNewTab, downloadHTML, downloadSource, copySource, copyHTML, exportZip,
     clearCode, formatCode, increaseFontSize, decreaseFontSize, openGuideModal,
     closeGuideModal, showGuide, showCheatsheet, closeModal, openTemplateModal,
-    openCliModal, markUnsaved, markSaved, showToast, startResize, doResize, stopResize
+    openCliModal, toggleAiPanel, closeAiPanel, clearAiConversation, sendAiMessage, stopAiRequest,
+    markUnsaved, markSaved, showToast, startResize, doResize, stopResize
   });
 })(window);

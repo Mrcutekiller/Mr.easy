@@ -19,7 +19,9 @@ const STATEMENT_KEYWORDS = new Set([
   'input', 'logo', 'divider', 'spacer',
   'menu', 'links', 'set', 'if', 'else', 'end',
   'repeat', 'times', 'animate', 'show', 'hide',
-  'component', 'use', 'function', 'call',
+  'component', 'use', 'function', 'call', 'define', 'import', 'from',
+  'for', 'while', 'each', 'in', 'of', 'to',
+  'head', 'meta', 'page',
   'accordion', 'tabs', 'tab', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
   'page', 'navbar', 'sidebar', 'modal', 'dropdown',
   'steps', 'step', 'testimonial',
@@ -112,8 +114,15 @@ class Parser {
       case 'form':      return this.parseBlock('form');
       case 'component': return this.parseBlock('component');
       case 'function':  return this.parseBlock('function');
-      case 'if':        return this.parseBlock('if');
+      case 'define':    return this.parseDefine();
+      case 'if':        return this.parseIf();
       case 'repeat':    return this.parseRepeat();
+      case 'for':       return this.parseFor();
+      case 'while':     return this.parseWhile();
+      case 'each':      return this.parseEach();
+      case 'import':    return this.parseImport();
+      case 'head':      return this.parseBlock('head');
+      case 'meta':      return this.parseInline('meta');
 
       // ── NEW v2.0 block keywords ──────────────────────────────────
       case 'accordion': return this.parseBlock('accordion');
@@ -150,7 +159,7 @@ class Parser {
       case 'menu':      return this.parseMenu();
       case 'links':     return this.parseLinks();
       case 'set':       return this.parseSet();
-      case 'use':       return this.parseInline('use');
+      case 'use':       return this.parseUse();
       case 'call':      return this.parseInline('call');
       case 'animate':   return this.parseInline('animate');
       case 'show':      return this.parseInline('show');
@@ -234,6 +243,8 @@ class Parser {
       !this.check(TOKEN_TYPES.DEDENT) &&
       !this.check(TOKEN_TYPES.EOF)
     ) {
+      // Stop if we hit 'end' keyword at the right indentation
+      if (this.check(TOKEN_TYPES.KEYWORD, 'end')) break;
       const node = this.parseStatement();
       if (node) children.push(node);
     }
@@ -241,39 +252,114 @@ class Parser {
     return children;
   }
 
+  /** Consume 'end' keyword if present at current level */
+  consumeEnd() {
+    while (this.check(TOKEN_TYPES.KEYWORD, 'end')) {
+      this.consume();
+    }
+  }
+
   parseBlock(type) {
     this.consume(); // keyword
     const props    = this.collectProps();
     const children = this.collectChildren();
+    this.consumeEnd();
+    return new ASTNode(type, { props, children });
+  }
+
+  parseIf() {
+    this.consume(); // 'if'
+    const props = this.collectProps();
+    const children = this.collectChildren();
     const elseChildren = [];
 
-    // Handle else branch for if blocks
-    if (type === 'if') {
-      while (this.check(TOKEN_TYPES.KEYWORD, 'else')) {
-        this.consume(); // 'else'
-        // else can have its own block or be inline
-        if (this.check(TOKEN_TYPES.INDENT)) {
-          const elseKids = this.collectChildren();
-          elseChildren.push(...elseKids);
-        } else {
-          // inline else: collect until next keyword at same level or EOF
-          while (
-            this.current &&
-            this.current.type !== TOKEN_TYPES.KEYWORD &&
-            this.current.type !== TOKEN_TYPES.EOF
-          ) {
-            const node = this.parseStatement();
-            if (node) elseChildren.push(node);
-          }
-        }
-      }
-      // Consume end keyword if present
-      while (this.check(TOKEN_TYPES.KEYWORD, 'end')) {
-        this.consume();
+    // Handle else / else if
+    while (this.check(TOKEN_TYPES.KEYWORD, 'else')) {
+      this.consume(); // 'else'
+      // Check for 'else if'
+      if (this.check(TOKEN_TYPES.KEYWORD, 'if')) {
+        this.consume(); // 'if'
+        const elifProps = this.collectProps();
+        const elifChildren = this.collectChildren();
+        elseChildren.push(new ASTNode('elif', { props: elifProps, children: elifChildren }));
+      } else if (this.check(TOKEN_TYPES.INDENT)) {
+        const elseKids = this.collectChildren();
+        elseChildren.push(...elseKids);
       }
     }
+    this.consumeEnd();
+    return new ASTNode('if', { props, children, elseChildren });
+  }
 
-    return new ASTNode(type, { props, children, elseChildren });
+  parseFor() {
+    this.consume(); // 'for'
+    // for i = 1 to 10
+    // for item in list
+    // for key in object
+    const varName = this.current?.value; this.consume();
+    if (this.check(TOKEN_TYPES.EQUALS)) this.consume();
+    const start = this.current?.value; this.consume();
+    const isTo = this.check(TOKEN_TYPES.KEYWORD, 'to');
+    const isIn = this.check(TOKEN_TYPES.KEYWORD, 'in') || this.check(TOKEN_TYPES.KEYWORD, 'of');
+    if (isTo || isIn) this.consume();
+    const end = this.current?.value; this.consume();
+    const children = this.collectChildren();
+    this.consumeEnd();
+    return new ASTNode('for', { props: { varName, start, end, isTo, isIn }, children });
+  }
+
+  parseWhile() {
+    this.consume(); // 'while'
+    const props = this.collectProps();
+    const children = this.collectChildren();
+    this.consumeEnd();
+    return new ASTNode('while', { props, children });
+  }
+
+  parseEach() {
+    this.consume(); // 'each'
+    // each item in list
+    const varName = this.current?.value; this.consume();
+    const isIn = this.check(TOKEN_TYPES.KEYWORD, 'in') || this.check(TOKEN_TYPES.KEYWORD, 'of');
+    if (isIn) this.consume();
+    const listName = this.current?.value; this.consume();
+    const children = this.collectChildren();
+    this.consumeEnd();
+    return new ASTNode('each', { props: { varName, listName }, children });
+  }
+
+  parseRepeat() {
+    this.consume(); // 'repeat'
+    const count = this.current?.value; this.consume();
+    if (this.current?.value === 'times') this.consume();
+    const children = this.collectChildren();
+    this.consumeEnd();
+    return new ASTNode('repeat', { props: { count }, children });
+  }
+
+  parseImport() {
+    this.consume(); // 'import'
+    const label = this.current?.value; this.consume();
+    // import "path" or import "path" from "filename"
+    const from = this.current?.value; this.consume();
+    const source = this.current?.value; this.consume();
+    return new ASTNode('import', { props: { label, from, source } });
+  }
+
+  parseDefine() {
+    this.consume(); // 'define'
+    const props = this.collectProps();
+    const children = this.collectChildren();
+    this.consumeEnd();
+    // Store params from modifiers
+    const params = props.modifiers || [];
+    return new ASTNode('define', { props: { ...props, params }, children });
+  }
+
+  parseUse() {
+    this.consume(); // 'use'
+    const props = this.collectProps();
+    return new ASTNode('use', { props });
   }
 
   parseInline(type) {
@@ -307,7 +393,6 @@ class Parser {
     ) {
       items.push(this.consume().value);
     }
-    // Also support indented link children
     const children = this.collectChildren();
     return new ASTNode('links', { props: { items }, children });
   }
@@ -318,14 +403,6 @@ class Parser {
     if (this.check(TOKEN_TYPES.EQUALS)) this.consume();
     const value = this.current?.value; this.consume();
     return new ASTNode('set', { props: { name, value } });
-  }
-
-  parseRepeat() {
-    this.consume(); // 'repeat'
-    const count = this.current?.value; this.consume();
-    if (this.current?.value === 'times') this.consume();
-    const children = this.collectChildren();
-    return new ASTNode('repeat', { props: { count }, children });
   }
 }
 

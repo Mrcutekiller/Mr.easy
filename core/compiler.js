@@ -9,6 +9,7 @@ class Compiler {
   constructor() {
     this.vars       = {};
     this.components = {};
+    this.componentParams = {};
     this.functions  = {};
     this.extraCSS   = [];
     this.extraJS    = [];
@@ -18,7 +19,6 @@ class Compiler {
   compile(ast) {
     const title    = ast.title || 'My MR.easy Page';
     const bodyHTML = this.compileChildren(ast.body || []);
-    const css      = this.extraCSS.join('\n');
     const js       = this.extraJS.join('\n');
     const bodyBg   = this.pageStyle.gradient
       ? 'background: linear-gradient(135deg, #0f172a 0%, #1e0a3c 50%, #0c1a3a 100%);'
@@ -26,12 +26,27 @@ class Compiler {
       ? 'background: #f8fafc; color: #0f172a;'
       : '';
 
+    // Separate meta tags from CSS in extraCSS
+    const metaTags = [];
+    const cssParts = [];
+    for (const item of this.extraCSS) {
+      if (item.startsWith('<!-- head -->')) {
+        metaTags.push(item.replace('<!-- head -->', ''));
+      } else if (item.startsWith('<meta')) {
+        metaTags.push(item);
+      } else {
+        cssParts.push(item);
+      }
+    }
+    const css = cssParts.join('\n');
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="MR.easy language">
+  ${metaTags.join('\n  ')}
   <title>${this.esc(title)}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -95,6 +110,13 @@ ${js}
       case 'function':    return this.FunctionDef(node);
       case 'call':        return this.Call(node);
       case 'animate':     return this.Animate(node);
+      case 'for':         return this.For(node);
+      case 'while':       return this.While(node);
+      case 'each':        return this.Each(node);
+      case 'define':      return this.ComponentDef(node);
+      case 'import':      return this.Import(node);
+      case 'meta':        return this.Meta(node);
+      case 'head':        return this.Head(node);
       // ── NEW v2.0 ─────────────────────────────────────────────────
       case 'accordion':   return this.Accordion(node);
       case 'tabs':        return this.Tabs(node);
@@ -375,8 +397,45 @@ ${js}
 
   Set(node) {
     const { name, value } = node.props || {};
-    if (name) this.vars[name] = value;
+    if (!name) return '';
+    // Resolve variable references and simple arithmetic in value
+    let resolved = value;
+    if (typeof value === 'string') {
+      resolved = this.resolveExpression(value);
+    }
+    this.vars[name] = resolved;
     return '';
+  }
+
+  /** Resolve an expression: variable references, simple arithmetic, string concatenation */
+  resolveExpression(expr) {
+    if (expr === undefined || expr === null) return expr;
+    const s = String(expr);
+    // Check if it's a simple variable reference
+    if (/^[a-zA-Z_]\w*$/.test(s) && this.vars[s] !== undefined) {
+      return this.vars[s];
+    }
+    // Simple arithmetic: a + b, a - b, a * b, a / b
+    const arithMatch = s.match(/^(\w+)\s*([+\-*\/])\s*(\w+)$/);
+    if (arithMatch) {
+      const [, left, op, right] = arithMatch;
+      const lv = this.vars[left] !== undefined ? Number(this.vars[left]) : Number(left);
+      const rv = this.vars[right] !== undefined ? Number(this.vars[right]) : Number(right);
+      if (!isNaN(lv) && !isNaN(rv)) {
+        switch (op) {
+          case '+': return lv + rv;
+          case '-': return lv - rv;
+          case '*': return lv * rv;
+          case '/': return rv !== 0 ? lv / rv : 0;
+        }
+      }
+    }
+    // Numeric literal
+    if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+    // Boolean-ish
+    if (s === 'on' || s === 'true') return true;
+    if (s === 'off' || s === 'false') return false;
+    return s;
   }
 
   Repeat(node) {
@@ -402,20 +461,48 @@ ${js}
   If(node) {
     const rawCond = node.props?.label || node.props?.condition || (node.props?.modifiers && node.props.modifiers[0]) || '';
     const body      = this.compileChildren(node.children);
-    const elseBody  = this.compileChildren(node.elseChildren || []);
+    const elseChildren = node.elseChildren || [];
 
-    // Evaluate simple conditions
+    // Try compile-time evaluation
     const isTruthy = this.evaluateCondition(rawCond);
 
-    // For compile-time known conditions, inline the result
-    if (isTruthy === true)  return body;
-    if (isTruthy === false) return elseBody;
+    if (isTruthy === true) return body;
+    if (isTruthy === false) {
+      // Check for elif nodes
+      for (const child of elseChildren) {
+        if (child.type === 'elif') {
+          const elifResult = this.If(child);
+          if (elifResult) return elifResult;
+        } else {
+          // Regular else child — compile it
+          return this.compileNode(child) || '';
+        }
+      }
+      return '';
+    }
 
-    // Unknown condition — emit runtime JS
+    // Runtime: emit JS for dynamic conditions
     const condJS = this.jsCondition(rawCond);
-    const safeBody   = body.replace(/`/g, '\\`');
-    const safeElse   = elseBody.replace(/`/g, '\\`');
-    return `<script>if(${condJS}){document.currentInsertAdjacentHTML('beforeend',\`${safeBody}\`)}else{document.currentInsertAdjacentHTML('beforeend',\`${safeElse}\`)}</script>`;
+    const safeBody = body.replace(/`/g, '\\`');
+
+    // Handle else/elif
+    let elseJS = '';
+    for (const child of elseChildren) {
+      if (child.type === 'elif') {
+        const elifCond = child.props?.label || child.props?.condition || '';
+        const elifBody = this.compileChildren(child.children).replace(/`/g, '\\`');
+        const elifCondJS = this.jsCondition(elifCond);
+        elseJS += `else if(${elifCondJS}){document.body.insertAdjacentHTML('beforeend',\`${elifBody}\`)}`;
+      } else {
+        const elseBody = (this.compileNode(child) || '').replace(/`/g, '\\`');
+        elseJS += `else{document.body.insertAdjacentHTML('beforeend',\`${elseBody}\`)}`;
+      }
+    }
+
+    if (elseJS) {
+      return `<script>if(${condJS}){document.body.insertAdjacentHTML('beforeend',\`${safeBody}\`)}${elseJS}</script>`;
+    }
+    return `<script>if(${condJS}){document.body.insertAdjacentHTML('beforeend',\`${safeBody}\`)}</script>`;
   }
 
   /** Try to evaluate a condition at compile time */
@@ -457,15 +544,50 @@ ${js}
   }
 
   ComponentDef(node) {
-    const { label } = node.props || {};
-    if (label) this.components[label] = node.children;
+    const m = this.mods(node);
+    const label = node.props?.label || m[0];
+    if (label) {
+      this.components[label] = node.children;
+      // Store parameter names from remaining modifiers (skip the name)
+      this.componentParams[label] = m.slice(1);
+    }
     return '';
   }
 
   Use(node) {
-    const { label } = node.props || {};
-    if (label && this.components[label]) return this.compileChildren(this.components[label]);
-    return `<!-- component "${label}" not found -->`;
+    const m = this.mods(node);
+    const label = node.props?.label || m[0];
+    if (!label || !this.components[label]) return `<!-- component "${label || ''}" not found -->`;
+
+    // Get the component's template nodes and parameter list
+    const templateNodes = this.components[label];
+    const paramNames = this.componentParams[label] || [];
+
+    // Build a mapping of param values from node props
+    const paramValues = {};
+    const nodeProps = node.props || {};
+    for (const key of Object.keys(nodeProps)) {
+      if (key !== 'label' && key !== 'modifiers') {
+        paramValues[key] = nodeProps[key];
+      }
+    }
+    // Also map positional params from modifiers
+    const mods = this.mods(node);
+    for (let i = 0; i < paramNames.length && i < mods.length; i++) {
+      if (!paramValues[paramNames[i]]) paramValues[paramNames[i]] = mods[i];
+    }
+
+    // Temporarily set params as variables for interpolation
+    const savedVars = { ...this.vars };
+    for (const [k, v] of Object.entries(paramValues)) {
+      this.vars[k] = v;
+    }
+
+    const result = this.compileChildren(templateNodes);
+
+    // Restore original vars
+    this.vars = savedVars;
+    return result;
   }
 
   FunctionDef(node) {
@@ -478,6 +600,121 @@ ${js}
     const { label } = node.props || {};
     if (label && this.functions[label]) return this.compileChildren(this.functions[label]);
     return '';
+  }
+
+  // ── LOOPS ──────────────────────────────────────────────────────────────────
+
+  For(node) {
+    const { varName, start, end, isTo, isIn } = node.props || {};
+    const body = this.compileChildren(node.children);
+    const varN = varName || 'i';
+    const startVal = this.resolveExpression(start);
+    const endVal = this.resolveExpression(end);
+
+    if (isTo) {
+      // for i = 1 to 10 — compile-time unroll if both are numbers
+      const sv = Number(startVal);
+      const ev = Number(endVal);
+      if (!isNaN(sv) && !isNaN(ev)) {
+        let out = '';
+        for (let i = sv; i <= ev; i++) {
+          this.vars[varN] = i;
+          this.vars['index'] = i;
+          out += this.compileChildren(node.children);
+        }
+        delete this.vars[varN];
+        return out;
+      }
+      // Dynamic: emit runtime JS
+      const safeBody = body.replace(/`/g, '\\`');
+      return `<script>(function(){for(var ${varN}=${this.esc(String(startVal))};${varN}<=${this.esc(String(endVal))};${varN}++){document.body.insertAdjacentHTML('beforeend',\`${safeBody}\`);}})();</script>`;
+    }
+
+    if (isIn) {
+      // for item in list — iterate over a JS array
+      const listName = endVal;
+      const safeBody = body.replace(/`/g, '\\`');
+      return `<script>(function(){var _list=${this.esc(String(listName))}||[];_list.forEach(function(${varN},_idx){document.body.insertAdjacentHTML('beforeend',\`${safeBody}\`);});})();</script>`;
+    }
+
+    return '';
+  }
+
+  While(node) {
+    const rawCond = node.props?.label || node.props?.condition || '';
+    const body = this.compileChildren(node.children);
+    const condJS = this.jsCondition(rawCond);
+    // Safety: cap at 1000 iterations to prevent infinite loops
+    const safeBody = body.replace(/`/g, '\\`');
+    return `<script>(function(){var _w=0;while(${condJS}&&_w<1000){_w++;document.body.insertAdjacentHTML('beforeend',\`${safeBody}\`);}})();</script>`;
+  }
+
+  Each(node) {
+    const { varName, listName } = node.props || {};
+    const body = this.compileChildren(node.children);
+    const vN = varName || 'item';
+    const safeBody = body.replace(/`/g, '\\`');
+    return `<script>(function(){var _arr=${this.esc(String(listName || '[]'))}||[];_arr.forEach(function(${vN},_idx){document.body.insertAdjacentHTML('beforeend',\`${safeBody}\`);});})();</script>`;
+  }
+
+  // ── HEAD / META ───────────────────────────────────────────────────────────
+
+  Head(node) {
+    // Collect meta tags from children and emit them into <head>
+    const metas = [];
+    for (const child of (node.children || [])) {
+      if (child.type === 'meta') {
+        const { name: n, content: c, description: d, keywords: k, property: p, charset: ch, viewport: v } = child.props || {};
+        if (n && c) metas.push(`<meta name="${this.esc(n)}" content="${this.esc(c)}">`);
+        else if (d) metas.push(`<meta name="description" content="${this.esc(d)}">`);
+        else if (k) metas.push(`<meta name="keywords" content="${this.esc(k)}">`);
+        else if (p && c) metas.push(`<meta property="${this.esc(p)}" content="${this.esc(c)}">`);
+        else if (ch) metas.push(`<meta charset="${this.esc(ch)}">`);
+        else if (v) metas.push(`<meta name="viewport" content="${this.esc(v)}">`);
+      }
+    }
+    if (metas.length) {
+      this.extraCSS.push(`<!-- head -->${metas.join('\n')}`);
+    }
+    return '';
+  }
+
+  Meta(node) {
+    // Standalone meta (not inside head block)
+    const { name: n, content: c, description: d, keywords: k, property: p } = node.props || {};
+    let tag = '';
+    if (n && c) tag = `<meta name="${this.esc(n)}" content="${this.esc(c)}">`;
+    else if (d) tag = `<meta name="description" content="${this.esc(d)}">`;
+    else if (k) tag = `<meta name="keywords" content="${this.esc(k)}">`;
+    else if (p && c) tag = `<meta property="${this.esc(p)}" content="${this.esc(c)}">`;
+    if (tag) this.extraCSS.push(tag);
+    return '';
+  }
+
+  // ── IMPORT ────────────────────────────────────────────────────────────────
+
+  Import(node) {
+    const { label: filePath, from, source } = node.props || {};
+    const fs = require('fs');
+    const pathMod = require('path');
+    // import "filename.mreasy" or import header from "header.mreasy"
+    const targetFile = source || filePath;
+    if (!targetFile) return '<!-- import: no file specified -->';
+    try {
+      // Resolve relative to current working directory
+      const resolved = pathMod.resolve(process.cwd(), targetFile);
+      if (!fs.existsSync(resolved)) {
+        return `<!-- import: file "${targetFile}" not found -->`;
+      }
+      const fileSource = fs.readFileSync(resolved, 'utf-8');
+      const { compile: compileSrc } = require('./index');
+      const { html } = compileSrc(fileSource);
+      // Extract just the body content
+      const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      return bodyMatch ? bodyMatch[1] : html;
+    } catch (err) {
+      return `<!-- import error: ${err.message} -->`;
+    }
   }
 
   Animate(node) {
