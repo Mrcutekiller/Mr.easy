@@ -1474,10 +1474,11 @@ hero
     const rect = workspace.getBoundingClientRect();
     const sidebarWidth = (sidebar?.offsetWidth || 0) + (rail?.offsetWidth || 0);
     const totalWidth = rect.width - sidebarWidth;
-    const offset = event.clientX - rect.left - sidebarWidth;
-    const percent = Math.max(20, Math.min(80, (offset / totalWidth) * 100));
-    editorPanel.style.flex = `0 0 ${percent}%`;
-    previewPanel.style.flex = `0 0 ${100 - percent}%`;
+    const percent = Math.max(15, Math.min(85, (offset / totalWidth) * 100));
+    const editorPct = percent * (totalWidth / rect.width);
+    const previewPct = (100 - percent) * (totalWidth / rect.width);
+    editorPanel.style.flex = `0 0 ${editorPct}%`;
+    previewPanel.style.flex = `0 0 ${previewPct}%`;
     schedulePreviewScale();
   }
 
