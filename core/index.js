@@ -10,7 +10,7 @@ const { Compiler } = require('./compiler');
 /**
  * Compile MR.easy source code to HTML.
  * @param {string} source  - Raw .mreasy file content
- * @returns {{ html: string, errors: string[] }}
+ * @returns {{ html: string, errors: string[], warnings: string[] }}
  */
 function compile(source) {
   try {
@@ -24,13 +24,14 @@ function compile(source) {
 
     // 3. Compile
     const compiler = new Compiler();
-    const html     = compiler.compile(ast);
+    const { html, warnings } = compiler.compile(ast);
 
-    return { html, errors };
+    return { html, errors, warnings: warnings || [] };
   } catch (err) {
     return {
       html: buildErrorPage(err.message),
-      errors: [err.message]
+      errors: [err.message],
+      warnings: []
     };
   }
 }

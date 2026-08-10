@@ -401,6 +401,27 @@ class Parser {
     this.consume(); // 'set'
     const name = this.current?.value; this.consume();
     if (this.check(TOKEN_TYPES.EQUALS)) this.consume();
+    // Handle array literal: [1, 2, 3]
+    if (this.check(TOKEN_TYPES.LBRACKET)) {
+      this.consume(); // '['
+      const items = [];
+      while (this.current && !this.check(TOKEN_TYPES.RBRACKET)) {
+        if (this.current.type === TOKEN_TYPES.NUMBER) {
+          items.push(this.consume().value);
+        } else if (this.current.type === TOKEN_TYPES.STRING) {
+          items.push(this.consume().value);
+        } else if (this.check(TOKEN_TYPES.COMMA)) {
+          this.consume(); // skip comma
+        } else {
+          // Try to resolve as variable or just take value
+          const v = this.current?.value;
+          if (v !== undefined) { items.push(v); this.consume(); }
+          else break;
+        }
+      }
+      if (this.check(TOKEN_TYPES.RBRACKET)) this.consume(); // ']'
+      return new ASTNode('set', { props: { name, value: items } });
+    }
     const value = this.current?.value; this.consume();
     return new ASTNode('set', { props: { name, value } });
   }

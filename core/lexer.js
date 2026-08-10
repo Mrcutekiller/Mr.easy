@@ -20,6 +20,9 @@ const TOKEN_TYPES = {
   NEWLINE:    'NEWLINE',
   EOF:        'EOF',
   EQUALS:     'EQUALS',
+  LBRACKET:   'LBRACKET',    // [
+  RBRACKET:   'RBRACKET',    // ]
+  COMMA:      'COMMA',       // ,
 };
 
 // Every reserved word in the language
@@ -144,6 +147,23 @@ class Lexer {
     // Equals
     if (this.current === '=') {
       this.emit(TOKEN_TYPES.EQUALS, '=');
+      this.advance();
+      return;
+    }
+
+    // Array brackets
+    if (this.current === '[') {
+      this.emit(TOKEN_TYPES.LBRACKET, '[');
+      this.advance();
+      return;
+    }
+    if (this.current === ']') {
+      this.emit(TOKEN_TYPES.RBRACKET, ']');
+      this.advance();
+      return;
+    }
+    if (this.current === ',') {
+      this.emit(TOKEN_TYPES.COMMA, ',');
       this.advance();
       return;
     }

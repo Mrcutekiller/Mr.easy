@@ -13,6 +13,7 @@ class Compiler {
     this.functions  = {};
     this.extraCSS   = [];
     this.extraJS    = [];
+    this.warnings   = [];
     this.pageStyle  = { dark: true, gradient: false, light: false };
   }
 
@@ -40,7 +41,7 @@ class Compiler {
     }
     const css = cssParts.join('\n');
 
-    return `<!DOCTYPE html>
+    return { html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -64,7 +65,7 @@ ${builtinAnimations}
 ${js}
 </script>
 </body>
-</html>`;
+</html>`, warnings: this.warnings };
   }
 
   compileChildren(nodes) {
@@ -148,7 +149,11 @@ ${js}
       case 'sidebar':     return this.Sidebar(node);
       case 'modal':       return this.Modal(node);
       case 'dropdown':    return this.Dropdown(node);
-      default:            return '';
+      default:
+        if (node.type && node.type !== 'Program' && node.type !== 'elif') {
+          this.warnings.push(`Unknown element "${node.type}" — skipped`);
+        }
+        return '';
     }
   }
 
@@ -287,7 +292,7 @@ ${js}
 
   Logo(node) {
     const { label } = node.props || {};
-    return `<div class="mr-nav-logo">${this.esc(label || 'Mr.easy')}</div>`;
+    return `<div class="mr-nav-logo">${this.esc(this.vars_(label || 'Mr.easy'))}</div>`;
   }
 
   Links(node) {
@@ -352,27 +357,27 @@ ${js}
     const { label, action, id } = node.props || {};
     const cls     = this.cls('mr-button', node);
     const onClick = action ? `onclick="${this.esc(this.resolveAction(action))}"` : '';
-    return `<button class="${cls}" ${onClick} id="${this.esc(id || '')}">${this.esc(label || 'Button')}</button>`;
+    return `<button class="${cls}" ${onClick} id="${this.esc(id || '')}">${this.esc(this.vars_(label || 'Button'))}</button>`;
   }
 
   Link(node) {
     const { label, url, target, color: clr } = node.props || {};
     const s = this.style({ color: this.color(clr) });
-    return `<a class="mr-link" href="${url || '#'}" target="${target || '_self'}" ${s}>${this.esc(label || url || 'Link')}</a>`;
+    return `<a class="mr-link" href="${this.esc(this.vars_(url || '#'))}" target="${target || '_self'}" ${s}>${this.esc(this.vars_(label || url || 'Link'))}</a>`;
   }
 
   Image(node) {
     const { label, src, width, height, alt } = node.props || {};
     const cls = this.cls('mr-image', node);
     const s   = this.style({ width: width ? width + 'px' : null, height: height ? height + 'px' : null });
-    return `<img class="${cls}" src="${this.esc(src || label || '')}" alt="${this.esc(alt || label || '')}" ${s}>`;
+    return `<img class="${cls}" src="${this.esc(this.vars_(src || label || ''))}" alt="${this.esc(this.vars_(alt || label || ''))}" ${s}>`;
   }
 
   Video(node) {
     const { label, src, width, height } = node.props || {};
     const s = this.style({ width: width ? width + 'px' : null, height: height ? height + 'px' : null });
     const m = this.mods(node);
-    return `<video class="mr-video" src="${this.esc(src || label || '')}" controls ${m.includes('autoplay') ? 'autoplay muted' : ''} ${s}></video>`;
+    return `<video class="mr-video" src="${this.esc(this.vars_(src || label || ''))}" controls ${m.includes('autoplay') ? 'autoplay muted' : ''} ${s}></video>`;
   }
 
   Icon(node) {
@@ -385,7 +390,7 @@ ${js}
   Input(node) {
     const { type, placeholder, id, name, value } = node.props || {};
     const m = this.mods(node);
-    return `<input class="mr-input" type="${this.esc(type || 'text')}" placeholder="${this.esc(placeholder || '')}" id="${this.esc(id || '')}" name="${this.esc(name || id || '')}" ${m.includes('required') ? 'required' : ''} value="${this.esc(value || '')}">`;
+    return `<input class="mr-input" type="${this.esc(type || 'text')}" placeholder="${this.esc(this.vars_(placeholder || ''))}" id="${this.esc(id || '')}" name="${this.esc(name || id || '')}" ${m.includes('required') ? 'required' : ''} value="${this.esc(this.vars_(value || ''))}">`;
   }
 
   Spacer(node) {
@@ -398,6 +403,11 @@ ${js}
   Set(node) {
     const { name, value } = node.props || {};
     if (!name) return '';
+    // Array literal
+    if (Array.isArray(value)) {
+      this.vars[name] = value;
+      return '';
+    }
     // Resolve variable references and simple arithmetic in value
     let resolved = value;
     if (typeof value === 'string') {
@@ -444,9 +454,20 @@ ${js}
     if (typeof count === 'string' && this.vars[count] !== undefined) {
       count = this.vars[count];
     }
+    // If count is an array, iterate over it
+    if (Array.isArray(count)) {
+      let out = '';
+      for (let i = 0; i < count.length; i++) {
+        this.vars['index']  = i + 1;
+        this.vars['index0'] = i;
+        this.vars['item']  = count[i];
+        out += this.compileChildren(node.children);
+      }
+      return out;
+    }
     count = parseInt(count);
     if (isNaN(count) || count < 0) {
-      this.extraJS.push(`console.warn('MR.easy: repeat count is invalid or NaN');`);
+      this.warnings.push('repeat count is invalid or NaN');
       return '';
     }
     let out = '';
@@ -644,7 +665,7 @@ ${js}
     const rawCond = node.props?.label || node.props?.condition || '';
     const body = this.compileChildren(node.children);
     const condJS = this.jsCondition(rawCond);
-    // Safety: cap at 1000 iterations to prevent infinite loops
+    this.warnings.push('while loop compiles to runtime JS (max 1000 iterations)');
     const safeBody = body.replace(/`/g, '\\`');
     return `<script>(function(){var _w=0;while(${condJS}&&_w<1000){_w++;document.body.insertAdjacentHTML('beforeend',\`${safeBody}\`);}})();</script>`;
   }
@@ -807,13 +828,13 @@ document.querySelectorAll('${selector}').forEach(function(el) {
     const m = this.mods(node);
     const col = this.color(clr) || (m.includes('green') ? '#22c55e' : m.includes('red') ? '#ef4444' : m.includes('yellow') ? '#eab308' : m.includes('blue') ? '#3b82f6' : null);
     const s = col ? `style="background:${col}20;color:${col};border-color:${col}40;"` : '';
-    return `<span class="mr-badge" ${s}>${this.esc(label || '')}</span>`;
+    return `<span class="mr-badge" ${s}>${this.esc(this.vars_(label || ''))}</span>`;
   }
 
   // ── TAG ───────────────────────────────────────────────────────────────────
   Tag(node) {
     const { label } = node.props || {};
-    return `<span class="mr-tag">#${this.esc(label || '')}</span>`;
+    return `<span class="mr-tag">#${this.esc(this.vars_(label || ''))}</span>`;
   }
 
   // ── ALERT ─────────────────────────────────────────────────────────────────
@@ -822,7 +843,7 @@ document.querySelectorAll('${selector}').forEach(function(el) {
     const m    = this.mods(node);
     const kind = type || m.find(x => ['success','warning','error','info'].includes(x)) || 'info';
     const icons = { success:'✓', warning:'⚠', error:'✕', info:'ℹ' };
-    return `<div class="mr-alert mr-alert-${kind}"><span class="mr-alert-icon">${icons[kind]||'ℹ'}</span><span>${this.esc(label || '')}</span></div>`;
+    return `<div class="mr-alert mr-alert-${kind}"><span class="mr-alert-icon">${icons[kind]||'ℹ'}</span><span>${this.esc(this.vars_(label || ''))}</span></div>`;
   }
 
   // ── PROGRESS ──────────────────────────────────────────────────────────────
@@ -830,7 +851,7 @@ document.querySelectorAll('${selector}').forEach(function(el) {
     const { value, label, color: clr } = node.props || {};
     const pct = Math.min(100, Math.max(0, parseInt(value || 0)));
     const col = this.color(clr) || 'var(--mr-primary)';
-    return `<div class="mr-progress-wrap">${label ? `<div class="mr-progress-label"><span>${this.esc(label)}</span><span>${pct}%</span></div>` : ''}<div class="mr-progress-bar"><div class="mr-progress-fill" style="width:${pct}%;background:${col};"></div></div></div>`;
+    return `<div class="mr-progress-wrap">${label ? `<div class="mr-progress-label"><span>${this.esc(this.vars_(label))}</span><span>${pct}%</span></div>` : ''}<div class="mr-progress-bar"><div class="mr-progress-fill" style="width:${pct}%;background:${col};"></div></div></div>`;
   }
 
   // ── AVATAR ────────────────────────────────────────────────────────────────
@@ -838,7 +859,7 @@ document.querySelectorAll('${selector}').forEach(function(el) {
     const { src, label, size } = node.props || {};
     const sz = size ? size + 'px' : '64px';
     const s = `width:${sz};height:${sz};`;
-    if (src) return `<img class="mr-avatar" src="${this.esc(src)}" alt="${this.esc(label || '')}" style="${s}">`;
+    if (src) return `<img class="mr-avatar" src="${this.esc(this.vars_(src))}" alt="${this.esc(this.vars_(label || ''))}" style="${s}">`;
     const initials = (label || 'A').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
     return `<div class="mr-avatar mr-avatar-initials" style="${s}">${initials}</div>`;
   }
@@ -861,21 +882,21 @@ document.querySelectorAll('${selector}').forEach(function(el) {
     const { label, lang } = node.props || {};
     const m = this.mods(node);
     const isInline = m.includes('inline');
-    if (isInline) return `<code class="mr-code-inline">${this.esc(label || '')}</code>`;
-    return `<pre class="mr-code-block"><code class="mr-code-lang-${this.esc(lang || 'text')}">${this.esc(label || '')}</code></pre>`;
+    if (isInline) return `<code class="mr-code-inline">${this.esc(this.vars_(label || ''))}</code>`;
+    return `<pre class="mr-code-block"><code class="mr-code-lang-${this.esc(lang || 'text')}">${this.esc(this.vars_(label || ''))}</code></pre>`;
   }
 
   // ── STAT ──────────────────────────────────────────────────────────────────
   Stat(node) {
     const { label, value, icon } = node.props || {};
     const ic = icon ? `<i class="mr-icon fa fa-${icon}" style="margin-bottom:8px;"></i>` : '';
-    return `<div class="mr-stat">${ic}<div class="mr-stat-value">${this.esc(value || label || '0')}</div>${label && value ? `<div class="mr-stat-label">${this.esc(label)}</div>` : ''}</div>`;
+    return `<div class="mr-stat">${ic}<div class="mr-stat-value">${this.esc(this.vars_(value || label || '0'))}</div>${label && value ? `<div class="mr-stat-label">${this.esc(this.vars_(label))}</div>` : ''}</div>`;
   }
 
   // ── SELECT ────────────────────────────────────────────────────────────────
   Select(node) {
     const { label, id, name } = node.props || {};
-    const items = (node.props?.items || []).map(it => `<option value="${this.esc(it)}">${this.esc(it)}</option>`).join('');
+    const items = (node.props?.items || []).map(it => `<option value="${this.esc(it)}">${this.esc(this.vars_(it))}</option>`).join('');
     const children = this.compileChildren(node.children);
     return `<select class="mr-input mr-select" id="${id || ''}" name="${name || id || ''}">${items}${children}</select>`;
   }
@@ -884,7 +905,7 @@ document.querySelectorAll('${selector}').forEach(function(el) {
   Checkbox(node) {
     const { label, id, checked } = node.props || {};
     const m = this.mods(node);
-    return `<label class="mr-checkbox-wrap"><input type="checkbox" class="mr-checkbox" id="${id || ''}" ${(checked || m.includes('checked')) ? 'checked' : ''}><span class="mr-checkbox-label">${this.esc(label || '')}</span></label>`;
+    return `<label class="mr-checkbox-wrap"><input type="checkbox" class="mr-checkbox" id="${id || ''}" ${(checked || m.includes('checked')) ? 'checked' : ''}><span class="mr-checkbox-label">${this.esc(this.vars_(label || ''))}</span></label>`;
   }
 
   // ── TOGGLE ────────────────────────────────────────────────────────────────
@@ -892,18 +913,17 @@ document.querySelectorAll('${selector}').forEach(function(el) {
     const { label, id } = node.props || {};
     const m = this.mods(node);
     const tid = id || `tog_${Math.random().toString(36).slice(2,7)}`;
-    return `<label class="mr-toggle-wrap"><input type="checkbox" class="mr-toggle-input" id="${tid}" ${m.includes('on') ? 'checked' : ''}><span class="mr-toggle-slider"></span>${label ? `<span class="mr-toggle-label">${this.esc(label)}</span>` : ''}</label>`;
+    return `<label class="mr-toggle-wrap"><input type="checkbox" class="mr-toggle-input" id="${tid}" ${m.includes('on') ? 'checked' : ''}><span class="mr-toggle-slider"></span>${label ? `<span class="mr-toggle-label">${this.esc(this.vars_(label))}</span>` : ''}</label>`;
   }
 
   // ── EMBED (YouTube / iframe) ───────────────────────────────────────────────
   Embed(node) {
     const { src, label, width, height } = node.props || {};
     const url = src || label || '';
-    // Convert YouTube watch URLs to embed URLs
     const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
     const embedUrl = ytMatch ? `https://www.youtube.com/embed/${ytMatch[1]}` : url;
     const h = height || '400';
-    return `<div class="mr-embed-wrapper" style="height:${h}px"><iframe class="mr-embed" src="${this.esc(embedUrl)}" width="${width || '100%'}" height="${h}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>`;
+    return `<div class="mr-embed-wrapper" style="height:${h}px"><iframe class="mr-embed" src="${this.esc(this.vars_(embedUrl))}" width="${width || '100%'}" height="${h}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>`;
   }
 
   // ── RATING ────────────────────────────────────────────────────────────────
@@ -915,7 +935,7 @@ document.querySelectorAll('${selector}').forEach(function(el) {
     for (let i = 1; i <= total; i++) {
       stars += `<span class="mr-star${i <= filled ? ' filled' : ''}">★</span>`;
     }
-    return `<div class="mr-rating">${stars}${label ? `<span class="mr-rating-label">${this.esc(label)}</span>` : ''}</div>`;
+    return `<div class="mr-rating">${stars}${label ? `<span class="mr-rating-label">${this.esc(this.vars_(label))}</span>` : ''}</div>`;
   }
 
   // ── COUNTDOWN ─────────────────────────────────────────────────────────────
@@ -923,7 +943,7 @@ document.querySelectorAll('${selector}').forEach(function(el) {
     const { to, label } = node.props || {};
     const id = `cd_${Math.random().toString(36).slice(2,7)}`;
     this.extraJS.push(`(function(){const t=new Date('${to||''}').getTime();if(!t||isNaN(t))return;function upd(){const n=new Date().getTime(),d=t-n;if(d<0){document.getElementById('${id}').innerHTML='<span>Time is up!</span>';return;}const days=Math.floor(d/86400000),hrs=Math.floor((d%86400000)/3600000),min=Math.floor((d%3600000)/60000),sec=Math.floor((d%60000)/1000);document.getElementById('${id}').innerHTML='<div class=\\"mr-cd-unit\\"><span class=\\"mr-cd-num\\">'+days+'</span><span class=\\"mr-cd-lbl\\">Days</span></div><div class=\\"mr-cd-sep\\">:</div><div class=\\"mr-cd-unit\\"><span class=\\"mr-cd-num\\">'+hrs+'</span><span class=\\"mr-cd-lbl\\">Hours</span></div><div class=\\"mr-cd-sep\\">:</div><div class=\\"mr-cd-unit\\"><span class=\\"mr-cd-num\\">'+min+'</span><span class=\\"mr-cd-lbl\\">Mins</span></div><div class=\\"mr-cd-sep\\">:</div><div class=\\"mr-cd-unit\\"><span class=\\"mr-cd-num\\">'+sec+'</span><span class=\\"mr-cd-lbl\\">Secs</span></div>';}upd();setInterval(upd,1000);})();`);
-    return `<div class="mr-countdown">${label?`<p class="mr-countdown-title">${this.esc(label)}</p>`:''}<div class="mr-countdown-timer" id="${id}">Loading...</div></div>`;
+    return `<div class="mr-countdown">${label?`<p class="mr-countdown-title">${this.esc(this.vars_(label))}</p>`:''}<div class="mr-countdown-timer" id="${id}">Loading...</div></div>`;
   }
 
   // ── STEPS ─────────────────────────────────────────────────────────────────
@@ -936,7 +956,7 @@ document.querySelectorAll('${selector}').forEach(function(el) {
     const m = this.mods(node);
     const n = number || '';
     const body = this.compileChildren(node.children);
-    return `<div class="mr-step${m.includes('done')?'  mr-step-done':''}"><div class="mr-step-num">${n}</div><div class="mr-step-body"><div class="mr-step-title">${this.esc(label || '')}</div>${body}</div></div>`;
+    return `<div class="mr-step${m.includes('done')?'  mr-step-done':''}"><div class="mr-step-num">${this.esc(this.vars_(String(n)))}</div><div class="mr-step-body"><div class="mr-step-title">${this.esc(this.vars_(label || ''))}</div>${body}</div></div>`;
   }
 
   // ── SIDEBAR ────────────────────────────────────────────────────────────────

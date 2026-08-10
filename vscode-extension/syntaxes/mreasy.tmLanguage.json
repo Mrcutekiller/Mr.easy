@@ -7,6 +7,7 @@
     { "include": "#strings" },
     { "include": "#numbers" },
     { "include": "#keywords" },
+    { "include": "#logic" },
     { "include": "#modifiers" },
     { "include": "#properties" }
   ],
@@ -27,6 +28,10 @@
         {
           "name": "constant.character.escape.mreasy",
           "match": "\\\\."
+        },
+        {
+          "name": "variable.other.interpolation.mreasy",
+          "match": "\\{[a-zA-Z_]+\\}"
         }
       ]
     },
@@ -36,11 +41,15 @@
     },
     "keywords": {
       "name": "keyword.control.mreasy",
-      "match": "\\b(nav|hero|section|header|footer|row|column|col|grid|card|box|list|form|title|subtitle|text|label|item|button|link|image|img|video|icon|input|logo|links|menu|divider|spacer|set|repeat|times|if|else|end|show|hide|animate|component|use|function|call)\\b"
+      "match": "\\b(nav|hero|section|header|footer|row|column|col|grid|card|box|list|form|title|subtitle|text|label|item|button|link|image|img|video|icon|input|logo|links|menu|divider|spacer|animate|component|use|function|call|define|import|from|accordion|tabs|tab|table|thead|tbody|tr|th|td|badge|tag|alert|progress|avatar|quote|code|stat|select|checkbox|toggle|embed|rating|countdown|steps|step|testimonial|page|sidebar|modal|dropdown|head|meta)\\b"
+    },
+    "logic": {
+      "name": "keyword.other.logic.mreasy",
+      "match": "\\b(set|repeat|times|if|else|end|show|hide|for|while|each|in|of|to)\\b"
     },
     "modifiers": {
       "name": "entity.other.attribute-name.mreasy",
-      "match": "\\b(big|medium|small|tiny|glow|shadow|rounded|outline|bold|italic|dark|light|gradient|glass|center|left|right|blue|red|green|purple|orange|pink|yellow|white|black|gray|on|off|float|autoplay|required|ordered)\\b"
+      "match": "\\b(big|medium|small|tiny|glow|shadow|rounded|outline|bold|italic|dark|light|gradient|glass|center|left|right|blue|red|green|purple|orange|pink|yellow|white|black|gray|cyan|on|off|float|autoplay|required|ordered|done|checked|success|warning|error|info|inline)\\b"
     },
     "properties": {
       "name": "variable.parameter.mreasy",

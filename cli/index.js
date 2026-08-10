@@ -61,6 +61,7 @@ function help() {
   console.log(chalk.green('  mreasy build') + '            Build project to HTML');
   console.log(chalk.green('  mreasy compile <file>') + '   Compile a single .mreasy file');
   console.log(chalk.green('  mreasy validate <file>') + '  Validate a .mreasy file');
+  console.log(chalk.green('  mreasy export') + '           Export for deployment');
   console.log(chalk.green('  mreasy init') + '             Initialize project in current dir');
   console.log(chalk.green('  mreasy doctor') + '           Check environment health');
   console.log(chalk.green('  mreasy repl') + '             Start interactive REPL');
@@ -172,14 +173,13 @@ function build(flags) {
 
   fs.mkdirSync(path.join(cwd, distDir), { recursive: true });
 
-  const { html, errors } = compileFile(srcFile);
+  const { html, errors, warnings } = compileFile(srcFile);
   const output = flags.minify ? minifyHTML(html) : html;
   const outFile = path.join(cwd, distDir, 'index.html');
   fs.writeFileSync(outFile, output);
 
-  if (errors.length) {
-    errors.forEach(e => console.log(chalk.yellow(`  ⚠ ${e}`)));
-  }
+  if (errors.length) errors.forEach(e => console.log(chalk.red(`  ✗ ${e}`)));
+  if (warnings.length) warnings.forEach(w => console.log(chalk.yellow(`  ⚠ ${w}`)));
   const size = Buffer.byteLength(output, 'utf-8');
   const kb = (size / 1024).toFixed(1);
   console.log(chalk.green(`  ✓ Built → ${path.relative(cwd, outFile)} (${kb} KB${flags.minify ? ', minified' : ''})`));
@@ -191,12 +191,13 @@ function compileSingle(file, flags) {
   const abs = path.resolve(process.cwd(), file);
   if (!fs.existsSync(abs)) { console.log(chalk.red(`  ✗ File not found: ${file}`)); return; }
 
-  const { html, errors } = compileFile(abs);
+  const { html, errors, warnings } = compileFile(abs);
   const output = flags.minify ? minifyHTML(html) : html;
   const outFile = abs.replace(/\.mreasy$/, '.html');
   fs.writeFileSync(outFile, output);
 
-  if (errors.length) errors.forEach(e => console.log(chalk.yellow(`  ⚠ ${e}`)));
+  if (errors.length) errors.forEach(e => console.log(chalk.red(`  ✗ ${e}`)));
+  if (warnings.length) warnings.forEach(w => console.log(chalk.yellow(`  ⚠ ${w}`)));
   console.log(chalk.green(`  ✓ Compiled → ${path.relative(process.cwd(), outFile)}`));
 }
 
@@ -207,7 +208,7 @@ function validate(file) {
   if (!fs.existsSync(abs)) { console.log(chalk.red(`  ✗ File not found: ${file}`)); return; }
 
   const source = fs.readFileSync(abs, 'utf-8');
-  const { html, errors } = compile(source);
+  const { html, errors, warnings } = compile(source);
 
   if (errors.length) {
     console.log(chalk.red(`  ✗ ${errors.length} error(s) found:\n`));
@@ -219,7 +220,57 @@ function validate(file) {
     console.log(chalk.green(`  ✓ ${file} is valid!`));
     console.log(chalk.gray(`    ${lines} lines, ${source.length} characters`));
     console.log(chalk.gray(`    ${html.length} characters of HTML output`));
+    if (warnings.length) {
+      console.log(chalk.yellow(`  ⚠ ${warnings.length} warning(s):`));
+      warnings.forEach(w => console.log(chalk.yellow(`    - ${w}`)));
+    }
   }
+}
+
+// ── Export (ZIP bundle) ───────────────────────────────────────────────────────
+function exportProject() {
+  const cwd    = process.cwd();
+  const rcFile = path.join(cwd, '.mreasyrc');
+  const rc     = fs.existsSync(rcFile) ? JSON.parse(fs.readFileSync(rcFile)) : {};
+  const entry  = rc.entry || 'index.mreasy';
+
+  const srcFile = path.join(cwd, entry);
+  if (!fs.existsSync(srcFile)) {
+    console.log(chalk.red(`  ✗ No entry file found: ${entry}`));
+    return;
+  }
+
+  const { html, errors, warnings } = compileFile(srcFile);
+  if (errors.length) {
+    errors.forEach(e => console.log(chalk.red(`  ✗ ${e}`)));
+    return;
+  }
+
+  // Create dist directory with all assets
+  const distDir = path.join(cwd, 'dist');
+  fs.mkdirSync(distDir, { recursive: true });
+  fs.writeFileSync(path.join(distDir, 'index.html'), html);
+
+  // Copy images if they exist
+  const imagesDir = path.join(cwd, 'images');
+  if (fs.existsSync(imagesDir)) {
+    const imagesDist = path.join(distDir, 'images');
+    fs.mkdirSync(imagesDist, { recursive: true });
+    fs.readdirSync(imagesDir).forEach(file => {
+      const src = path.join(imagesDir, file);
+      if (fs.statSync(src).isFile()) {
+        fs.copyFileSync(src, path.join(imagesDist, file));
+      }
+    });
+  }
+
+  if (warnings.length) warnings.forEach(w => console.log(chalk.yellow(`  ⚠ ${w}`)));
+  const size = Buffer.byteLength(html, 'utf-8');
+  const kb = (size / 1024).toFixed(1);
+  console.log(chalk.green(`  ✓ Exported to dist/ (${kb} KB)`));
+  console.log(chalk.gray(`    dist/index.html`));
+  if (fs.existsSync(imagesDir)) console.log(chalk.gray(`    dist/images/`));
+  console.log(chalk.cyan(`\n  Deploy dist/ to any static host (Netlify, Vercel, GitHub Pages)`));
 }
 
 // ── Doctor ─────────────────────────────────────────────────────────────────────
@@ -400,6 +451,7 @@ switch (cmd) {
   case 'build':     banner(); build(flags);                                  break;
   case 'compile':   banner(); compileSingle(positional[0], flags);           break;
   case 'validate':  banner(); validate(positional[0]);                       break;
+  case 'export':    banner(); exportProject();                               break;
   case 'init':      banner(); initProject();                                 break;
   case 'doctor':    banner(); doctor();                                      break;
   case 'repl':      startREPL();                                             break;

@@ -486,6 +486,7 @@ footer
     return { title, body, vars, headTags };
   }
 
+  /* Legacy duplicate compiler block disabled.
     function getProp(tokens, key) {
       const token = tokens.find(item => item.startsWith(key + ':'));
       return token ? token.split(':').slice(1).join(':') : null;
@@ -654,6 +655,7 @@ footer
     index = 1;
     return { title, body: parseSectionLines(0), vars };
   }
+  */
 
   function browserCompile(source, options = {}) {
     if (!source || !source.trim()) {
