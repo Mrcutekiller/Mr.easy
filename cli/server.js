@@ -33,19 +33,25 @@ function startServer(cwd, customPort) {
   }
 
   const entryFile = path.join(cwd, entry);
-  if (!fs.existsSync(entryFile)) {
-    console.log(chalk.yellow(`  ⚠ No "${entry}" found. Creating a starter file...\n`));
-    const starter = `Mr.easy "My Website"\n\nhero\n  title "Hello World" big glow\n  subtitle "Edit index.mreasy to get started!"\n  button "I Love MR.easy" blue big\n`;
-    fs.writeFileSync(entryFile, starter);
-  }
 
   // ── WebSocket Server (for hot reload) ────────────────────────────────────
-  const wss = new WebSocketServer({ port: WS_PORT });
+  let wss;
+  try {
+    wss = new WebSocketServer({ port: WS_PORT });
+    wss.on('error', err => {
+      console.log(chalk.yellow(`  ⚠ Live reload WebSocket warning: ${err.message}`));
+    });
+  } catch (err) {
+    console.log(chalk.yellow(`  ⚠ Live reload WebSocket warning: ${err.message}`));
+  }
+
   const clients = new Set();
-  wss.on('connection', ws => {
-    clients.add(ws);
-    ws.on('close', () => clients.delete(ws));
-  });
+  if (wss) {
+    wss.on('connection', ws => {
+      clients.add(ws);
+      ws.on('close', () => clients.delete(ws));
+    });
+  }
 
   function broadcast(type, data) {
     const msg = JSON.stringify({ type, ...data });
@@ -56,6 +62,11 @@ function startServer(cwd, customPort) {
   const server = http.createServer((req, res) => {
     const requestUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
     let url = requestUrl.pathname || '/';
+
+    // Prevent browser caching during live preview
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
     // Keep relative IDE assets rooted under /ide/ instead of resolving from /.
     if (url === '/ide') {
@@ -69,12 +80,20 @@ function startServer(cwd, customPort) {
     // Serve compiled preview
     if (url === '/index.html' || url === '/__preview__') {
       try {
+        if (!fs.existsSync(entryFile) || fs.readFileSync(entryFile, 'utf-8').trim().length === 0) {
+          const emptyPage = buildEmptyStatePage(entry);
+          const injected = injectLiveReload(emptyPage, WS_PORT);
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.end(injected);
+          return;
+        }
+
         const { html } = compileFile(entryFile);
         const injected = injectLiveReload(html, WS_PORT);
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(injected);
       } catch (err) {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(`<h1 style="color:red;font-family:sans-serif;padding:40px">Error: ${err.message}</h1>`);
       }
       return;
@@ -177,6 +196,50 @@ function injectLiveReload(html, wsPort) {
 
   // Insert before </body>
   return html.replace('</body>', script + '\n</body>');
+}
+
+/** Render a clean, helpful page when entry file is empty or missing */
+function buildEmptyStatePage(filename) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MR.easy — Ready For Code</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body { background: #0b0f19; color: #f1f5f9; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 24px; box-sizing: border-box; }
+    .card { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 44px; max-width: 580px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.5); backdrop-filter: blur(12px); text-align: center; }
+    .icon { font-size: 3rem; margin-bottom: 16px; display: inline-block; }
+    h1 { font-size: 1.8rem; margin: 0 0 10px; color: #818cf8; font-weight: 800; }
+    p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin: 0 0 24px; }
+    p code { background: rgba(255,255,255,0.08); color: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 0.85em; }
+    .code-box { background: #030712; border: 1px solid rgba(129,140,248,0.25); border-radius: 12px; padding: 20px; text-align: left; font-family: 'DM Mono', monospace; font-size: 0.88rem; color: #cbd5e1; line-height: 1.8; position: relative; overflow: auto; }
+    .code-box .kw { color: #818cf8; font-weight: 600; }
+    .code-box .str { color: #86efac; }
+    .code-box .mod { color: #fde047; }
+    .hint { margin-top: 24px; font-size: 0.82rem; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📝</div>
+    <h1>No Code Found in ${filename}</h1>
+    <p>Your file <code>${filename}</code> is empty.<br>Open <code>${filename}</code> in VS Code or any text editor and type your MR.easy code!</p>
+    
+    <div class="code-box">
+      <div><span class="kw">Mr.easy</span> <span class="str">"My Website"</span></div>
+      <div><br></div>
+      <div><span class="kw">hero</span></div>
+      <div>&nbsp;&nbsp;<span class="kw">title</span> <span class="str">"Welcome to My Site"</span> <span class="mod">big glow</span></div>
+      <div>&nbsp;&nbsp;<span class="kw">subtitle</span> <span class="str">"Written with MR.easy"</span></div>
+      <div>&nbsp;&nbsp;<span class="kw">button</span> <span class="str">"Get Started"</span> <span class="mod">blue big</span></div>
+    </div>
+    
+    <div class="hint">⚡ Save your file and this page will update live automatically!</div>
+  </div>
+</body>
+</html>`;
 }
 
 module.exports = { startServer };

@@ -1444,8 +1444,31 @@ hero
     const title = document.getElementById('modal-title');
     const body = document.getElementById('modal-body');
     if (!modal || !title || !body) return;
-    title.innerHTML = '<i class="fa fa-terminal"></i> MR.easy Terminal CLI Commands';
-    body.innerHTML = '<div class="guide-section"><h3>📦 1. Install CLI</h3><div class="guide-code">npm install -g mreasy</div></div><div class="guide-section"><h3>⚡ 2. Start Dev Server</h3><div class="guide-code">mreasy dev index.mreasy</div></div><div class="guide-section"><h3>🏗️ 3. Build HTML Output</h3><div class="guide-code">mreasy build index.mreasy</div></div><div class="guide-section"><h3>✨ 4. Create New Project</h3><div class="guide-code">mreasy new my-awesome-website</div></div>';
+    title.innerHTML = '<i class="fa fa-terminal"></i> MR.easy Beginner Guide — PC & Web IDE';
+    body.innerHTML = `
+      <div class="guide-section">
+        <h3>💻 Working on your PC (Terminal & VS Code)</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Complete step-by-step workflow for PC users:</p>
+        
+        <div style="margin-bottom:10px;"><strong>1. Create Project:</strong></div>
+        <div class="guide-code">mreasy new mywebsite</div>
+        
+        <div style="margin-bottom:10px;margin-top:10px;"><strong>2. Enter Directory & Start Server:</strong></div>
+        <div class="guide-code">cd mywebsite<br>mreasy run</div>
+        <p style="color:var(--text-muted);font-size:0.8rem;margin-top:4px;">Opens http://localhost:3000 automatically with live auto-reload!</p>
+
+        <div style="margin-bottom:10px;margin-top:10px;"><strong>3. Edit Code:</strong></div>
+        <p style="color:var(--text-muted);font-size:0.8rem;">Open <code>index.mreasy</code> in VS Code or Notepad. Every file starts with <code>Mr.easy "Title"</code>. Hit Save to see changes live!</p>
+
+        <div style="margin-bottom:10px;margin-top:10px;"><strong>4. Export HTML:</strong></div>
+        <div class="guide-code">mreasy build</div>
+      </div>
+
+      <div class="guide-section" style="margin-top:20px;">
+        <h3>🌐 Working in Web IDE</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;">1. Write code in the left editor panel.<br>2. Watch live website preview on the right.<br>3. Click <strong>Download ZIP</strong> at the top right to download your website!</p>
+      </div>
+    `;
     modal.classList.add('open');
   }
 

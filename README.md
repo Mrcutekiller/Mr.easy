@@ -62,15 +62,61 @@ npm link
 
 ---
 
-## Quick Start
+## 🔰 Beginner's Guide — How to Use MR.easy
 
-```bash
-mreasy new mywebsite     # Create a new project
-cd mywebsite
-mreasy run               # Start live preview (opens browser automatically)
+### 💻 Method A: Working on your PC (Terminal & VS Code)
+
+#### **Step 1: Install MR.easy on PC**
+Double-click `installer\install.bat` inside the project folder, or run in PowerShell:
+```powershell
+powershell -ExecutionPolicy Bypass -File installer\install.ps1
 ```
 
-Then edit `index.mreasy` and watch your website update live in the browser!
+#### **Step 2: Create a New Project**
+Open terminal (PowerShell or CMD) and type:
+```powershell
+mreasy new mywebsite
+```
+*This creates a new folder `mywebsite` containing `index.mreasy` and starter files.*
+
+#### **Step 3: Go into your Project Folder**
+```powershell
+cd mywebsite
+```
+
+#### **Step 4: Start Live Preview**
+```powershell
+mreasy run
+```
+*This automatically starts the server and opens your website in your browser at `http://localhost:3000`.*
+
+#### **Step 5: Edit your Code**
+Open `index.mreasy` in VS Code or any text editor:
+```mreasy
+Mr.easy "My First Website"
+
+hero
+  title "Welcome to My Website" big glow
+  subtitle "Built with MR.easy"
+  button "Click Me" blue big
+```
+Press **Save** (Ctrl+S) — your browser will update automatically!
+
+#### **Step 6: Export Final Website**
+When you finish making your website, run:
+```powershell
+mreasy build
+```
+This generates a single production-ready `dist/index.html` file that you can share or host anywhere!
+
+---
+
+### 🌐 Method B: Working in the Web IDE (No Install Needed)
+
+1. Open `ide/index.html` in your browser (or visit [mr-easy.vercel.app/ide](https://mr-easy.vercel.app/ide)).
+2. Write or edit MR.easy code in the **left panel**.
+3. See your live website update instantly in the **right panel**.
+4. Click **Download ZIP** at the top right to download your finished website code.
 
 ---
 

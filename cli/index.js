@@ -123,7 +123,13 @@ footer
 
   fs.writeFileSync(path.join(dir, 'index.mreasy'), starter);
   fs.writeFileSync(path.join(dir, '.mreasyrc'), JSON.stringify({ name, entry: 'index.mreasy', dist: 'dist' }, null, 2));
-  fs.writeFileSync(path.join(dir, 'README.md'), `# ${name}\n\nBuilt with **MR.easy**\n\n## Run\n\`\`\`\nmreasy run\n\`\`\`\n`);
+  fs.writeFileSync(path.join(dir, 'README.md'), `# ${name}\n\nBuilt with **MR.easy**\n\n## Run Live Server\n\`\`\`powershell\nmreasy run\n\`\`\`\n\n## Build HTML\n\`\`\`powershell\nmreasy build\n\`\`\`\n`);
+
+  // Generate initial compiled dist/index.html
+  try {
+    const { html } = compileFile(path.join(dir, 'index.mreasy'));
+    fs.writeFileSync(path.join(dir, 'dist', 'index.html'), html);
+  } catch {}
 
   console.log('');
   console.log(chalk.green(`  ✓ Created project "${name}" successfully!\n`));

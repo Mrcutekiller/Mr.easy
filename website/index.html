@@ -231,8 +231,21 @@
     .footer-column a:hover { color: var(--parchment); }
     .footer-bottom { display: flex; justify-content: space-between; gap: 20px; margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--hairline); color: var(--dim); font: .63rem var(--font-mono); }
 
+    /* Guide Section */
+    .guide-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; }
+    .guide-card { border: 1px solid var(--hairline-brass); background: var(--ink-1); padding: 32px; border-radius: var(--radius-surface); box-shadow: var(--shadow-focus); }
+    .guide-card h3 { margin: 0 0 8px; font: 500 1.6rem var(--font-display); color: var(--brass-bright); display: flex; align-items: center; gap: 10px; }
+    .guide-card p.guide-subtitle { margin: 0 0 24px; color: var(--muted); font-size: .84rem; }
+    .guide-steps { display: grid; gap: 20px; }
+    .guide-step { display: flex; gap: 16px; align-items: flex-start; }
+    .guide-step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--brass); color: var(--ink-0); font: 700 .75rem var(--font-mono); display: grid; place-items: center; flex-shrink: 0; margin-top: 2px; }
+    .guide-step-content h4 { margin: 0 0 4px; font-size: .92rem; color: var(--parchment); font-weight: 600; }
+    .guide-step-content p { margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.6; }
+    .guide-step-content code { background: var(--ink-2); border: 1px solid var(--hairline); padding: 2px 7px; color: var(--brass-bright); font: .74rem var(--font-mono); border-radius: 3px; display: inline-block; margin-top: 4px; }
+
     @media (max-width: 900px) {
       .container { width: min(100% - 40px, 680px); }
+      .guide-tabs { grid-template-columns: 1fr; }
       .heritage-nav { padding: 0 20px; }
       .brand-origin, .nav-links li:not(:last-child) { display: none; }
       .hero { padding: 82px 0 92px; }
@@ -280,6 +293,7 @@
     <nav class="heritage-nav" aria-label="Primary navigation">
       <a href="#top" class="brand-lockup"><span class="brand-mr">Mr</span><span class="brand-dot">.</span><span class="brand-easy">easy</span><span class="brand-origin">ADDIS ABABA / 2026</span></a>
       <ul class="nav-links">
+        <li><a href="#guide">Beginner Guide</a></li>
         <li><a href="#live-demo">Live preview</a></li>
         <li><a href="#how">How it works</a></li>
         <li><a href="#syntax">Syntax</a></li>
@@ -381,13 +395,98 @@ grid cols:2
         </div>
       </section>
 
-      <section class="section" id="install">
+      <section class="section" id="guide">
         <div class="container">
-          <div class="section-heading"><div class="eyebrow">Choose your starting point</div><h2>Three ways to <em>begin.</em></h2><p>Use the command line, link it into your local workflow, or stay in the browser until the idea is ready.</p></div>
-          <div class="install-grid">
-            <article class="install-column"><div class="install-number">01 / RECOMMENDED</div><h3>Windows installer</h3><p>One script adds the CLI to your path and gets a new project moving.</p><div class="command-list"><div class="command-row"><code>powershell -File installer\install.ps1</code><button onclick="copyText(this,'powershell -ExecutionPolicy Bypass -File installer\\install.ps1')" aria-label="Copy PowerShell command">⎘</button></div><div class="command-row"><code>mreasy new mysite</code><button onclick="copyText(this,'mreasy new mysite')" aria-label="Copy new project command">⎘</button></div></div></article>
-            <article class="install-column"><div class="install-number">02 / DEVELOPER</div><h3>npm link</h3><p>Clone the repo, install dependencies, and keep the compiler close to your work.</p><div class="command-list"><div class="command-row"><code>npm install</code><button onclick="copyText(this,'npm install')" aria-label="Copy npm install command">⎘</button></div><div class="command-row"><code>npm link</code><button onclick="copyText(this,'npm link')" aria-label="Copy npm link command">⎘</button></div></div></article>
-            <article class="install-column"><div class="install-number">03 / NO INSTALL</div><h3>Web IDE</h3><p>Write, compile, preview, and download a clean HTML file from the browser.</p><div class="command-list"><div class="command-row"><code>ide/</code><span>↗</span></div><a class="button button-brass" href="ide/" target="_blank" rel="noreferrer">Open the web IDE ↗</a></div></article>
+          <div class="section-heading">
+            <div class="eyebrow">Beginner Step-by-Step Guide</div>
+            <h2>How to build websites with <em>MR.easy</em></h2>
+            <p>Whether you prefer using your PC's command line with VS Code or writing right inside your web browser, follow these simple steps.</p>
+          </div>
+
+          <div class="guide-tabs">
+            <div class="guide-card">
+              <h3>💻 Method 1: Working on PC (CLI & VS Code)</h3>
+              <p class="guide-subtitle">Full local development experience with live auto-reloading.</p>
+              <div class="guide-steps">
+                <div class="guide-step">
+                  <div class="guide-step-num">1</div>
+                  <div class="guide-step-content">
+                    <h4>Install MR.easy</h4>
+                    <p>Run <code>installer\install.bat</code> on Windows or execute:</p>
+                    <code>powershell -ExecutionPolicy Bypass -File installer\install.ps1</code>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">2</div>
+                  <div class="guide-step-content">
+                    <h4>Create a New Project</h4>
+                    <p>Open Terminal / PowerShell and type:</p>
+                    <code>mreasy new mywebsite</code>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">3</div>
+                  <div class="guide-step-content">
+                    <h4>Open Project & Start Server</h4>
+                    <p>Move into your folder and start live server:</p>
+                    <code>cd mywebsite</code><br>
+                    <code>mreasy run</code>
+                    <p style="margin-top:4px;">This opens <strong>http://localhost:3000</strong> in your browser automatically!</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">4</div>
+                  <div class="guide-step-content">
+                    <h4>Edit index.mreasy & Save</h4>
+                    <p>Open <code>index.mreasy</code> in VS Code or Notepad. Every file must start with <code>Mr.easy "Title"</code>. Hit Save and see changes live!</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">5</div>
+                  <div class="guide-step-content">
+                    <h4>Build Production HTML</h4>
+                    <p>When ready to share or publish your site, run:</p>
+                    <code>mreasy build</code>
+                    <p style="margin-top:4px;">Your compiled HTML is saved in <code>dist/index.html</code>.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="guide-card">
+              <h3>🌐 Method 2: Web IDE (In Your Browser)</h3>
+              <p class="guide-subtitle">Zero setup needed. Write code and export your website instantly.</p>
+              <div class="guide-steps">
+                <div class="guide-step">
+                  <div class="guide-step-num">1</div>
+                  <div class="guide-step-content">
+                    <h4>Open the Web IDE</h4>
+                    <p>Click the <strong>Open IDE</strong> button at the top or open <code>ide/index.html</code> in your browser.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">2</div>
+                  <div class="guide-step-content">
+                    <h4>Write MR.easy Code</h4>
+                    <p>Type keywords like <code>hero</code>, <code>title</code>, <code>button</code>, and <code>card</code> in the left editor panel.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">3</div>
+                  <div class="guide-step-content">
+                    <h4>Watch Real-time Preview</h4>
+                    <p>The right panel updates instantly as you type to show your visual website design.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">4</div>
+                  <div class="guide-step-content">
+                    <h4>Download Finished Website</h4>
+                    <p>Click <strong>Download ZIP</strong> in the topbar to download your complete HTML code package ready to deploy!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -406,6 +505,7 @@ grid cols:2
     </footer>
   </div>
 
+  <script src="ide/compiler.js"></script>
   <script>
     (function initHeritageCanvas() {
       if (!window.THREE) return;
@@ -456,25 +556,14 @@ grid cols:2
       const codeEl = document.getElementById('home-playground-code');
       const frameEl = document.getElementById('home-preview-frame');
       if (!codeEl || !frameEl) return;
+
       function compileHome() {
-        frameEl.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet"><style>:root{--ink:#080706;--surface:#141210;--parchment:#f2ead8;--muted:#a69a86;--brass:#c8963a;--green:#5fa85a}*{box-sizing:border-box}body{margin:0;padding:18px;background:var(--ink);color:var(--parchment);font-family:Inter,sans-serif}.mr-hero{text-align:center;padding:24px 8px 20px}.mr-title{margin:0 0 10px;font:500 1.7rem/1.05 'Playfair Display',serif}.mr-glow{color:var(--brass)}.mr-subtitle{margin:0 auto 18px;max-width:280px;color:var(--muted);font-size:.75rem;line-height:1.65}.mr-button{border:0;padding:9px 15px;background:var(--green);color:#080706;font-size:.7rem;font-weight:700}.mr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:14px}.mr-card{padding:14px;background:var(--surface);border:1px solid rgba(200,150,58,.25)}.mr-card .mr-title{font-size:1rem}.mr-text{margin:0;color:var(--muted);font: .68rem/1.6 'DM Mono',monospace}</style></head><body>${compileHomeCode(codeEl.value)}</body></html>`;
+        if (window.MREasyCompiler && typeof window.MREasyCompiler.compile === 'function') {
+          const res = window.MREasyCompiler.compile(codeEl.value);
+          frameEl.srcdoc = res.html || '';
+        }
       }
-      function compileHomeCode(source) {
-        let html = '';
-        source.split('\n').forEach(line => {
-          const value = line.trim();
-          if (!value || value.startsWith('#') || value.startsWith('Mr.easy')) return;
-          const text = value.match(/"([^"]+)"/);
-          if (value.startsWith('hero')) html += '<div class="mr-hero">';
-          else if (value.startsWith('title')) html += `<h2 class="mr-title mr-glow">${text ? text[1] : 'Title'}</h2>`;
-          else if (value.startsWith('subtitle')) html += `<p class="mr-subtitle">${text ? text[1] : ''}</p>`;
-          else if (value.startsWith('button')) html += `<button class="mr-button">${text ? text[1] : 'Button'}</button></div>`;
-          else if (value.startsWith('grid')) html += '<div class="mr-grid">';
-          else if (value.startsWith('card')) html += '<div class="mr-card">';
-          else if (value.startsWith('text')) html += `<p class="mr-text">${text ? text[1] : ''}</p></div>`;
-        });
-        return html;
-      }
+
       codeEl.addEventListener('input', compileHome);
       compileHome();
     })();
