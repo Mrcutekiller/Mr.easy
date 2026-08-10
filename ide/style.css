@@ -246,14 +246,19 @@ button:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2
 
 @container preview (max-width: 480px) {
   #preview-status { display: none; }
-  .device-select { max-width: 95px; }
+  .device-select { max-width: 90px; }
   .preview-actions { gap: 2px; }
 }
 
 @container preview (max-width: 380px) {
-  .device-select { max-width: 75px; font-size: .52rem; }
-  .zoom-btn, .vp-btn, .mini-btn { width: 20px; min-width: 20px; height: 20px; padding: 0 2px; font-size: .55rem; }
+  .device-select { max-width: 65px; font-size: .52rem; }
+  .zoom-btn, .vp-btn, .mini-btn { width: 19px; min-width: 19px; height: 20px; padding: 0 1px; font-size: .55rem; }
   #zoom-100 { font-size: .52rem; }
+}
+
+@container preview (max-width: 300px) {
+  .device-select { display: none; }
+  .preview-actions { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 }
 
 /* AI ASSISTANT */
