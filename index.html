@@ -1,1 +1,728 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="MR.easy language"><title>Mr.easy — Built in Ethiopia 🇪🇹</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><style>/* MR.easy Global Design System */*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }:root {--mr-primary: #6366f1;--mr-secondary: #8b5cf6;--mr-accent: #06b6d4;--mr-dark: #0f172a;--mr-dark2: #1e293b;--mr-dark3: #334155;--mr-light: #f8fafc;--mr-text: #e2e8f0;--mr-muted: #94a3b8;--mr-border: rgba(255,255,255,0.1);--mr-glass: rgba(255,255,255,0.05);--mr-radius: 16px;--mr-shadow: 0 25px 50px rgba(0,0,0,0.4);--mr-glow-color: #6366f1;--mr-font: 'Inter', 'Space Grotesk', system-ui, sans-serif;}html { scroll-behavior: smooth; }body {font-family: var(--mr-font);background: var(--mr-dark);color: var(--mr-text);line-height: 1.6;min-height: 100vh;overflow-x: hidden;}/* ── NAVIGATION ── */.mr-nav {display: flex;align-items: center;justify-content: space-between;padding: 20px 60px;position: sticky;top: 0;z-index: 1000;background: rgba(15,23,42,0.85);backdrop-filter: blur(20px);border-bottom: 1px solid var(--mr-border);}.mr-nav-logo {font-size: 1.5rem;font-weight: 800;background: linear-gradient(135deg, var(--mr-primary), var(--mr-accent));-webkit-background-clip: text;-webkit-text-fill-color: transparent;background-clip: text;letter-spacing: -0.5px;}.mr-nav-links {display: flex;gap: 32px;align-items: center;}.mr-nav-links .mr-link {color: var(--mr-muted);text-decoration: none;font-weight: 500;transition: color 0.2s;font-size: 0.95rem;}.mr-nav-links .mr-link:hover { color: var(--mr-text); }.mr-nav-item {color: var(--mr-muted);font-weight: 500;cursor: pointer;transition: color 0.2s;font-size: 0.95rem;text-decoration: none;}.mr-nav-item:hover { color: var(--mr-text); }/* ── HERO ── */.mr-hero {display: flex;flex-direction: column;align-items: center;justify-content: center;text-align: center;padding: 120px 40px;min-height: 90vh;position: relative;overflow: hidden;}.mr-hero::before {content: '';position: absolute;width: 800px;height: 800px;background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);top: -200px;left: 50%;transform: translateX(-50%);pointer-events: none;}.mr-hero .mr-title { font-size: 4rem; margin-bottom: 24px; }.mr-hero .mr-subtitle { font-size: 1.25rem; color: var(--mr-muted); margin-bottom: 40px; max-width: 600px; }.mr-hero .mr-row { gap: 16px; }/* ── SECTIONS ── */.mr-section {padding: 80px 60px;max-width: 1200px;margin: 0 auto;}.mr-section-full { padding: 80px 60px; }.mr-header {padding: 60px;text-align: center;}/* ── FOOTER ── */.mr-footer {padding: 60px;text-align: center;border-top: 1px solid var(--mr-border);color: var(--mr-muted);background: var(--mr-dark2);}/* ── GRID & LAYOUT ── */.mr-grid {display: grid;grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));gap: 24px;}.mr-row {display: flex;flex-wrap: wrap;gap: 16px;align-items: center;}.mr-row.center { justify-content: center; }.mr-column {display: flex;flex-direction: column;gap: 16px;}/* ── CARD ── */.mr-card {background: var(--mr-glass);border: 1px solid var(--mr-border);border-radius: var(--mr-radius);padding: 32px;backdrop-filter: blur(10px);transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;}.mr-card:hover {transform: translateY(-4px);border-color: rgba(99,102,241,0.4);box-shadow: 0 20px 40px rgba(0,0,0,0.3);}.mr-card.glass {background: rgba(255,255,255,0.05);border: 1px solid rgba(255,255,255,0.1);}.mr-box {background: var(--mr-dark2);border-radius: var(--mr-radius);padding: 24px;}/* ── TYPOGRAPHY ── */.mr-title {font-weight: 800;line-height: 1.1;letter-spacing: -1px;color: var(--mr-text);}.mr-title.mr-size-big { font-size: 3.5rem; }.mr-title.mr-size-medium { font-size: 2.25rem; letter-spacing: -0.5px; }.mr-title.mr-size-small { font-size: 1.5rem; letter-spacing: 0; }.mr-title.mr-size-tiny { font-size: 1rem; letter-spacing: 0; }.mr-title.mr-glow {background: linear-gradient(135deg, #ffffff 30%, var(--mr-primary) 60%, var(--mr-accent) 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;background-clip: text;filter: drop-shadow(0 0 30px rgba(99,102,241,0.4));}.mr-subtitle {font-size: 1.15rem;color: var(--mr-muted);font-weight: 400;line-height: 1.7;max-width: 640px;}.mr-text {font-size: 1rem;color: var(--mr-muted);line-height: 1.8;}.mr-label {font-size: 0.9rem;font-weight: 600;color: var(--mr-text);display: block;margin-bottom: 6px;}/* ── BUTTON ── */.mr-button {display: inline-flex;align-items: center;justify-content: center;gap: 8px;padding: 13px 28px;border-radius: 12px;font-size: 1rem;font-weight: 600;font-family: var(--mr-font);border: none;cursor: pointer;transition: all 0.25s ease;text-decoration: none;background: linear-gradient(135deg, var(--mr-primary), var(--mr-secondary));color: white;box-shadow: 0 4px 15px rgba(99,102,241,0.3);position: relative;overflow: hidden;}.mr-button::before {content: '';position: absolute;inset: 0;background: rgba(255,255,255,0);transition: background 0.2s;}.mr-button:hover {transform: translateY(-2px);box-shadow: 0 8px 25px rgba(99,102,241,0.5);}.mr-button:hover::before { background: rgba(255,255,255,0.1); }.mr-button:active { transform: translateY(0); }.mr-button.mr-btn-outline {background: transparent;border: 2px solid var(--mr-primary);color: var(--mr-primary);box-shadow: none;}.mr-button.mr-btn-outline:hover {background: var(--mr-primary);color: white;}.mr-button.mr-btn-ghost {background: rgba(255,255,255,0.05);color: var(--mr-text);box-shadow: none;border: 1px solid var(--mr-border);}.mr-button.mr-btn-big { padding: 18px 44px; font-size: 1.125rem; border-radius: 14px; }.mr-button.mr-btn-small { padding: 9px 20px; font-size: 0.875rem; border-radius: 10px; }.mr-button.mr-btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59,130,246,0.3); }.mr-button.mr-btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34,197,94,0.3); }.mr-button.mr-btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239,68,68,0.3); }.mr-button.mr-btn-orange { background: linear-gradient(135deg, #f97316, #ea580c); box-shadow: 0 4px 15px rgba(249,115,22,0.3); }.mr-button.mr-btn-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 4px 15px rgba(139,92,246,0.3); }.mr-button.mr-btn-pink { background: linear-gradient(135deg, #ec4899, #db2777); box-shadow: 0 4px 15px rgba(236,72,153,0.3); }/* ── INPUT / FORM ── */.mr-input {width: 100%;padding: 13px 16px;background: var(--mr-dark2);border: 1px solid var(--mr-border);border-radius: 10px;color: var(--mr-text);font-size: 1rem;font-family: var(--mr-font);transition: border-color 0.2s, box-shadow 0.2s;outline: none;}.mr-input:focus {border-color: var(--mr-primary);box-shadow: 0 0 0 3px rgba(99,102,241,0.2);}.mr-form { display: flex; flex-direction: column; gap: 16px; }/* ── IMAGE ── */.mr-image {max-width: 100%;display: block;}.mr-image.mr-rounded { border-radius: var(--mr-radius); }.mr-image.mr-shadow { box-shadow: var(--mr-shadow); }/* ── LINK ── */.mr-link {color: var(--mr-primary);text-decoration: none;font-weight: 500;transition: color 0.2s;}.mr-link:hover { color: var(--mr-accent); }/* ── VIDEO ── */.mr-video { max-width: 100%; border-radius: var(--mr-radius); }/* ── ICON ── */.mr-icon { font-size: 1.5rem; color: var(--mr-primary); }/* ── LIST ── */.mr-list { padding-left: 24px; color: var(--mr-muted); line-height: 2; }.mr-item { padding: 4px 0; }/* ── DIVIDER & SPACER ── */.mr-divider {border: none;border-top: 1px solid var(--mr-border);margin: 32px 0;}.mr-spacer { display: block; }/* ── UTILITY MODIFIERS ── */.mr-shadow { box-shadow: var(--mr-shadow); }.mr-rounded { border-radius: 50%; }.mr-glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); }.mr-center { text-align: center; }.mr-gradient-text {background: linear-gradient(135deg, var(--mr-primary), var(--mr-accent));-webkit-background-clip: text;-webkit-text-fill-color: transparent;background-clip: text;}/* ── ANIMATIONS ── */@keyframes mr-float {0%, 100% { transform: translateY(0px); }50% { transform: translateY(-10px); }}@keyframes mr-pulse-glow {0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.3); }50% { box-shadow: 0 0 40px rgba(99,102,241,0.7); }}@keyframes mr-gradient-shift {0% { background-position: 0% 50%; }50% { background-position: 100% 50%; }100% { background-position: 0% 50%; }}.mr-anim-float { animation: mr-float 3s ease-in-out infinite; }.mr-anim-glow { animation: mr-pulse-glow 2s ease-in-out infinite; }.mr-anim-gradient {background: linear-gradient(270deg, var(--mr-primary), var(--mr-accent), var(--mr-secondary));background-size: 400% 400%;animation: mr-gradient-shift 6s ease infinite;-webkit-background-clip: text;-webkit-text-fill-color: transparent;background-clip: text;}/* ── RESPONSIVE ── */@media (max-width: 768px) {.mr-nav { padding: 16px 24px; }.mr-nav-links { gap: 20px; }.mr-section { padding: 60px 24px; }.mr-hero { padding: 80px 24px; }.mr-hero .mr-title { font-size: 2.5rem; }.mr-title.mr-size-big { font-size: 2.25rem; }.mr-grid { grid-template-columns: 1fr; }.mr-row { flex-direction: column; }}/* ══════════════════════════════════════════════════MR.easy v2.0 — New Language Elements══════════════════════════════════════════════════ *//* ── ACCORDION ── */.mr-accordion { border: 1px solid var(--mr-border); border-radius: var(--mr-radius); margin-bottom: 8px; overflow: hidden; }.mr-accordion-btn { width:100%; background:var(--mr-glass); border:none; color:var(--mr-text); font-size:1rem; font-family:var(--mr-font); font-weight:600; padding:18px 24px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition:background 0.2s; }.mr-accordion-btn:hover { background:rgba(99,102,241,0.08); }.mr-accordion-icon { transition: transform 0.3s; }.mr-accordion-body { background:var(--mr-dark2); padding:0; max-height:0; overflow:hidden; transition:max-height 0.35s ease, padding 0.35s ease; }.mr-accordion-body.open { max-height:800px; padding:20px 24px; }/* ── TABS ── */.mr-tabs { border:1px solid var(--mr-border); border-radius:var(--mr-radius); overflow:hidden; }.mr-tab-bar { display:flex; background:var(--mr-dark2); border-bottom:1px solid var(--mr-border); overflow-x:auto; }.mr-tab-btn { background:transparent; border:none; border-bottom:2px solid transparent; color:var(--mr-muted); font-family:var(--mr-font); font-size:0.9rem; font-weight:600; padding:14px 24px; cursor:pointer; transition:all 0.2s; white-space:nowrap; }.mr-tab-btn:hover { color:var(--mr-text); }.mr-tab-btn.active { color:var(--mr-primary); border-bottom-color:var(--mr-primary); }.mr-tab-content { position:relative; }.mr-tab-pane { display:none; padding:24px; }.mr-tab-pane.active { display:block; }/* ── TABLE ── */.mr-table-wrapper { overflow-x:auto; border-radius:var(--mr-radius); border:1px solid var(--mr-border); }.mr-table { width:100%; border-collapse:collapse; font-size:0.95rem; }.mr-th { background:var(--mr-dark2); color:var(--mr-text); font-weight:700; padding:14px 20px; text-align:left; border-bottom:2px solid var(--mr-border); white-space:nowrap; }.mr-td { padding:13px 20px; border-bottom:1px solid var(--mr-border); color:var(--mr-muted); }.mr-tr:hover .mr-td { background:rgba(99,102,241,0.04); }.mr-tr:last-child .mr-td { border-bottom:none; }/* ── BADGE ── */.mr-badge { display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px; font-size:0.75rem; font-weight:700; letter-spacing:0.5px; border:1px solid var(--mr-border); background:var(--mr-glass); color:var(--mr-text); text-transform:uppercase; }/* ── TAG ── */.mr-tag { display:inline-block; padding:3px 10px; border-radius:6px; font-size:0.8rem; font-weight:500; background:rgba(99,102,241,0.12); color:var(--mr-primary); border:1px solid rgba(99,102,241,0.2); margin:2px; cursor:pointer; transition:all 0.2s; }.mr-tag:hover { background:rgba(99,102,241,0.25); }/* ── ALERT ── */.mr-alert { display:flex; align-items:flex-start; gap:12px; padding:16px 20px; border-radius:12px; font-size:0.95rem; border:1px solid; }.mr-alert-icon { font-size:1.1rem; font-weight:900; flex-shrink:0; }.mr-alert-info { background:rgba(6,182,212,0.1); border-color:rgba(6,182,212,0.3); color:#67e8f9; }.mr-alert-success { background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.3); color:#86efac; }.mr-alert-warning { background:rgba(234,179,8,0.1); border-color:rgba(234,179,8,0.3); color:#fde68a; }.mr-alert-error { background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.3); color:#fca5a5; }/* ── PROGRESS ── */.mr-progress-wrap { width:100%; }.mr-progress-label { display:flex; justify-content:space-between; font-size:0.85rem; color:var(--mr-muted); margin-bottom:6px; font-weight:500; }.mr-progress-bar { background:var(--mr-dark3); border-radius:999px; height:8px; overflow:hidden; }.mr-progress-fill { height:100%; border-radius:999px; transition:width 1s ease; background:var(--mr-primary); }/* ── AVATAR ── */.mr-avatar { border-radius:50%; object-fit:cover; display:inline-flex; align-items:center; justify-content:center; }.mr-avatar-initials { background:linear-gradient(135deg,var(--mr-primary),var(--mr-accent)); color:white; font-weight:800; font-size:1.1rem; }/* ── QUOTE ── */.mr-quote { border-left:4px solid var(--mr-primary); padding:20px 28px; background:var(--mr-glass); border-radius:0 var(--mr-radius) var(--mr-radius) 0; backdrop-filter:blur(10px); }.mr-quote-text { font-size:1.15rem; line-height:1.7; color:var(--mr-text); font-style:italic; margin-bottom:12px; }.mr-quote-author { color:var(--mr-primary); font-weight:600; font-size:0.9rem; }/* ── TESTIMONIAL ── */.mr-testimonial { background:var(--mr-glass); border:1px solid var(--mr-border); border-radius:var(--mr-radius); padding:28px; backdrop-filter:blur(10px); }.mr-testimonial-text { font-size:1.05rem; color:var(--mr-text); line-height:1.8; margin-bottom:20px; font-style:italic; }.mr-testimonial-author { display:flex; flex-direction:column; gap:2px; }.mr-testimonial-author strong { color:var(--mr-text); font-weight:700; }.mr-testimonial-author span { color:var(--mr-muted); font-size:0.85rem; }/* ── CODE ── */.mr-code-inline { background:var(--mr-dark3); color:var(--mr-accent); padding:2px 7px; border-radius:5px; font-family:monospace; font-size:0.9em; }.mr-code-block { background:var(--mr-dark2); border:1px solid var(--mr-border); border-radius:12px; padding:24px; overflow-x:auto; font-family:monospace; font-size:0.88rem; line-height:1.75; color:#94a3b8; }/* ── STAT ── */.mr-stat { display:flex; flex-direction:column; align-items:center; padding:32px 20px; }.mr-stat-value { font-size:3rem; font-weight:900; letter-spacing:-2px; background:linear-gradient(135deg,#fff 30%,var(--mr-primary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; }.mr-stat-label { font-size:0.9rem; color:var(--mr-muted); font-weight:500; margin-top:8px; }/* ── SELECT ── */.mr-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='2' fill='none'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:pointer; }/* ── CHECKBOX ── */.mr-checkbox-wrap { display:inline-flex; align-items:center; gap:10px; cursor:pointer; }.mr-checkbox { width:18px; height:18px; accent-color:var(--mr-primary); cursor:pointer; }.mr-checkbox-label { font-size:0.95rem; color:var(--mr-text); }/* ── TOGGLE ── */.mr-toggle-wrap { display:inline-flex; align-items:center; gap:12px; cursor:pointer; }.mr-toggle-input { display:none; }.mr-toggle-slider { position:relative; width:48px; height:26px; background:var(--mr-dark3); border-radius:999px; transition:background 0.3s; flex-shrink:0; }.mr-toggle-slider::after { content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; background:white; border-radius:50%; transition:transform 0.3s; }.mr-toggle-input:checked + .mr-toggle-slider { background:var(--mr-primary); }.mr-toggle-input:checked + .mr-toggle-slider::after { transform:translateX(22px); }.mr-toggle-label { font-size:0.95rem; color:var(--mr-text); }/* ── EMBED ── */.mr-embed-wrapper { position:relative; border-radius:var(--mr-radius); overflow:hidden; }.mr-embed { width:100%; border:none; border-radius:var(--mr-radius); }/* ── RATING ── */.mr-rating { display:inline-flex; align-items:center; gap:2px; }.mr-star { font-size:1.3rem; color:var(--mr-dark3); transition:color 0.2s; }.mr-star.filled { color:#f59e0b; }.mr-rating-label { margin-left:8px; font-size:0.9rem; color:var(--mr-muted); }/* ── COUNTDOWN ── */.mr-countdown { text-align:center; }.mr-countdown-title { font-size:1.1rem; color:var(--mr-muted); margin-bottom:20px; }.mr-countdown-timer { display:inline-flex; align-items:center; gap:8px; }.mr-cd-unit { display:flex; flex-direction:column; align-items:center; background:var(--mr-glass); border:1px solid var(--mr-border); border-radius:12px; padding:16px 20px; min-width:72px; }.mr-cd-num { font-size:2.5rem; font-weight:900; color:var(--mr-text); line-height:1; }.mr-cd-lbl { font-size:0.65rem; color:var(--mr-muted); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }.mr-cd-sep { font-size:2rem; font-weight:900; color:var(--mr-primary); }/* ── STEPS ── */.mr-steps { display:flex; flex-direction:column; gap:0; }.mr-step { display:flex; gap:20px; position:relative; padding-bottom:32px; }.mr-step:last-child { padding-bottom:0; }.mr-step::before { content:''; position:absolute; left:19px; top:40px; width:2px; height:calc(100% - 8px); background:var(--mr-border); }.mr-step:last-child::before { display:none; }.mr-step-num { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--mr-primary),var(--mr-secondary)); color:white; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.9rem; z-index:1; }.mr-step-done .mr-step-num { background:linear-gradient(135deg,#22c55e,#16a34a); }.mr-step-body { padding-top:8px; }.mr-step-title { font-weight:700; color:var(--mr-text); font-size:1rem; margin-bottom:4px; }/* ── SIDEBAR ── */.mr-sidebar { background:var(--mr-dark2); border-right:1px solid var(--mr-border); padding:24px 16px; min-width:240px; }/* ── MODAL ── */.mr-modal { position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; }.mr-modal.open { display:flex; }.mr-modal-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); }.mr-modal-box { position:relative; background:var(--mr-dark2); border:1px solid var(--mr-border); border-radius:20px; padding:36px; max-width:560px; width:90%; max-height:80vh; overflow-y:auto; z-index:1; box-shadow:0 40px 80px rgba(0,0,0,0.5); }.mr-modal-close { position:absolute; top:16px; right:16px; background:var(--mr-dark3); border:none; color:var(--mr-muted); width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; }.mr-modal-title { font-size:1.3rem; font-weight:800; color:var(--mr-text); margin-bottom:16px; }/* ── DROPDOWN ── */.mr-dropdown { position:relative; display:inline-block; }.mr-dropdown-btn { background:var(--mr-glass); border:1px solid var(--mr-border); color:var(--mr-text); padding:10px 18px; border-radius:10px; cursor:pointer; font-family:var(--mr-font); font-size:0.9rem; font-weight:600; transition:all 0.2s; }.mr-dropdown-btn:hover { border-color:var(--mr-primary); }.mr-dropdown-menu { position:absolute; top:calc(100% + 8px); left:0; background:var(--mr-dark2); border:1px solid var(--mr-border); border-radius:12px; min-width:180px; padding:6px; box-shadow:0 20px 40px rgba(0,0,0,0.4); opacity:0; pointer-events:none; transform:translateY(-8px); transition:all 0.2s; z-index:100; }.mr-dropdown:hover .mr-dropdown-menu,.mr-dropdown:focus-within .mr-dropdown-menu,.mr-dropdown.open .mr-dropdown-menu { opacity:1; pointer-events:auto; transform:translateY(0); }.mr-dropdown-menu .mr-nav-item { display:block; padding:10px 14px; border-radius:8px; color:var(--mr-muted); font-size:0.9rem; }.mr-dropdown-menu .mr-nav-item:hover { background:rgba(99,102,241,0.1); color:var(--mr-text); }/* ── mrToggle JS helper ── */body { }</style></head><body><nav class="mr-nav"><div class="mr-nav-logo">Mr.easy</div><div class="mr-nav-links"><a class="mr-nav-item" href="#home">Home</a><a class="mr-nav-item" href="#about">About</a><a class="mr-nav-item" href="#features">Features</a><a class="mr-nav-item" href="#ide">IDE</a></div></nav><div class="mr-hero mr-center" ><div class="mr-hero-inner"><h1 class="mr-title mr-title-size-big mr-glow" >Build Websites Fast</h1><p class="mr-subtitle" >MR.easy is the simplest programming language for building beautiful websites</p><div class="mr-spacer" style="height:24px"></div><div class="mr-row" style="justify-content:center"><button class="mr-button mr-button-size-big mr-btn-blue mr-btn-big" id="">Try Web IDE</button><button class="mr-button mr-btn-outline" id="">Learn More</button></div></div></div><section id="features" class="mr-section" ><h2 class="mr-title mr-title-size-medium mr-center" style="text-align:center">Why MR.easy?</h2><div class="mr-spacer" style="height:16px"></div><div class="mr-grid" style="grid-template-columns:repeat(3, 1fr)"><div class="mr-card mr-shadow" ><i class="mr-icon fa fa-star" ></i><h3 class="mr-title mr-title-size-small" >Fast</h3><p class="mr-text" >Build websites in minutes, not hours</p></div><div class="mr-card mr-shadow" ><i class="mr-icon fa fa-star" ></i><h3 class="mr-title mr-title-size-small" >Simple</h3><p class="mr-text" >Anyone can learn MR.easy in one day</p></div><div class="mr-card mr-shadow" ><i class="mr-icon fa fa-star" ></i><h3 class="mr-title mr-title-size-small" >Beautiful</h3><p class="mr-text" >Every page looks stunning by default</p></div></div></section><footer class="mr-footer"><p class="mr-text" >Made with ❤️ in Ethiopia 🇪🇹 using Mr.easy</p></footer><script>// MR.easy Auto-Animate — smooth entrance animations on scroll(function() {const observer = new IntersectionObserver((entries) => {entries.forEach(entry => {if (entry.isIntersecting) {entry.target.style.opacity = '1';entry.target.style.transform = 'translateY(0)';}});}, { threshold: 0.1 });document.querySelectorAll('.mr-section, .mr-card, .mr-title, .mr-text, .mr-button, .mr-hero').forEach(el => {el.style.opacity = '0';el.style.transform = 'translateY(30px)';el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';observer.observe(el);});// Animate elements already in viewsetTimeout(() => {document.querySelectorAll('.mr-hero .mr-title, .mr-hero .mr-subtitle, .mr-hero .mr-button').forEach((el, i) => {setTimeout(() => {el.style.opacity = '1';el.style.transform = 'translateY(0)';}, i * 150);});}, 100);// Accordion toggle helperwindow.mrToggle = function(id) {const body = document.getElementById(id);const btn = body && body.previousElementSibling;if (!body) return;const open = body.classList.toggle('open');if (btn) {const icon = btn.querySelector('.mr-accordion-icon');if (icon) icon.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';}};})();</script><script></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MR.easy — Write words. Render worlds.</title>
+  <meta name="description" content="MR.easy is an Ethiopian-born programming language for building beautiful websites with readable words.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <style>
+    :root {
+      --ink-0: #080706;
+      --ink-1: #0f0d0b;
+      --ink-2: #141210;
+      --ink-3: #1d1915;
+      --surface: #211c16;
+      --parchment: #f2ead8;
+      --muted: #a69a86;
+      --dim: #62584a;
+      --brass: #c8963a;
+      --brass-bright: #e8b45a;
+      --adwa-red: #8b2020;
+      --adwa-green: #4a7a2e;
+      --signal-green: #5fa85a;
+      --hairline: rgba(242, 234, 216, .13);
+      --hairline-brass: rgba(200, 150, 58, .3);
+      --shadow-deep: 0 28px 90px rgba(0,0,0,.48);
+      --shadow-focus: 0 0 0 1px rgba(232,180,90,.24), 0 16px 48px rgba(0,0,0,.32);
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Inter', Arial, sans-serif;
+      --font-mono: 'DM Mono', 'Courier New', monospace;
+      --radius-surface: 12px;
+      --ease-heritage: cubic-bezier(.22,.8,.24,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--ink-0);
+      color: var(--parchment);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    body::selection { background: var(--brass); color: var(--ink-0); }
+    a { color: inherit; }
+    button, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 4px; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--ink-1); }
+    ::-webkit-scrollbar-thumb { background: var(--brass); }
+
+    #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .55; }
+    .site-shell { position: relative; z-index: 1; overflow: hidden; }
+    .container { width: min(1180px, calc(100% - 72px)); margin-inline: auto; }
+    .heritage-rule {
+      position: absolute; inset: 0 0 auto; height: 2px; z-index: 4;
+      background: linear-gradient(90deg, var(--adwa-green) 0 34%, var(--brass) 34% 68%, var(--adwa-red) 68%);
+    }
+    .geez-watermark {
+      position: absolute; z-index: -1; color: var(--parchment); opacity: .035;
+      font-family: var(--font-display); font-size: clamp(25rem, 62vw, 60rem); line-height: .7;
+      left: -8vw; top: 1.2rem; user-select: none; pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 10px; margin-bottom: 18px;
+      color: var(--brass-bright); font: 500 .68rem/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
+    }
+    .eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--brass); }
+    .section-heading { max-width: 700px; }
+    .section-heading h2 {
+      margin: 0 0 14px; font: 500 clamp(2.15rem, 4.6vw, 4.3rem)/1.04 var(--font-display);
+      letter-spacing: -.04em; text-wrap: balance;
+    }
+    .section-heading h2 em { color: var(--brass-bright); }
+    .section-heading p { max-width: 560px; margin: 0; color: var(--muted); font-size: .96rem; line-height: 1.85; }
+
+    /* Navigation */
+    .heritage-nav {
+      position: sticky; top: 0; z-index: 100; min-height: 72px;
+      display: flex; align-items: center; justify-content: space-between; gap: 28px;
+      padding: 0 36px; background: rgba(8,7,6,.84); border-bottom: 1px solid var(--hairline);
+      backdrop-filter: blur(18px);
+    }
+    .brand-lockup { display: inline-flex; align-items: baseline; gap: 0; text-decoration: none; white-space: nowrap; }
+    .brand-lockup .brand-mr { font: 600 1.05rem var(--font-sans); letter-spacing: -.05em; }
+    .brand-lockup .brand-dot { color: var(--brass); font-size: 1.35rem; }
+    .brand-lockup .brand-easy { font: italic 500 1.12rem var(--font-display); color: var(--brass-bright); }
+    .brand-origin { margin-left: 12px; padding-left: 12px; border-left: 1px solid var(--hairline); color: var(--dim); font: .63rem var(--font-mono); letter-spacing: .08em; }
+    .nav-links { display: flex; align-items: center; gap: 25px; list-style: none; margin: 0; padding: 0; }
+    .nav-links a { color: var(--muted); font-size: .77rem; text-decoration: none; transition: color .2s ease; }
+    .nav-links a:hover { color: var(--parchment); }
+    .nav-cta { display: inline-flex; align-items: center; gap: 9px; padding: 10px 16px; color: var(--ink-0) !important; background: var(--brass); font-weight: 600 !important; }
+    .nav-cta::after { content: '↗'; font-size: .95rem; }
+
+    /* Hero */
+    .hero { position: relative; min-height: 700px; padding: 112px 0 126px; border-bottom: 1px solid var(--hairline); }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr); gap: 48px; align-items: center; }
+    .hero-copy { position: relative; z-index: 2; }
+    .hero-copy h1 { max-width: 720px; margin: 0 0 24px; font: 500 clamp(3.7rem, 7.8vw, 7.6rem)/.93 var(--font-display); letter-spacing: -.065em; }
+    .hero-copy h1 em { display: block; color: var(--brass-bright); font-style: italic; }
+    .hero-copy .hero-lede { max-width: 480px; margin: 0 0 32px; color: var(--muted); font-size: 1rem; line-height: 1.85; }
+    .hero-copy code { color: var(--brass-bright); font-family: var(--font-mono); font-size: .88em; }
+    .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 38px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 45px; padding: 0 18px; border: 1px solid transparent; border-radius: 2px; cursor: pointer; text-decoration: none; font-size: .8rem; transition: transform .25s var(--ease-heritage), background .25s, border-color .25s, color .25s; }
+    .button:hover { transform: translateY(-2px); }
+    .button-brass { background: var(--brass); color: var(--ink-0); font-weight: 600; }
+    .button-brass:hover { background: var(--brass-bright); }
+    .button-quiet { border-color: var(--hairline-brass); color: var(--parchment); background: transparent; }
+    .button-quiet:hover { border-color: var(--brass); color: var(--brass-bright); }
+    .terminal-block { width: min(100%, 450px); border: 1px solid var(--hairline-brass); background: rgba(15,13,11,.84); box-shadow: var(--shadow-focus); }
+    .terminal-bar { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-bottom: 1px solid var(--hairline); color: var(--dim); font: .63rem var(--font-mono); }
+    .terminal-dots { display: flex; gap: 5px; }
+    .terminal-dots i { display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--dim); }
+    .terminal-dots i:first-child { background: var(--adwa-red); }
+    .terminal-dots i:nth-child(2) { background: var(--brass); }
+    .terminal-dots i:nth-child(3) { background: var(--adwa-green); }
+    .terminal-line { display: flex; align-items: center; gap: 12px; padding: 17px 14px; font: .8rem var(--font-mono); }
+    .terminal-prompt { color: var(--adwa-green); }
+    .terminal-command { flex: 1; color: var(--parchment); white-space: nowrap; overflow: hidden; }
+    .terminal-command::after { content: ''; display: inline-block; width: 7px; height: 15px; margin-left: 6px; vertical-align: -2px; background: var(--brass); animation: blink 1s steps(1) infinite; }
+    .terminal-copy { border: 0; border-left: 1px solid var(--hairline); padding: 0 4px 0 14px; color: var(--dim); background: transparent; cursor: pointer; }
+    .terminal-copy:hover { color: var(--brass-bright); }
+    @keyframes blink { 50% { opacity: 0; } }
+    .hero-visual { position: relative; min-height: 480px; display: grid; place-items: center; }
+    .hero-visual::before { content: ''; position: absolute; width: min(430px, 80vw); aspect-ratio: 1; border: 1px solid rgba(200,150,58,.22); border-radius: 50%; transform: rotate(-20deg) scaleY(.65); }
+    .hero-visual::after { content: ''; position: absolute; width: 62%; height: 1px; background: var(--hairline-brass); transform: rotate(-32deg); }
+    .mascot-hero { position: relative; z-index: 1; width: min(420px, 88%); max-height: 480px; object-fit: contain; filter: saturate(.78) sepia(.18) drop-shadow(0 35px 38px rgba(0,0,0,.55)); animation: hero-float 7s ease-in-out infinite; }
+    @keyframes hero-float { 0%,100% { transform: translateY(0) rotate(1deg); } 50% { transform: translateY(-16px) rotate(-1deg); } }
+    .floating-code-card { position: absolute; z-index: 2; left: 2%; bottom: 2%; width: 250px; padding: 16px; border: 1px solid var(--hairline-brass); background: rgba(29,25,21,.9); box-shadow: var(--shadow-deep); font: .68rem/1.9 var(--font-mono); transform: rotate(-2deg); }
+    .floating-code-card b { color: var(--brass-bright); font-weight: 500; }
+    .floating-code-card .green { color: #8fae88; }
+    .floating-code-card .comment { color: var(--dim); }
+    .hero-meta { display: flex; align-items: center; gap: 24px; color: var(--dim); font: .65rem var(--font-mono); }
+    .hero-meta strong { color: var(--muted); font-weight: 400; }
+
+    /* Ticker */
+    .ticker-wrap { position: relative; z-index: 2; margin: 28px -2vw 12px; padding: 15px 0; overflow: hidden; transform: rotate(-1.6deg); background: var(--ink-2); border-block: 1px solid var(--hairline); }
+    .ticker-wrap::before { content: ''; position: absolute; inset: 0; opacity: .07; background: repeating-linear-gradient(45deg, var(--parchment) 0 1px, transparent 1px 7px), repeating-linear-gradient(-45deg, var(--parchment) 0 1px, transparent 1px 7px); pointer-events: none; }
+    .ticker-move { display: inline-flex; min-width: max-content; animation: marquee 32s linear infinite; }
+    .ticker-item { display: inline-flex; align-items: center; gap: 20px; padding-right: 38px; color: var(--muted); font: .65rem var(--font-mono); letter-spacing: .15em; text-transform: uppercase; }
+    .ticker-item::after { content: '✦'; color: var(--brass); }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+
+    /* Demo */
+    .section { padding: 132px 0; border-bottom: 1px solid var(--hairline); }
+    .demo-window { margin-top: 46px; border: 1px solid var(--hairline-brass); background: var(--ink-1); box-shadow: var(--shadow-deep); }
+    .window-bar { display: flex; align-items: center; justify-content: space-between; min-height: 42px; padding: 0 15px; background: var(--ink-2); border-bottom: 1px solid var(--hairline); font: .66rem var(--font-mono); }
+    .window-label { color: var(--muted); }
+    .window-label strong { color: var(--brass-bright); font-weight: 400; }
+    .window-dots { display: flex; gap: 6px; }
+    .window-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+    .window-dots i:first-child { background: var(--adwa-red); }
+    .window-dots i:nth-child(2) { background: var(--brass); }
+    .window-dots i:nth-child(3) { background: var(--adwa-green); }
+    .demo-split { display: grid; grid-template-columns: 1.04fr .96fr; min-height: 420px; }
+    .demo-code-pane { padding: 28px; border-right: 1px solid var(--hairline); overflow: auto; color: var(--muted); font: .75rem/2 var(--font-mono); }
+    .demo-code-pane .decl { color: var(--brass-bright); }
+    .demo-code-pane .keyword { color: #c6ad86; }
+    .demo-code-pane .string { color: #8fae88; }
+    .demo-code-pane .comment { color: var(--dim); }
+    .demo-preview-pane { display: grid; place-items: center; min-height: 420px; padding: 30px; background: var(--ink-0); text-align: center; }
+    .preview-inner { width: min(100%, 320px); padding: 44px 25px; border: 1px solid rgba(200,150,58,.24); background: var(--ink-2); }
+    .preview-seal { width: 38px; height: 38px; display: grid; place-items: center; margin: 0 auto 22px; border: 1px solid var(--brass); color: var(--brass-bright); font-family: var(--font-display); transform: rotate(45deg); }
+    .preview-seal span { transform: rotate(-45deg); }
+    .preview-title { margin: 0 0 10px; color: var(--parchment); font: 500 2rem/1 var(--font-display); }
+    .preview-sub { margin: 0 auto 22px; color: var(--muted); font-size: .76rem; line-height: 1.7; }
+    .preview-btn { border: 0; padding: 10px 18px; background: var(--brass); color: var(--ink-0); font-size: .73rem; font-weight: 600; cursor: pointer; }
+
+    /* Bento */
+    .bento-grid { display: grid; grid-template-columns: 1.3fr .85fr .85fr; grid-template-rows: repeat(2, minmax(180px, auto)); margin-top: 50px; border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); }
+    .bento-cell { position: relative; min-height: 190px; padding: 28px; border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); background: rgba(20,18,16,.66); transition: background .3s ease, box-shadow .3s ease, transform .3s var(--ease-heritage); }
+    .bento-cell:hover { z-index: 1; background: var(--ink-2); box-shadow: var(--shadow-focus); transform: translateY(-3px); }
+    .bento-feature { grid-row: 1 / span 2; display: flex; flex-direction: column; justify-content: space-between; min-height: 380px; background: var(--ink-1); }
+    .bento-index { color: var(--brass); font: .65rem var(--font-mono); }
+    .bento-cell h3 { margin: 44px 0 10px; font: 500 1.7rem/1.05 var(--font-display); }
+    .bento-feature h3 { max-width: 300px; margin-top: 70px; font-size: 3rem; }
+    .bento-cell p { max-width: 300px; margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.75; }
+    .bento-mark { position: absolute; right: 24px; bottom: 23px; width: 38px; height: 38px; border: 1px solid var(--brass); opacity: .68; transform: rotate(45deg); }
+    .bento-mark::after { content: ''; position: absolute; inset: 8px; border: 1px solid var(--adwa-green); }
+    .bento-feature .bento-mark { width: 92px; height: 92px; right: 30px; bottom: 30px; border-color: var(--adwa-red); opacity: .82; }
+    .bento-feature .bento-mark::after { inset: 18px; border-color: var(--brass); }
+    .bento-note { color: var(--dim); font: .68rem var(--font-mono); }
+
+    /* Syntax playground */
+    .playground-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 48px; }
+    .playground-pane { min-height: 390px; border: 1px solid var(--hairline); background: var(--ink-1); }
+    .pane-head { display: flex; align-items: center; justify-content: space-between; min-height: 40px; padding: 0 14px; border-bottom: 1px solid var(--hairline); font: .65rem var(--font-mono); color: var(--muted); }
+    .pane-head strong { color: var(--brass-bright); font-weight: 400; }
+    #home-playground-code { display: block; width: 100%; height: 350px; padding: 18px; resize: none; border: 0; outline: 0; background: var(--ink-1); color: var(--parchment); font: .76rem/1.8 var(--font-mono); }
+    #home-playground-code:focus { box-shadow: inset 0 0 0 1px var(--brass); }
+    #home-preview-frame { display: block; width: 100%; height: 350px; border: 0; background: var(--ink-0); }
+
+    /* Heritage story */
+    .editorial-spread { display: grid; grid-template-columns: .8fr 1.2fr; gap: 80px; align-items: center; margin-top: 56px; }
+    .editorial-media { position: relative; min-height: 470px; overflow: hidden; border-left: 1px solid var(--hairline-brass); background: var(--ink-2); }
+    .editorial-media::after { content: ''; position: absolute; inset: 14px; border: 1px solid rgba(200,150,58,.24); pointer-events: none; }
+    .editorial-media img { width: 100%; height: 100%; min-height: 470px; object-fit: cover; object-position: center; filter: grayscale(1) sepia(.8) contrast(1.05); mix-blend-mode: screen; opacity: .65; }
+    .editorial-caption { position: absolute; right: 24px; bottom: 24px; z-index: 1; color: var(--brass-bright); font: .62rem var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+    .pull-quote { position: relative; padding-left: 26px; border-left: 3px solid var(--brass); }
+    .pull-quote blockquote { margin: 0 0 30px; color: var(--parchment); font: italic 500 clamp(2rem, 4vw, 4rem)/1.06 var(--font-display); letter-spacing: -.04em; }
+    .story-copy { max-width: 550px; color: var(--muted); font-size: .93rem; line-height: 1.9; }
+    .story-copy strong { color: var(--parchment); font-weight: 500; }
+    .story-signature { display: flex; align-items: center; gap: 12px; margin-top: 28px; color: var(--brass-bright); font: .68rem var(--font-mono); }
+    .story-signature::before { content: '፨'; color: var(--adwa-red); font-size: 1.1rem; }
+
+    /* Install and footer */
+    .install-grid { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 48px; border-top: 1px solid var(--hairline); }
+    .install-column { padding: 26px 22px 30px; border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+    .install-column:first-child { border-left: 1px solid var(--hairline); }
+    .install-column:hover { background: var(--ink-1); }
+    .install-number { color: var(--brass); font: .64rem var(--font-mono); }
+    .install-column h3 { margin: 30px 0 10px; font: 500 1.5rem var(--font-display); }
+    .install-column p { min-height: 54px; margin: 0 0 22px; color: var(--muted); font-size: .78rem; line-height: 1.7; }
+    .command-list { display: grid; gap: 8px; }
+    .command-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 11px; border: 1px solid var(--hairline); color: var(--muted); font: .68rem var(--font-mono); }
+    .command-row button { border: 0; color: var(--dim); background: transparent; cursor: pointer; }
+    .command-row button:hover { color: var(--brass-bright); }
+    .command-row code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    footer { padding: 58px 0 30px; border-top: 1px solid var(--hairline); }
+    .footer-grid { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 40px; }
+    .footer-brand p { max-width: 250px; margin: 16px 0 0; color: var(--muted); font-size: .78rem; line-height: 1.8; }
+    .footer-column h4 { margin: 0 0 16px; color: var(--brass); font: .65rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+    .footer-column ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .footer-column a { color: var(--muted); font-size: .76rem; text-decoration: none; }
+    .footer-column a:hover { color: var(--parchment); }
+    .footer-bottom { display: flex; justify-content: space-between; gap: 20px; margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--hairline); color: var(--dim); font: .63rem var(--font-mono); }
+
+    /* Guide Section */
+    .guide-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; }
+    .guide-card { border: 1px solid var(--hairline-brass); background: var(--ink-1); padding: 32px; border-radius: var(--radius-surface); box-shadow: var(--shadow-focus); }
+    .guide-card h3 { margin: 0 0 8px; font: 500 1.6rem var(--font-display); color: var(--brass-bright); display: flex; align-items: center; gap: 10px; }
+    .guide-card p.guide-subtitle { margin: 0 0 24px; color: var(--muted); font-size: .84rem; }
+    .guide-steps { display: grid; gap: 20px; }
+    .guide-step { display: flex; gap: 16px; align-items: flex-start; }
+    .guide-step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--brass); color: var(--ink-0); font: 700 .75rem var(--font-mono); display: grid; place-items: center; flex-shrink: 0; margin-top: 2px; }
+    .guide-step-content h4 { margin: 0 0 4px; font-size: .92rem; color: var(--parchment); font-weight: 600; }
+    .guide-step-content p { margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.6; }
+    .guide-step-content code { background: var(--ink-2); border: 1px solid var(--hairline); padding: 2px 7px; color: var(--brass-bright); font: .74rem var(--font-mono); border-radius: 3px; display: inline-block; margin-top: 4px; }
+
+    @media (max-width: 900px) {
+      .container { width: min(100% - 40px, 680px); }
+      .guide-tabs { grid-template-columns: 1fr; }
+      .heritage-nav { padding: 0 20px; }
+      .brand-origin, .nav-links li:not(:last-child) { display: none; }
+      .hero { padding: 82px 0 92px; }
+      .hero-grid, .editorial-spread { grid-template-columns: 1fr; gap: 54px; }
+      .hero-copy h1 { font-size: clamp(3.25rem, 12vw, 6rem); }
+      .hero-visual { min-height: 410px; }
+      .bento-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .bento-feature { grid-column: 1 / -1; grid-row: auto; min-height: 300px; }
+      .playground-grid { grid-template-columns: 1fr; }
+      .editorial-media { min-height: 360px; }
+      .editorial-media img { min-height: 360px; }
+      .install-grid, .footer-grid { grid-template-columns: 1fr; }
+      .install-column, .install-column:first-child { border-left: 1px solid var(--hairline); }
+      .footer-grid { gap: 28px; }
+    }
+    @media (max-width: 560px) {
+      .container { width: calc(100% - 32px); }
+      .heritage-nav { min-height: 62px; }
+      .nav-cta { padding: 8px 11px; font-size: .69rem !important; }
+      .hero { padding: 64px 0 74px; }
+      .hero-copy h1 { font-size: clamp(3rem, 16vw, 4.7rem); }
+      .hero-actions { align-items: stretch; flex-direction: column; }
+      .hero-actions .button { width: 100%; }
+      .hero-meta { flex-wrap: wrap; gap: 12px; }
+      .hero-visual { min-height: 330px; }
+      .mascot-hero { width: 96%; }
+      .floating-code-card { left: 0; width: 210px; font-size: .6rem; }
+      .section { padding: 86px 0; }
+      .demo-split { grid-template-columns: 1fr; }
+      .demo-code-pane { border-right: 0; border-bottom: 1px solid var(--hairline); }
+      .bento-grid { grid-template-columns: 1fr; }
+      .bento-feature { grid-column: auto; }
+      .bento-cell { min-height: 165px; }
+      .bento-feature h3 { font-size: 2.4rem; }
+      .editorial-spread { gap: 34px; }
+      .pull-quote { padding-left: 18px; }
+      .footer-bottom { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+  <div class="site-shell">
+    <div class="heritage-rule"></div>
+    <nav class="heritage-nav" aria-label="Primary navigation">
+      <a href="#top" class="brand-lockup"><span class="brand-mr">Mr</span><span class="brand-dot">.</span><span class="brand-easy">easy</span><span class="brand-origin">ADDIS ABABA / 2026</sp      <ul class="nav-links">
+        <li><a href="#guide">Guide</a></li>
+        <li><a href="#live-demo">Preview</a></li>
+        <li><a href="#comparison">MR.easy vs HTML</a></li>
+        <li><a href="#examples">Examples</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
+        <li><a href="#about">Origin</a></li>
+        <li><a href="https://github.com/Mrcutekiller/Mr.easy" target="_blank" rel="noreferrer" class="nav-cta" style="background:var(--ink-2);color:var(--parchment)!important;border:1px solid var(--hairline-brass);">★ GitHub Repo</a></li>
+        <li><a href="ide/" target="_blank" rel="noreferrer" class="nav-cta">Open IDE</a></li>
+      </ul>
+    </nav>
+
+    <main id="top">
+      <section class="hero">
+        <span class="geez-watermark" aria-hidden="true">፨</span>
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <div class="eyebrow">Adwa heritage / browser native</div>
+            <h1>Write words.<em>Render worlds.</em></h1>
+            <p class="hero-lede">MR.easy is a small, expressive language born in Ethiopia. Describe a page like you would explain it to a person — and get a living website in return.</p>
+            <div class="hero-actions">
+              <a class="button button-brass" href="ide/" target="_blank" rel="noreferrer">Open the web IDE <span>↗</span></a>
+              <a class="button button-quiet" href="#live-demo">See it compile <span>↓</span></a>
+            </div>
+            <div class="terminal-block" aria-label="MR.easy command">
+              <div class="terminal-bar"><span class="terminal-dots"><i></i><i></i><i></i></span><span>new-project / terminal</span><button class="terminal-copy" onclick="copyText(this, 'mreasy new mywebsite')" title="Copy command">⎘ Copy</button></div>
+              <div class="terminal-line"><span class="terminal-prompt">$</span><span class="terminal-command">mreasy new mywebsite</span></div>
+            </div>
+            <div class="hero-meta"><span><strong>01</strong> / less ceremony</span><span><strong>02</strong> / live output</span><span><strong>03</strong> / free forever</span></div>
+          </div>
+          <div class="hero-visual">
+            <img class="mascot-hero" src="assets/mascot_3d.png" alt="MR.easy geometric mascot">
+            <div class="floating-code-card" aria-label="MR.easy code sample"><span class="comment"># a whole page, in plain words</span><br><b>hero</b><br>&nbsp;&nbsp;<span class="green">title</span> <b>"Make room for ideas"</b><br>&nbsp;&nbsp;<span class="green">button</span> <b>"Begin"</b> <span class="comment">big</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="ticker-wrap" aria-label="MR.easy values">
+        <div class="ticker-move">
+          <span class="ticker-item">Built in Ethiopia</span><span class="ticker-item">Free for everyone</span><span class="ticker-item">No HTML required</span><span class="ticker-item">Live browser output</span><span class="ticker-item">Adwa Heritage</span><span class="ticker-item">Zero Build Ceremony</span><span class="ticker-item">Human Readable</span><span class="ticker-item">Open Source</span>
+        </div>
+      </div>
+
+      <section class="section" id="live-demo">
+        <div class="container">
+          <div class="section-heading"><div class="eyebrow">The proof is in the preview</div><h2>From a few lines to a <em>living page.</em></h2><p>Write the structure. MR.easy handles the ceremony. The split view below is the same idea as the full IDE — source on one side, a real website on the other.</p></div>
+          <div class="demo-window">
+            <div class="window-bar"><span class="window-dots"><i></i><i></i><i></i></span><span class="window-label"><strong>index.mreasy</strong> → live preview</span><button class="terminal-copy" onclick="copyText(this, `Mr.easy &quot;Buna / a quiet place to think&quot;\n\nhero\n  title &quot;Make room for ideas&quot; big glow\n  subtitle &quot;A small web language from Addis Ababa.&quot;\n  button &quot;Start writing&quot; green big\n\nsection &quot;essentials&quot;\n  grid cols:2\n    card shadow\n      title &quot;Clear&quot; small\n      text &quot;No tags or brackets&quot;\n    card shadow\n      title &quot;Expressive&quot; small\n      text &quot;Readable plain words&quot;`)" style="color:var(--muted);font-size:.65rem;border:0;background:transparent;cursor:pointer;">⎘ Copy snippet</button></div>
+            <div class="demo-split">
+              <div class="demo-code-pane">
+                <div><span class="decl">Mr.easy</span> <span class="string">"Buna / a quiet place to think"</span></div>
+                <div><br></div>
+                <div><span class="comment"># simple language, deliberate output</span></div>
+                <div><span class="keyword">hero</span></div>
+                <div>&nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Make room for ideas"</span> <span class="comment">big glow</span></div>
+                <div>&nbsp;&nbsp;<span class="keyword">subtitle</span> <span class="string">"A small web language from Addis Ababa."</span></div>
+                <div>&nbsp;&nbsp;<span class="keyword">button</span> <span class="string">"Start writing"</span> <span class="comment">green big</span></div>
+                <div><br></div>
+                <div><span class="keyword">section</span> <span class="string">"essentials"</span></div>
+                <div>&nbsp;&nbsp;<span class="keyword">grid</span> cols:2</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">card</span> shadow</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Clear"</span> small</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">text</span> <span class="string">"No tags or brackets"</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">card</span> shadow</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Expressive"</span> small</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">text</span> <span class="string">"Readable plain words"</span></div>
+              </div>
+              <div class="demo-preview-pane">
+                <div class="preview-inner" style="max-width:340px;">
+                  <div class="preview-seal"><span>፨</span></div>
+                  <h3 class="preview-title" style="font-size:1.6rem;">Make room<br>for ideas</h3>
+                  <p class="preview-sub">A small web language from Addis Ababa.</p>
+                  <button class="preview-btn" style="margin-bottom:20px;">Start writing</button>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;">
+                    <div style="background:var(--ink-1);border:1px solid var(--hairline);padding:10px;border-radius:6px;"><strong style="font-size:.8rem;color:var(--parchment);">Clear</strong><p style="font-size:.68rem;color:var(--muted);margin:4px 0 0;">No tags or brackets</p></div>
+                    <div style="background:var(--ink-1);border:1px solid var(--hairline);padding:10px;border-radius:6px;"><strong style="font-size:.8rem;color:var(--parchment);">Expressive</strong><p style="font-size:.68rem;color:var(--muted);margin:4px 0 0;">Readable plain words</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MR.easy VS RAW HTML COMPARISON -->
+      <section class="section" id="comparison">
+        <div class="container">
+          <div class="section-heading">
+            <div class="eyebrow">Concrete contrast</div>
+            <h2>MR.easy vs <em>Raw HTML</em></h2>
+            <p>Compare building the exact same modern landing hero. Notice the drastic reduction in noisy brackets, quotes, closing tags, and boilerplate.</p>
+          </div>
+          <div class="playground-grid" style="margin-top:36px;">
+            <div class="playground-pane">
+              <div class="pane-head"><span><strong>Raw HTML</strong> / 24 lines & 480 chars</span><button class="terminal-copy" onclick="copyText(this, document.getElementById('raw-html-code').textContent)">⎘ Copy</button></div>
+              <pre id="raw-html-code" style="padding:18px;font:.72rem/1.7 var(--font-mono);color:var(--muted);overflow-x:auto;margin:0;">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;link rel="stylesheet" href="style.css"&gt;
+  &lt;title&gt;Hero Demo&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;section class="hero-container flex-col center"&gt;
+    &lt;span class="badge badge-purple"&gt;NEW VERSION&lt;/span&gt;
+    &lt;h1 class="hero-title text-glow"&gt;Build Faster&lt;/h1&gt;
+    &lt;p class="hero-subtitle"&gt;The simple web language.&lt;/p&gt;
+    &lt;div class="cta-row gap-4"&gt;
+      &lt;button class="btn btn-primary lg"&gt;Get Started&lt;/button&gt;
+      &lt;button class="btn btn-outline"&gt;Learn More&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+            </div>
+            <div class="playground-pane">
+              <div class="pane-head"><span><strong>MR.easy</strong> / 8 lines & 170 chars</span><button class="terminal-copy" onclick="copyText(this, `Mr.easy &quot;Hero Demo&quot;\n\nhero\n  badge &quot;NEW VERSION&quot; purple\n  title &quot;Build Faster&quot; big glow\n  subtitle &quot;The simple web language.&quot;\n  row center\n    button &quot;Get Started&quot; blue big\n    button &quot;Learn More&quot; outline`)">⎘ Copy</button></div>
+              <pre style="padding:18px;font:.74rem/1.8 var(--font-mono);color:var(--brass-bright);overflow-x:auto;margin:0;"><span class="decl">Mr.easy</span> <span class="string">"Hero Demo"</span>
+
+<span class="keyword">hero</span>
+  <span class="keyword">badge</span> <span class="string">"NEW VERSION"</span> <span class="comment">purple</span>
+  <span class="keyword">title</span> <span class="string">"Build Faster"</span> <span class="comment">big glow</span>
+  <span class="keyword">subtitle</span> <span class="string">"The simple web language."</span>
+  <span class="keyword">row</span> <span class="comment">center</span>
+    <span class="keyword">button</span> <span class="string">"Get Started"</span> <span class="comment">blue big</span>
+    <span class="keyword">button</span> <span class="string">"Learn More"</span> <span class="comment">outline</span></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIVE EXAMPLES GALLERY -->
+      <section class="section" id="examples">
+        <div class="container">
+          <div class="section-heading">
+            <div class="eyebrow">Live Showcase</div>
+            <h2>Built with <em>MR.easy</em></h2>
+            <p>Real-world web projects described in plain words. Click to inspect or open in the Web IDE.</p>
+          </div>
+          <div class="install-grid" style="grid-template-columns:repeat(3,1fr);margin-top:40px;">
+            <div class="install-column">
+              <div class="install-number">01 / ROASTERY</div>
+              <h3>☕ Buna Coffee</h3>
+              <p>Minimalist artisanal coffee roastery showcase built with hero, product grids, and booking forms.</p>
+              <div style="background:var(--ink-2);padding:14px;border:1px solid var(--hairline-brass);border-radius:6px;margin-bottom:16px;">
+                <code style="color:var(--brass-bright);font-size:.7rem;display:block;">hero<br>&nbsp;&nbsp;title "Buna Addis" big<br>&nbsp;&nbsp;subtitle "Fresh beans from Sidama"</code>
+              </div>
+              <a href="ide/?template=nexastudio" target="_blank" rel="noreferrer" class="button button-quiet" style="width:100%;">Open Source in IDE ↗</a>
+            </div>
+            <div class="install-column">
+              <div class="install-number">02 / PORTFOLIO</div>
+              <h3>👨‍💻 Developer Folio</h3>
+              <p>Personal developer site featuring skills stats, project showcase cards, and contact modal.</p>
+              <div style="background:var(--ink-2);padding:14px;border:1px solid var(--hairline-brass);border-radius:6px;margin-bottom:16px;">
+                <code style="color:var(--brass-bright);font-size:.7rem;display:block;">section "work"<br>&nbsp;&nbsp;grid cols:3<br>&nbsp;&nbsp;&nbsp;&nbsp;card shadow</code>
+              </div>
+              <a href="ide/?template=portfolio" target="_blank" rel="noreferrer" class="button button-quiet" style="width:100%;">Open Source in IDE ↗</a>
+            </div>
+            <div class="install-column">
+              <div class="install-number">03 / EVENT</div>
+              <h3>⚡ Addis Summit</h3>
+              <p>Technology conference site with agenda tabs, speaker cards, countdown timer, and ticket booking.</p>
+              <div style="background:var(--ink-2);padding:14px;border:1px solid var(--hairline-brass);border-radius:6px;margin-bottom:16px;">
+                <code style="color:var(--brass-bright);font-size:.7rem;display:block;">countdown title:"Starts In"<br>tabs<br>&nbsp;&nbsp;tab "Day 1"</code>
+              </div>
+              <a href="ide/?template=landing" target="_blank" rel="noreferrer" class="button button-quiet" style="width:100%;">Open Source in IDE ↗</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="how">
+        <div class="container">
+          <div class="section-heading"><div class="eyebrow">A shorter path to the web</div><h2>Less syntax. More <em>signal.</em></h2><p>MR.easy keeps the parts that help you think and removes the parts that get in the way.</p></div>
+          <div class="bento-grid">
+            <article class="bento-cell bento-feature"><div class="bento-index">01 / ZERO SETUP</div><div><h3>Make the first page before the doubts arrive.</h3><p>Open the browser IDE, write a title, and see your idea become a page immediately. The feedback loop is the feature.</p></div><div class="bento-note">write → compile → share</div><span class="bento-mark" aria-hidden="true"></span></article>
+            <article class="bento-cell"><div class="bento-index">02 / FAST COMPILATION</div><h3>Quick by design.</h3><p>A small lexer, a readable parser, and clean HTML output. No build ceremony for a simple idea.</p><span class="bento-mark" aria-hidden="true"></span></article>
+            <article class="bento-cell"><div class="bento-index">03 / NATIVE SYNTAX</div><h3>Words are the interface.</h3><p>Indentation shows hierarchy. Familiar words describe the page. There are no brackets to fight.</p><span class="bento-mark" aria-hidden="true"></span></article>
+            <article class="bento-cell"><div class="bento-index">04 / OPEN BY DEFAULT</div><h3>Yours to shape.</h3><p>Download the source, keep the HTML, and build wherever you like. The language stays out of your way.</p><span class="bento-mark" aria-hidden="true"></span></article>
+            <article class="bento-cell"><div class="bento-index">05 / MADE IN ADDIS</div><h3>Local roots.</h3><p>Inspired by the resourcefulness and clarity of a place that has always made its own way.</p><span class="bento-mark" aria-hidden="true"></span></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="syntax">
+        <div class="container">
+          <div class="section-heading"><div class="eyebrow">Try the language</div><h2>Type a thought. Watch it <em>take shape.</em></h2><p>Edit the source on the left. The output updates as you type — no account, no setup, no waiting.</p></div>
+          <div class="playground-grid">
+            <div class="playground-pane"><div class="pane-head"><span><strong>interactive.mreasy</strong> / live editor</span><button class="terminal-copy" onclick="copyText(this, document.getElementById('home-playground-code').value)">⎘ Copy</button></div><textarea id="home-playground-code" spellcheck="false">Mr.easy "My Live Website"
+
+# 👋 Type anything below to test live!
+# Written in Addis Ababa
+
+hero
+  title "Build Websites Fast" big glow
+  subtitle "No HTML. No CSS. No setup required."
+  button "Open Full IDE" green big
+
+grid cols:2
+  card shadow
+    title "Fast & Simple" small
+    text "Clean indentation syntax"
+  card shadow
+    title "Instant Output" small
+    text "Updates live as you type"</textarea></div>
+            <div class="playground-pane"><div class="pane-head"><span><strong>live output</strong> / browser</span><span>● connected</span></div><iframe id="home-preview-frame" title="MR.easy live output"></iframe></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ROADMAP / WHAT'S NEXT -->
+      <section class="section" id="roadmap">
+        <div class="container">
+          <div class="section-heading">
+            <div class="eyebrow">Future Vision</div>
+            <h2>What's <em>Next</em> for MR.easy</h2>
+            <p>We are building an ecosystem designed to empower creators from day one.</p>
+          </div>
+          <div class="bento-grid" style="grid-template-columns:repeat(4,1fr);grid-template-rows:auto;margin-top:36px;">
+            <div class="bento-cell">
+              <div class="bento-index">Q3 2026</div>
+              <h3>⚡ VS Code Extension</h3>
+              <p>Full syntax highlighting, auto-indentation, and IntelliSense snippets directly inside VS Code.</p>
+            </div>
+            <div class="bento-cell">
+              <div class="bento-index">Q4 2026</div>
+              <h3>🧩 Component Registry</h3>
+              <p>Community-submitted reusable blocks (pricing tables, hero blocks, testimonial sliders).</p>
+            </div>
+            <div class="bento-cell">
+              <div class="bento-index">Q1 2027</div>
+              <h3>🎨 Build Themes</h3>
+              <p>Theme support at compile time (`mreasy build --theme=dark|cyber|adwa`).</p>
+            </div>
+            <div class="bento-cell">
+              <div class="bento-index">Q2 2027</div>
+              <h3>🌐 Public Showcase</h3>
+              <p>Public showcase gallery where anyone can publish `.mreasy` files and host live previews.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="about">
+        <div class="container">
+          <div class="section-heading"><div class="eyebrow">The origin story</div><h2>Built in Ethiopia.<br><em>For the whole world.</em></h2></div>
+          <div class="editorial-spread">
+            <figure class="editorial-media"><img src="assets/mascot.png" alt="MR.easy mascot illustration"><figcaption class="editorial-caption">ADWA / 1896 — ADDIS / 2026</figcaption></figure>
+            <div class="pull-quote">
+              <blockquote>“Courage is clarity when the path is not yet written.”</blockquote>
+              <p class="story-copy">MR.easy was created in <strong>Addis Ababa</strong> by Biruk — a developer who wanted the first step into web development to feel human. The spirit is drawn directly from the <strong>1896 Battle of Adwa</strong>: a historic victory rooted in self-reliance, resourcefulness, and forging an independent path without relying on outside rule.</p>
+              <p class="story-copy">In modern web development, beginner tools are burdened by complex bundlers, heavy npm dependencies, and noisy syntax walls. MR.easy rejects that bloat to give anyone the power to create beautiful websites using plain human words.</p>
+              <div class="story-signature">Biruk / creator of MR.easy / @mrcute_killer</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="guide">
+        <div class="container">
+          <div class="section-heading">
+            <div class="eyebrow">Beginner Step-by-Step Guide</div>
+            <h2>How to build websites with <em>MR.easy</em></h2>
+            <p>Whether you prefer using your PC's command line with VS Code or writing right inside your web browser, follow these simple steps.</p>
+          </div>
+
+          <div class="guide-tabs">
+            <div class="guide-card">
+              <h3>💻 Method 1: Working on PC (CLI & VS Code)</h3>
+              <p class="guide-subtitle">Full local development experience with live auto-reloading.</p>
+              <div class="guide-steps">
+                <div class="guide-step">
+                  <div class="guide-step-num">1</div>
+                  <div class="guide-step-content">
+                    <h4>Install MR.easy</h4>
+                    <p>Run <code>installer\install.bat</code> on Windows or execute:</p>
+                    <code>powershell -ExecutionPolicy Bypass -File installer\install.ps1</code>
+                    <button class="terminal-copy" onclick="copyText(this, 'powershell -ExecutionPolicy Bypass -File installer\\install.ps1')" style="margin-left:8px;">⎘</button>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">2A</div>
+                  <div class="guide-step-content">
+                    <h4>Option A: Automatic New Project</h4>
+                    <p>Creates a new folder <code>mywebsite</code> with starter files automatically:</p>
+                    <code>mreasy new mywebsite</code><br>
+                    <code>cd mywebsite</code>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">2B</div>
+                  <div class="guide-step-content">
+                    <h4>Option B: Existing Folder / Manual File</h4>
+                    <p>If you already created your own folder or manual <code>.mreasy</code> file, just open terminal inside your folder:</p>
+                    <code>cd path\to\your\folder</code>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">3</div>
+                  <div class="guide-step-content">
+                    <h4>Start Live Server</h4>
+                    <p>Run live preview (automatically detects your code without overwriting anything):</p>
+                    <code>mreasy run</code>
+                    <p style="margin-top:4px;">Opens <strong>http://localhost:3000</strong> in your browser with hot auto-reload!</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">4</div>
+                  <div class="guide-step-content">
+                    <h4>Build Production HTML</h4>
+                    <p>When ready to publish or share your site, run:</p>
+                    <code>mreasy build</code>
+                    <p style="margin-top:4px;">Your compiled HTML is saved in <code>dist/index.html</code>.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="guide-card">
+              <h3>🌐 Method 2: Web IDE (In Your Browser)</h3>
+              <p class="guide-subtitle">Zero setup needed. Write code and export your website instantly.</p>
+              <div class="guide-steps">
+                <div class="guide-step">
+                  <div class="guide-step-num">1</div>
+                  <div class="guide-step-content">
+                    <h4>Open the Web IDE</h4>
+                    <p>Click the <strong>Open IDE</strong> button at the top or open <code>ide/index.html</code> in your browser.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">2</div>
+                  <div class="guide-step-content">
+                    <h4>Write MR.easy Code</h4>
+                    <p>Type keywords like <code>hero</code>, <code>title</code>, <code>button</code>, and <code>card</code> in the left editor panel.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">3</div>
+                  <div class="guide-step-content">
+                    <h4>Watch Real-time Preview</h4>
+                    <p>The right panel updates instantly as you type to show your visual website design.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <div class="guide-step-num">4</div>
+                  <div class="guide-step-content">
+                    <h4>Download Finished Website</h4>
+                    <p>Click <strong>Download ZIP</strong> in the topbar to download your complete HTML code package ready to deploy!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand"><a href="#top" class="brand-lockup"><span class="brand-mr">Mr</span><span class="brand-dot">.</span><span class="brand-easy">easy</span></a><p>A small programming language born in Ethiopia. Simple enough to start. Capable enough to keep.</p></div>
+          <div class="footer-column"><h4>Explore</h4><ul><li><a href="#live-demo">Live preview</a></li><li><a href="#how">How it works</a></li><li><a href="#syntax">Syntax playground</a></li><li><a href="#examples">Examples</a></li></ul></div>
+          <div class="footer-column"><h4>Build</h4><ul><li><a href="ide/" target="_blank" rel="noreferrer">Web IDE ↗</a></li><li><a href="#guide">Installation Guide</a></li><li><a href="README.md">Read the docs</a></li></ul></div>
+          <div class="footer-column"><h4>Origin & Community</h4><ul><li><a href="#about">The story</a></li><li><a href="devlog.html">Biruk's Devlog ↗</a></li><li><a href="showcase.html">Showcase Gallery ↗</a></li><li><a href="https://instagram.com/mrcute_killer" target="_blank" rel="noreferrer">@mrcute_killer ↗</a></li><li><a href="https://github.com/Mrcutekiller/Mr.easy" target="_blank" rel="noreferrer">GitHub Repo ↗</a></li></ul></div>
+        </div>
+        <div class="footer-bottom"><span>© 2026 MR.easy / Created by Biruk</span><span>Made in Ethiopia · ፨</span></div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="ide/compiler.js"></script>
+  <script>
+    (function initHeritageCanvas() {
+      if (!window.THREE) return;
+      const canvas = document.getElementById('bg-canvas');
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.4));
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, .1, 100);
+      camera.position.z = 5;
+      const group = new THREE.Group();
+      [new THREE.IcosahedronGeometry(.8, 0), new THREE.OctahedronGeometry(.7, 0)].forEach((geo, index) => {
+        const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: index ? 0x8b2020 : 0xc8963a, wireframe: true, transparent: true, opacity: .055 }));
+        mesh.position.set(index ? 4.6 : -4.6, index ? 1.2 : -1.4, -2);
+        mesh.userData = { rx: .0018 + index * .0007, ry: .0028 + index * .0008, baseY: mesh.position.y };
+        group.add(mesh);
+      });
+      scene.add(group);
+      function resize() { renderer.setSize(window.innerWidth, window.innerHeight); camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); }
+      resize(); window.addEventListener('resize', resize);
+      let mx = 0, my = 0, clock = 0;
+      window.addEventListener('pointermove', event => { mx = event.clientX / window.innerWidth - .5; my = event.clientY / window.innerHeight - .5; });
+      function tick() { requestAnimationFrame(tick); clock += .01; group.children.forEach(mesh => { mesh.rotation.x += mesh.userData.rx; mesh.rotation.y += mesh.userData.ry; mesh.position.y = mesh.userData.baseY + Math.sin(clock) * .08; }); group.rotation.y += (mx * .16 - group.rotation.y) * .02; group.rotation.x += (-my * .08 - group.rotation.x) * .02; renderer.render(scene, camera); }
+      tick();
+    })();
+
+    const phrases = ['Render worlds.', 'Without brackets.', 'Without semicolons.', 'From Addis Ababa.'];
+    let phraseIdx = 0, charIdx = 0, isDeleting = false;
+    function typeLoop() {
+      const target = document.querySelector('.hero-copy h1 em');
+      if (!target) return;
+      const phrase = phrases[phraseIdx];
+      charIdx += isDeleting ? -1 : 1;
+      target.textContent = phrase.substring(0, charIdx);
+      let delay = isDeleting ? 42 : 82;
+      if (!isDeleting && charIdx === phrase.length) { delay = 1900; isDeleting = true; }
+      if (isDeleting && charIdx === 0) { isDeleting = false; phraseIdx = (phraseIdx + 1) % phrases.length; delay = 350; }
+      setTimeout(typeLoop, delay);
+    }
+    typeLoop();
+
+    function copyInstall(button) { copyText(button, 'mreasy new mywebsite'); }
+    function copyText(button, text) {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(text).then(() => { const original = button.textContent; button.textContent = '✓'; setTimeout(() => { button.textContent = original; }, 1500); });
+    }
+
+    (function initHomePlayground() {
+      const codeEl = document.getElementById('home-playground-code');
+      const frameEl = document.getElementById('home-preview-frame');
+      if (!codeEl || !frameEl) return;
+
+      function compileHome() {
+        if (window.MREasyCompiler && typeof window.MREasyCompiler.compile === 'function') {
+          const res = window.MREasyCompiler.compile(codeEl.value);
+          frameEl.srcdoc = res.html || '';
+        }
+      }
+
+      codeEl.addEventListener('input', compileHome);
+      compileHome();
+    })();
+  </script>
+</body>
+</html>

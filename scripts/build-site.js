@@ -31,10 +31,10 @@ function copyFolderRecursiveSync(source, target) {
   });
 }
 
-// 1. Copy Website as root index.html
-if (fs.existsSync(path.join(rootDir, 'website', 'index.html'))) {
-  fs.copyFileSync(path.join(rootDir, 'website', 'index.html'), path.join(distDir, 'index.html'));
-  console.log('✓ Copied website/index.html → dist/index.html');
+// 1. Copy entire website folder to dist root
+if (fs.existsSync(path.join(rootDir, 'website'))) {
+  copyFolderRecursiveSync(path.join(rootDir, 'website'), distDir);
+  console.log('✓ Copied website/ → dist/');
 }
 
 // 2. Copy Web IDE folder

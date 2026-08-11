@@ -291,13 +291,14 @@
   <div class="site-shell">
     <div class="heritage-rule"></div>
     <nav class="heritage-nav" aria-label="Primary navigation">
-      <a href="#top" class="brand-lockup"><span class="brand-mr">Mr</span><span class="brand-dot">.</span><span class="brand-easy">easy</span><span class="brand-origin">ADDIS ABABA / 2026</span></a>
-      <ul class="nav-links">
-        <li><a href="#guide">Beginner Guide</a></li>
-        <li><a href="#live-demo">Live preview</a></li>
-        <li><a href="#how">How it works</a></li>
-        <li><a href="#syntax">Syntax</a></li>
+      <a href="#top" class="brand-lockup"><span class="brand-mr">Mr</span><span class="brand-dot">.</span><span class="brand-easy">easy</span><span class="brand-origin">ADDIS ABABA / 2026</sp      <ul class="nav-links">
+        <li><a href="#guide">Guide</a></li>
+        <li><a href="#live-demo">Preview</a></li>
+        <li><a href="#comparison">MR.easy vs HTML</a></li>
+        <li><a href="#examples">Examples</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
         <li><a href="#about">Origin</a></li>
+        <li><a href="https://github.com/Mrcutekiller/Mr.easy" target="_blank" rel="noreferrer" class="nav-cta" style="background:var(--ink-2);color:var(--parchment)!important;border:1px solid var(--hairline-brass);">★ GitHub Repo</a></li>
         <li><a href="ide/" target="_blank" rel="noreferrer" class="nav-cta">Open IDE</a></li>
       </ul>
     </nav>
@@ -315,8 +316,8 @@
               <a class="button button-quiet" href="#live-demo">See it compile <span>↓</span></a>
             </div>
             <div class="terminal-block" aria-label="MR.easy command">
-              <div class="terminal-bar"><span class="terminal-dots"><i></i><i></i><i></i></span><span>new-project / terminal</span></div>
-              <div class="terminal-line"><span class="terminal-prompt">$</span><span class="terminal-command">mreasy new mywebsite</span><button class="terminal-copy" onclick="copyInstall(this)" aria-label="Copy install command">⎘</button></div>
+              <div class="terminal-bar"><span class="terminal-dots"><i></i><i></i><i></i></span><span>new-project / terminal</span><button class="terminal-copy" onclick="copyText(this, 'mreasy new mywebsite')" title="Copy command">⎘ Copy</button></div>
+              <div class="terminal-line"><span class="terminal-prompt">$</span><span class="terminal-command">mreasy new mywebsite</span></div>
             </div>
             <div class="hero-meta"><span><strong>01</strong> / less ceremony</span><span><strong>02</strong> / live output</span><span><strong>03</strong> / free forever</span></div>
           </div>
@@ -329,7 +330,7 @@
 
       <div class="ticker-wrap" aria-label="MR.easy values">
         <div class="ticker-move">
-          <span class="ticker-item">Built in Ethiopia</span><span class="ticker-item">Free for everyone</span><span class="ticker-item">No HTML required</span><span class="ticker-item">Live browser output</span><span class="ticker-item">Built in Ethiopia</span><span class="ticker-item">Free for everyone</span><span class="ticker-item">No HTML required</span><span class="ticker-item">Live browser output</span>
+          <span class="ticker-item">Built in Ethiopia</span><span class="ticker-item">Free for everyone</span><span class="ticker-item">No HTML required</span><span class="ticker-item">Live browser output</span><span class="ticker-item">Adwa Heritage</span><span class="ticker-item">Zero Build Ceremony</span><span class="ticker-item">Human Readable</span><span class="ticker-item">Open Source</span>
         </div>
       </div>
 
@@ -337,10 +338,125 @@
         <div class="container">
           <div class="section-heading"><div class="eyebrow">The proof is in the preview</div><h2>From a few lines to a <em>living page.</em></h2><p>Write the structure. MR.easy handles the ceremony. The split view below is the same idea as the full IDE — source on one side, a real website on the other.</p></div>
           <div class="demo-window">
-            <div class="window-bar"><span class="window-dots"><i></i><i></i><i></i></span><span class="window-label"><strong>index.mreasy</strong> → live preview</span><span>MR.easy / playground</span></div>
+            <div class="window-bar"><span class="window-dots"><i></i><i></i><i></i></span><span class="window-label"><strong>index.mreasy</strong> → live preview</span><button class="terminal-copy" onclick="copyText(this, `Mr.easy &quot;Buna / a quiet place to think&quot;\n\nhero\n  title &quot;Make room for ideas&quot; big glow\n  subtitle &quot;A small web language from Addis Ababa.&quot;\n  button &quot;Start writing&quot; green big\n\nsection &quot;essentials&quot;\n  grid cols:2\n    card shadow\n      title &quot;Clear&quot; small\n      text &quot;No tags or brackets&quot;\n    card shadow\n      title &quot;Expressive&quot; small\n      text &quot;Readable plain words&quot;`)" style="color:var(--muted);font-size:.65rem;border:0;background:transparent;cursor:pointer;">⎘ Copy snippet</button></div>
             <div class="demo-split">
-              <div class="demo-code-pane"><div><span class="decl">Mr.easy</span> <span class="string">"Buna / a quiet place to think"</span></div><div><br></div><div><span class="comment"># simple language, deliberate output</span></div><div><span class="keyword">hero</span></div><div>&nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Make room for ideas"</span> <span class="comment">big glow</span></div><div>&nbsp;&nbsp;<span class="keyword">subtitle</span> <span class="string">"A small web language from Addis Ababa."</span></div><div>&nbsp;&nbsp;<span class="keyword">button</span> <span class="string">"Start writing"</span> <span class="comment">green big</span></div><div><br></div><div><span class="keyword">section</span> <span class="string">"the essentials"</span></div><div>&nbsp;&nbsp;<span class="keyword">grid</span> cols:2</div><div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">card</span> shadow</div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Clear"</span> small</div></div>
-              <div class="demo-preview-pane"><div class="preview-inner"><div class="preview-seal"><span>፨</span></div><h3 class="preview-title">Make room<br>for ideas</h3><p class="preview-sub">A small web language from Addis Ababa.</p><button class="preview-btn">Start writing</button></div></div>
+              <div class="demo-code-pane">
+                <div><span class="decl">Mr.easy</span> <span class="string">"Buna / a quiet place to think"</span></div>
+                <div><br></div>
+                <div><span class="comment"># simple language, deliberate output</span></div>
+                <div><span class="keyword">hero</span></div>
+                <div>&nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Make room for ideas"</span> <span class="comment">big glow</span></div>
+                <div>&nbsp;&nbsp;<span class="keyword">subtitle</span> <span class="string">"A small web language from Addis Ababa."</span></div>
+                <div>&nbsp;&nbsp;<span class="keyword">button</span> <span class="string">"Start writing"</span> <span class="comment">green big</span></div>
+                <div><br></div>
+                <div><span class="keyword">section</span> <span class="string">"essentials"</span></div>
+                <div>&nbsp;&nbsp;<span class="keyword">grid</span> cols:2</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">card</span> shadow</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Clear"</span> small</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">text</span> <span class="string">"No tags or brackets"</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">card</span> shadow</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Expressive"</span> small</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">text</span> <span class="string">"Readable plain words"</span></div>
+              </div>
+              <div class="demo-preview-pane">
+                <div class="preview-inner" style="max-width:340px;">
+                  <div class="preview-seal"><span>፨</span></div>
+                  <h3 class="preview-title" style="font-size:1.6rem;">Make room<br>for ideas</h3>
+                  <p class="preview-sub">A small web language from Addis Ababa.</p>
+                  <button class="preview-btn" style="margin-bottom:20px;">Start writing</button>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;">
+                    <div style="background:var(--ink-1);border:1px solid var(--hairline);padding:10px;border-radius:6px;"><strong style="font-size:.8rem;color:var(--parchment);">Clear</strong><p style="font-size:.68rem;color:var(--muted);margin:4px 0 0;">No tags or brackets</p></div>
+                    <div style="background:var(--ink-1);border:1px solid var(--hairline);padding:10px;border-radius:6px;"><strong style="font-size:.8rem;color:var(--parchment);">Expressive</strong><p style="font-size:.68rem;color:var(--muted);margin:4px 0 0;">Readable plain words</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MR.easy VS RAW HTML COMPARISON -->
+      <section class="section" id="comparison">
+        <div class="container">
+          <div class="section-heading">
+            <div class="eyebrow">Concrete contrast</div>
+            <h2>MR.easy vs <em>Raw HTML</em></h2>
+            <p>Compare building the exact same modern landing hero. Notice the drastic reduction in noisy brackets, quotes, closing tags, and boilerplate.</p>
+          </div>
+          <div class="playground-grid" style="margin-top:36px;">
+            <div class="playground-pane">
+              <div class="pane-head"><span><strong>Raw HTML</strong> / 24 lines & 480 chars</span><button class="terminal-copy" onclick="copyText(this, document.getElementById('raw-html-code').textContent)">⎘ Copy</button></div>
+              <pre id="raw-html-code" style="padding:18px;font:.72rem/1.7 var(--font-mono);color:var(--muted);overflow-x:auto;margin:0;">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;link rel="stylesheet" href="style.css"&gt;
+  &lt;title&gt;Hero Demo&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;section class="hero-container flex-col center"&gt;
+    &lt;span class="badge badge-purple"&gt;NEW VERSION&lt;/span&gt;
+    &lt;h1 class="hero-title text-glow"&gt;Build Faster&lt;/h1&gt;
+    &lt;p class="hero-subtitle"&gt;The simple web language.&lt;/p&gt;
+    &lt;div class="cta-row gap-4"&gt;
+      &lt;button class="btn btn-primary lg"&gt;Get Started&lt;/button&gt;
+      &lt;button class="btn btn-outline"&gt;Learn More&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+            </div>
+            <div class="playground-pane">
+              <div class="pane-head"><span><strong>MR.easy</strong> / 8 lines & 170 chars</span><button class="terminal-copy" onclick="copyText(this, `Mr.easy &quot;Hero Demo&quot;\n\nhero\n  badge &quot;NEW VERSION&quot; purple\n  title &quot;Build Faster&quot; big glow\n  subtitle &quot;The simple web language.&quot;\n  row center\n    button &quot;Get Started&quot; blue big\n    button &quot;Learn More&quot; outline`)">⎘ Copy</button></div>
+              <pre style="padding:18px;font:.74rem/1.8 var(--font-mono);color:var(--brass-bright);overflow-x:auto;margin:0;"><span class="decl">Mr.easy</span> <span class="string">"Hero Demo"</span>
+
+<span class="keyword">hero</span>
+  <span class="keyword">badge</span> <span class="string">"NEW VERSION"</span> <span class="comment">purple</span>
+  <span class="keyword">title</span> <span class="string">"Build Faster"</span> <span class="comment">big glow</span>
+  <span class="keyword">subtitle</span> <span class="string">"The simple web language."</span>
+  <span class="keyword">row</span> <span class="comment">center</span>
+    <span class="keyword">button</span> <span class="string">"Get Started"</span> <span class="comment">blue big</span>
+    <span class="keyword">button</span> <span class="string">"Learn More"</span> <span class="comment">outline</span></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIVE EXAMPLES GALLERY -->
+      <section class="section" id="examples">
+        <div class="container">
+          <div class="section-heading">
+            <div class="eyebrow">Live Showcase</div>
+            <h2>Built with <em>MR.easy</em></h2>
+            <p>Real-world web projects described in plain words. Click to inspect or open in the Web IDE.</p>
+          </div>
+          <div class="install-grid" style="grid-template-columns:repeat(3,1fr);margin-top:40px;">
+            <div class="install-column">
+              <div class="install-number">01 / ROASTERY</div>
+              <h3>☕ Buna Coffee</h3>
+              <p>Minimalist artisanal coffee roastery showcase built with hero, product grids, and booking forms.</p>
+              <div style="background:var(--ink-2);padding:14px;border:1px solid var(--hairline-brass);border-radius:6px;margin-bottom:16px;">
+                <code style="color:var(--brass-bright);font-size:.7rem;display:block;">hero<br>&nbsp;&nbsp;title "Buna Addis" big<br>&nbsp;&nbsp;subtitle "Fresh beans from Sidama"</code>
+              </div>
+              <a href="ide/?template=nexastudio" target="_blank" rel="noreferrer" class="button button-quiet" style="width:100%;">Open Source in IDE ↗</a>
+            </div>
+            <div class="install-column">
+              <div class="install-number">02 / PORTFOLIO</div>
+              <h3>👨‍💻 Developer Folio</h3>
+              <p>Personal developer site featuring skills stats, project showcase cards, and contact modal.</p>
+              <div style="background:var(--ink-2);padding:14px;border:1px solid var(--hairline-brass);border-radius:6px;margin-bottom:16px;">
+                <code style="color:var(--brass-bright);font-size:.7rem;display:block;">section "work"<br>&nbsp;&nbsp;grid cols:3<br>&nbsp;&nbsp;&nbsp;&nbsp;card shadow</code>
+              </div>
+              <a href="ide/?template=portfolio" target="_blank" rel="noreferrer" class="button button-quiet" style="width:100%;">Open Source in IDE ↗</a>
+            </div>
+            <div class="install-column">
+              <div class="install-number">03 / EVENT</div>
+              <h3>⚡ Addis Summit</h3>
+              <p>Technology conference site with agenda tabs, speaker cards, countdown timer, and ticket booking.</p>
+              <div style="background:var(--ink-2);padding:14px;border:1px solid var(--hairline-brass);border-radius:6px;margin-bottom:16px;">
+                <code style="color:var(--brass-bright);font-size:.7rem;display:block;">countdown title:"Starts In"<br>tabs<br>&nbsp;&nbsp;tab "Day 1"</code>
+              </div>
+              <a href="ide/?template=landing" target="_blank" rel="noreferrer" class="button button-quiet" style="width:100%;">Open Source in IDE ↗</a>
             </div>
           </div>
         </div>
@@ -363,7 +479,7 @@
         <div class="container">
           <div class="section-heading"><div class="eyebrow">Try the language</div><h2>Type a thought. Watch it <em>take shape.</em></h2><p>Edit the source on the left. The output updates as you type — no account, no setup, no waiting.</p></div>
           <div class="playground-grid">
-            <div class="playground-pane"><div class="pane-head"><span><strong>demo.mreasy</strong> / source</span><span>editable</span></div><textarea id="home-playground-code" spellcheck="false">Mr.easy "My Live Website"
+            <div class="playground-pane"><div class="pane-head"><span><strong>interactive.mreasy</strong> / live editor</span><button class="terminal-copy" onclick="copyText(this, document.getElementById('home-playground-code').value)">⎘ Copy</button></div><textarea id="home-playground-code" spellcheck="false">Mr.easy "My Live Website"
 
 # 👋 Type anything below to test live!
 # Written in Addis Ababa
@@ -385,12 +501,50 @@ grid cols:2
         </div>
       </section>
 
+      <!-- ROADMAP / WHAT'S NEXT -->
+      <section class="section" id="roadmap">
+        <div class="container">
+          <div class="section-heading">
+            <div class="eyebrow">Future Vision</div>
+            <h2>What's <em>Next</em> for MR.easy</h2>
+            <p>We are building an ecosystem designed to empower creators from day one.</p>
+          </div>
+          <div class="bento-grid" style="grid-template-columns:repeat(4,1fr);grid-template-rows:auto;margin-top:36px;">
+            <div class="bento-cell">
+              <div class="bento-index">Q3 2026</div>
+              <h3>⚡ VS Code Extension</h3>
+              <p>Full syntax highlighting, auto-indentation, and IntelliSense snippets directly inside VS Code.</p>
+            </div>
+            <div class="bento-cell">
+              <div class="bento-index">Q4 2026</div>
+              <h3>🧩 Component Registry</h3>
+              <p>Community-submitted reusable blocks (pricing tables, hero blocks, testimonial sliders).</p>
+            </div>
+            <div class="bento-cell">
+              <div class="bento-index">Q1 2027</div>
+              <h3>🎨 Build Themes</h3>
+              <p>Theme support at compile time (`mreasy build --theme=dark|cyber|adwa`).</p>
+            </div>
+            <div class="bento-cell">
+              <div class="bento-index">Q2 2027</div>
+              <h3>🌐 Public Showcase</h3>
+              <p>Public showcase gallery where anyone can publish `.mreasy` files and host live previews.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="section" id="about">
         <div class="container">
           <div class="section-heading"><div class="eyebrow">The origin story</div><h2>Built in Ethiopia.<br><em>For the whole world.</em></h2></div>
           <div class="editorial-spread">
             <figure class="editorial-media"><img src="assets/mascot.png" alt="MR.easy mascot illustration"><figcaption class="editorial-caption">ADWA / 1896 — ADDIS / 2026</figcaption></figure>
-            <div class="pull-quote"><blockquote>“Courage is clarity when the path is not yet written.”</blockquote><p class="story-copy">MR.easy was created in <strong>Addis Ababa</strong> by Biruk — a developer who wanted the first step into web development to feel human. The spirit is familiar: make something useful with what you have, learn in public, and leave the door open for the next person.</p><p class="story-copy">The language is small on purpose. It is a beginning, not a wall. If you can describe a page, you can make one.</p><div class="story-signature">Biruk / creator of MR.easy / @mrcute_killer</div></div>
+            <div class="pull-quote">
+              <blockquote>“Courage is clarity when the path is not yet written.”</blockquote>
+              <p class="story-copy">MR.easy was created in <strong>Addis Ababa</strong> by Biruk — a developer who wanted the first step into web development to feel human. The spirit is drawn directly from the <strong>1896 Battle of Adwa</strong>: a historic victory rooted in self-reliance, resourcefulness, and forging an independent path without relying on outside rule.</p>
+              <p class="story-copy">In modern web development, beginner tools are burdened by complex bundlers, heavy npm dependencies, and noisy syntax walls. MR.easy rejects that bloat to give anyone the power to create beautiful websites using plain human words.</p>
+              <div class="story-signature">Biruk / creator of MR.easy / @mrcute_killer</div>
+            </div>
           </div>
         </div>
       </section>
@@ -414,6 +568,7 @@ grid cols:2
                     <h4>Install MR.easy</h4>
                     <p>Run <code>installer\install.bat</code> on Windows or execute:</p>
                     <code>powershell -ExecutionPolicy Bypass -File installer\install.ps1</code>
+                    <button class="terminal-copy" onclick="copyText(this, 'powershell -ExecutionPolicy Bypass -File installer\\install.ps1')" style="margin-left:8px;">⎘</button>
                   </div>
                 </div>
                 <div class="guide-step">
@@ -497,9 +652,9 @@ grid cols:2
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand"><a href="#top" class="brand-lockup"><span class="brand-mr">Mr</span><span class="brand-dot">.</span><span class="brand-easy">easy</span></a><p>A small programming language born in Ethiopia. Simple enough to start. Capable enough to keep.</p></div>
-          <div class="footer-column"><h4>Explore</h4><ul><li><a href="#live-demo">Live preview</a></li><li><a href="#how">How it works</a></li><li><a href="#syntax">Syntax playground</a></li></ul></div>
-          <div class="footer-column"><h4>Build</h4><ul><li><a href="ide/" target="_blank" rel="noreferrer">Web IDE ↗</a></li><li><a href="#install">Installation</a></li><li><a href="README.md">Read the docs</a></li></ul></div>
-          <div class="footer-column"><h4>Origin</h4><ul><li><a href="#about">The story</a></li><li><a href="https://instagram.com/mrcute_killer" target="_blank" rel="noreferrer">@mrcute_killer ↗</a></li><li><a href="https://github.com" target="_blank" rel="noreferrer">Open source ↗</a></li></ul></div>
+          <div class="footer-column"><h4>Explore</h4><ul><li><a href="#live-demo">Live preview</a></li><li><a href="#how">How it works</a></li><li><a href="#syntax">Syntax playground</a></li><li><a href="#examples">Examples</a></li></ul></div>
+          <div class="footer-column"><h4>Build</h4><ul><li><a href="ide/" target="_blank" rel="noreferrer">Web IDE ↗</a></li><li><a href="#guide">Installation Guide</a></li><li><a href="README.md">Read the docs</a></li></ul></div>
+          <div class="footer-column"><h4>Origin & Community</h4><ul><li><a href="#about">The story</a></li><li><a href="devlog.html">Biruk's Devlog ↗</a></li><li><a href="showcase.html">Showcase Gallery ↗</a></li><li><a href="https://instagram.com/mrcute_killer" target="_blank" rel="noreferrer">@mrcute_killer ↗</a></li><li><a href="https://github.com/Mrcutekiller/Mr.easy" target="_blank" rel="noreferrer">GitHub Repo ↗</a></li></ul></div>
         </div>
         <div class="footer-bottom"><span>© 2026 MR.easy / Created by Biruk</span><span>Made in Ethiopia · ፨</span></div>
       </div>

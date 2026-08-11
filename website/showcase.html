@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Showcase — MR.easy 🇪🇹</title>
+  <meta name="description" content="Explore real websites built with MR.easy by creators around the world. Submit your .mreasy project.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --ink-0: #080706;
+      --ink-1: #0f0d0b;
+      --ink-2: #141210;
+      --ink-3: #1d1915;
+      --parchment: #f2ead8;
+      --muted: #a69a86;
+      --dim: #62584a;
+      --brass: #c8963a;
+      --brass-bright: #e8b45a;
+      --hairline: rgba(242, 234, 216, .13);
+      --hairline-brass: rgba(200, 150, 58, .3);
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Inter', Arial, sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--ink-0); color: var(--parchment); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    .container { width: min(1180px, calc(100% - 72px)); margin-inline: auto; }
+    .heritage-rule { height: 2px; background: linear-gradient(90deg, #4a7a2e 0 34%, var(--brass) 34% 68%, #8b2020 68%); }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 36px; border-bottom: 1px solid var(--hairline); background: rgba(8,7,6,.85); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 100; }
+    .brand-lockup { font: 600 1.1rem var(--font-sans); }
+    .brand-easy { font: italic 500 1.15rem var(--font-display); color: var(--brass-bright); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border: 1px solid var(--brass); background: var(--brass); color: var(--ink-0); font-size: .8rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: transform .2s, background .2s; }
+    .btn:hover { transform: translateY(-2px); background: var(--brass-bright); }
+    .btn-quiet { background: transparent; color: var(--parchment); border-color: var(--hairline-brass); }
+    .btn-quiet:hover { border-color: var(--brass); color: var(--brass-bright); }
+    
+    .hero { padding: 80px 0 60px; text-align: center; border-bottom: 1px solid var(--hairline); }
+    .hero h1 { font: 500 clamp(2.8rem, 6vw, 4.8rem)/1 var(--font-display); margin: 0 0 16px; }
+    .hero h1 em { color: var(--brass-bright); font-style: italic; }
+    .hero p { max-width: 580px; margin: 0 auto 30px; color: var(--muted); font-size: .95rem; line-height: 1.8; }
+    
+    .showcase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 28px; padding: 60px 0 90px; }
+    .showcase-card { border: 1px solid var(--hairline-brass); background: var(--ink-1); border-radius: 8px; overflow: hidden; transition: transform .25s ease, box-shadow .25s ease; }
+    .showcase-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.5); }
+    .card-preview { height: 180px; background: var(--ink-2); padding: 20px; border-bottom: 1px solid var(--hairline); display: flex; flex-direction: column; justify-content: center; position: relative; }
+    .card-body { padding: 24px; }
+    .card-body h3 { margin: 0 0 8px; font: 500 1.4rem var(--font-display); color: var(--brass-bright); }
+    .card-author { color: var(--dim); font: .68rem var(--font-mono); margin-bottom: 12px; }
+    .card-desc { color: var(--muted); font-size: .82rem; line-height: 1.7; margin-bottom: 20px; }
+    .card-actions { display: flex; gap: 10px; }
+
+    /* Submit Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.82); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { width: min(600px, 100%); background: var(--ink-1); border: 1px solid var(--hairline-brass); border-radius: 12px; padding: 32px; box-shadow: 0 30px 60px rgba(0,0,0,.6); position: relative; }
+    .modal-box h2 { font: 500 1.8rem var(--font-display); margin: 0 0 8px; color: var(--brass-bright); }
+    .modal-box p { color: var(--muted); font-size: .84rem; margin: 0 0 24px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font: .72rem var(--font-mono); color: var(--brass); margin-bottom: 6px; text-transform: uppercase; }
+    .form-group input, .form-group textarea { width: 100%; padding: 12px 14px; background: var(--ink-2); border: 1px solid var(--hairline); border-radius: 4px; color: var(--parchment); font-family: var(--font-sans); font-size: .88rem; outline: none; }
+    .form-group textarea { font-family: var(--font-mono); font-size: .8rem; resize: vertical; min-height: 120px; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--brass); }
+    .modal-close { position: absolute; top: 20px; right: 20px; background: transparent; border: 0; color: var(--muted); font-size: 1.2rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="heritage-rule"></div>
+  <nav class="nav">
+    <a href="index.html" class="brand-lockup"><span style="font-weight:600">Mr</span>.<span class="brand-easy">easy</span> / Showcase</a>
+    <div style="display:flex;gap:12px;">
+      <a href="index.html" class="btn btn-quiet">← Back to Main Site</a>
+      <button class="btn" onclick="openSubmitModal()">+ Submit Project</button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Community <em>Showcase</em></h1>
+        <p>Real websites and applications created by developers using MR.easy. Simple plain words, rendered into living browser pages.</p>
+        <button class="btn" onclick="openSubmitModal()">Submit Your .mreasy Site</button>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="showcase-grid" id="showcase-grid">
+        <!-- Project 1 -->
+        <article class="showcase-card">
+          <div class="card-preview">
+            <span style="font:italic 1.2rem var(--font-display);color:var(--brass-bright);">Buna Roastery</span>
+            <span style="font-size:.72rem;color:var(--muted);margin-top:6px;">Coffee Roastery & Ordering Portal</span>
+          </div>
+          <div class="card-body">
+            <h3>☕ Buna Coffee Addis</h3>
+            <div class="card-author">By Biruk / @mrcute_killer</div>
+            <div class="card-desc">Artisanal coffee bean shop landing page with hero header, product showcase grids, and booking contact form.</div>
+            <div class="card-actions">
+              <a href="ide/?template=nexastudio" target="_blank" class="btn btn-quiet" style="width:100%;justify-content:center;">View Source Code ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project 2 -->
+        <article class="showcase-card">
+          <div class="card-preview">
+            <span style="font:italic 1.2rem var(--font-display);color:var(--brass-bright);">NexaStudio</span>
+            <span style="font-size:.72rem;color:var(--muted);margin-top:6px;">Creative Digital Agency</span>
+          </div>
+          <div class="card-body">
+            <h3>⚡ NexaStudio Agency</h3>
+            <div class="card-author">By Nexa Team</div>
+            <div class="card-desc">Agency portfolio featuring high-converting hero banner, 3-column service grid, and customer testimonials.</div>
+            <div class="card-actions">
+              <a href="ide/?template=nexastudio" target="_blank" class="btn btn-quiet" style="width:100%;justify-content:center;">View Source Code ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project 3 -->
+        <article class="showcase-card">
+          <div class="card-preview">
+            <span style="font:italic 1.2rem var(--font-display);color:var(--brass-bright);">Developer Folio</span>
+            <span style="font-size:.72rem;color:var(--muted);margin-top:6px;">Personal Developer Site</span>
+          </div>
+          <div class="card-body">
+            <h3>👨‍💻 John's Developer Portfolio</h3>
+            <div class="card-author">By John Doe</div>
+            <div class="card-desc">Personal developer page with skills stats, featured projects, clean dark styling, and contact form.</div>
+            <div class="card-actions">
+              <a href="ide/?template=portfolio" target="_blank" class="btn btn-quiet" style="width:100%;justify-content:center;">View Source Code ↗</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <!-- SUBMIT MODAL -->
+  <div class="modal-overlay" id="submit-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeSubmitModal()">&times;</button>
+      <h2>Submit Your Project</h2>
+      <p>Share your .mreasy site with the community. Your project will be displayed in the showcase gallery.</p>
+      
+      <form onsubmit="handleShowcaseSubmit(event)">
+        <!-- Honeypot anti-spam field -->
+        <input type="text" name="website_url_hp" style="display:none;" tabindex="-1" autocomplete="off">
+
+        <div class="form-group">
+          <label>Project Title</label>
+          <input type="text" id="project-title" required placeholder="e.g. My Portfolio">
+        </div>
+        <div class="form-group">
+          <label>Your Name / Social Handle</label>
+          <input type="text" id="author-name" required placeholder="e.g. Biruk / @mrcute_killer">
+        </div>
+        <div class="form-group">
+          <label>Short Description</label>
+          <input type="text" id="project-desc" required placeholder="What does your page do?">
+        </div>
+        <div class="form-group">
+          <label>MR.easy Source Code (.mreasy)</label>
+          <textarea id="project-source" required placeholder="Mr.easy &quot;Title&quot;&#10;hero&#10;  title &quot;Hello&quot; big glow"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;">
+          <button type="button" class="btn btn-quiet" onclick="closeSubmitModal()">Cancel</button>
+          <button type="submit" class="btn">Publish to Showcase 🚀</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openSubmitModal() { document.getElementById('submit-modal').classList.add('open'); }
+    function closeSubmitModal() { document.getElementById('submit-modal').classList.remove('open'); }
+
+    function handleShowcaseSubmit(event) {
+      event.preventDefault();
+      const hp = event.target.elements.website_url_hp.value;
+      if (hp) return; // Honeypot triggered, ignore bot
+
+      const title = document.getElementById('project-title').value.trim();
+      const author = document.getElementById('author-name').value.trim();
+      const desc = document.getElementById('project-desc').value.trim();
+      const source = document.getElementById('project-source').value.trim();
+
+      if (!title || !author || !source) return;
+
+      const card = document.createElement('article');
+      card.className = 'showcase-card';
+      card.innerHTML = `
+        <div class="card-preview">
+          <span style="font:italic 1.2rem var(--font-display);color:var(--brass-bright);">${escapeHtml(title)}</span>
+          <span style="font-size:.72rem;color:var(--muted);margin-top:6px;">Community Submission</span>
+        </div>
+        <div class="card-body">
+          <h3>${escapeHtml(title)}</h3>
+          <div class="card-author">By ${escapeHtml(author)}</div>
+          <div class="card-desc">${escapeHtml(desc)}</div>
+          <div class="card-actions">
+            <button onclick="openInIde('${encodeURIComponent(btoa(unescape(encodeURIComponent(source))))}')" class="btn btn-quiet" style="width:100%;justify-content:center;">View Source Code ↗</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('showcase-grid').prepend(card);
+      closeSubmitModal();
+      alert('🎉 Project submitted successfully to community showcase!');
+    }
+
+    function openInIde(b64) {
+      window.open('ide/#code=' + b64, '_blank');
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+  </script>
+</body>
+</html>

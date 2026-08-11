@@ -76,7 +76,14 @@ const builtinAnimations = `
       const icon = btn.querySelector('.mr-accordion-icon');
       if (icon) icon.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
     }
-  };
+  // Two-Way Live Preview Editing Event Listener
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-mreasy-text], .mr-title, .mr-text, .mr-button, .mr-card, .mr-subtitle');
+    if (!el) return;
+    const text = el.dataset.mreasyText || el.textContent.trim();
+    const type = el.dataset.mreasyType || (el.classList.contains('mr-title') ? 'title' : el.classList.contains('mr-text') ? 'text' : el.classList.contains('mr-button') ? 'button' : 'element');
+    window.parent.postMessage({ type: 'PREVIEW_ELEMENT_EDIT', elementText: text, elementType: type }, '*');
+  });
 })();
 </script>
 `;
@@ -599,10 +606,30 @@ const builtinStyles = `
   .mr-dropdown:focus-within .mr-dropdown-menu,
   .mr-dropdown.open .mr-dropdown-menu { opacity:1; pointer-events:auto; transform:translateY(0); }
   .mr-dropdown-menu .mr-nav-item { display:block; padding:10px 14px; border-radius:8px; color:var(--mr-muted); font-size:0.9rem; }
-  .mr-dropdown-menu .mr-nav-item:hover { background:rgba(99,102,241,0.1); color:var(--mr-text); }
+  /* ── ANIMATION MODIFIERS ── */
+  .fade-in { animation: mrFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .slide-up { animation: mrSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .pulse { animation: mrPulse 2s infinite; }
+  .bounce { animation: mrBounce 2s infinite; }
 
-  /* ── mrToggle JS helper ── */
+  @keyframes mrFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes mrSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes mrPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+  @keyframes mrBounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-12px); } 60% { transform: translateY(-6px); } }
 
+  /* ── NON-FATAL COMPILATION ERROR BOX ── */
+  .mr-error-box {
+    border: 1px dashed #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+    color: #fca5a5;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-family: monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  .mr-error-box-header { font-weight: bold; color: #f87171; margin-bottom: 4px; }
 `;
 
 module.exports = { builtinStyles, builtinAnimations, iconMap, COLOR_MAP, SIZE_MAP };

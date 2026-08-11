@@ -40,6 +40,8 @@
     <button class="btn-icon" type="button" onclick="openCliModal()" title="CLI commands reference"><i class="fa fa-terminal" aria-hidden="true"></i><span>CLI Guide</span></button>
     <button class="btn-icon" type="button" onclick="clearCode()" title="Start fresh from zero"><i class="fa fa-trash-can" aria-hidden="true"></i><span>Clear</span></button>
     <button class="btn-icon" type="button" onclick="copySource()" title="Copy source code"><i class="fa fa-copy" aria-hidden="true"></i><span>Copy</span></button>
+    <button class="btn-icon" type="button" onclick="copyCompiledHtml()" title="Copy compiled HTML directly to clipboard"><i class="fa fa-code" aria-hidden="true"></i><span>Copy as HTML</span></button>
+    <button class="btn-icon" type="button" onclick="shareCode()" title="Generate shareable link to current code"><i class="fa fa-share-nodes" aria-hidden="true"></i><span>Share</span></button>
     <button class="btn-run" type="button" onclick="exportZip()" title="Download full website ZIP bundle (source + compiled HTML)"><i class="fa fa-file-zipper" aria-hidden="true"></i><span>Download ZIP</span></button>
     <button class="btn-icon btn-play" type="button" onclick="runCode()" title="Run and refresh preview (Ctrl+Enter)"><i class="fa fa-play" aria-hidden="true"></i><span>Run</span></button>
   </div>
@@ -234,8 +236,16 @@
         </div>
         <button class="mini-btn" type="button" onclick="togglePreviewTheme()" title="Toggle light/dark preview" aria-label="Toggle preview theme"><i class="fa fa-moon" id="theme-icon" aria-hidden="true"></i></button>
         <button class="mini-btn" type="button" onclick="refreshPreview()" title="Refresh preview" aria-label="Refresh preview"><i class="fa fa-rotate-right" aria-hidden="true"></i></button>
-        <button class="mini-btn" type="button" onclick="openInNewTab()" title="Open in new tab" aria-label="Open preview in new tab"><i class="fa fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
       </div>
+    </div>
+    <!-- Time-Travel History Timeline Bar -->
+    <div class="history-timeline-bar" id="history-timeline-bar" title="Time-Travel Page History — Click any version dot to restore past compile snapshot"></div>
+    <!-- Live Health Meter & UX Critique Bar -->
+    <div class="health-meter-bar" id="health-meter-bar">
+      <span class="health-item" id="health-load">⚡ Load: 0.3s</span>
+      <span class="health-item" id="health-weight">📦 Size: 45 KB</span>
+      <span class="health-item" id="health-a11y">♿ A11y: 100/100</span>
+      <span class="health-advice" id="health-advice">💡 Page is lightweight and fast!</span>
     </div>
     <div class="preview-frame-wrapper" id="preview-wrapper">
       <iframe id="preview-frame" title="MR.easy live preview"></iframe>
@@ -292,6 +302,8 @@
       <button class="ai-agent-icon-btn" id="ai-agent-close" type="button" onclick="closeAiPanel()" title="Close AI assistant" aria-label="Close AI assistant"><i class="fa fa-xmark" aria-hidden="true"></i></button>
     </div>
   </header>
+
+  <p class="ai-agent-desc" style="padding:10px 16px;color:var(--muted);font-size:.78rem;line-height:1.5;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);">Ask MR.easy AI to write or explain MR.easy syntax for your website before connecting a provider.</p>
 
   <form class="ai-agent-config" id="ai-agent-config">
     <div class="ai-agent-config-row">

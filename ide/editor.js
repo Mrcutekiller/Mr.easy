@@ -870,6 +870,7 @@ hero
     editor.on('change', () => {
       scheduleCompile();
       markUnsaved();
+      updateStatusbarCounters();
       if (!aiState.isApplying && aiState.lastSourceBeforeEdit !== null) {
         aiState.lastSourceBeforeEdit = null;
         aiState.lastMutation = null;
@@ -877,10 +878,17 @@ hero
       }
     });
     editor.on('cursorActivity', () => {
-      const cursor = editor.getCursor();
-      const line = document.getElementById('line-col');
-      if (line) line.textContent = `Ln ${cursor.line + 1}, Col ${cursor.ch + 1}`;
+      updateStatusbarCounters();
     });
+  }
+
+  function updateStatusbarCounters() {
+    if (!editor) return;
+    const cursor = editor.getCursor();
+    const line = document.getElementById('line-col');
+    const count = document.getElementById('char-count');
+    if (line) line.textContent = `Ln ${cursor.line + 1}, Col ${cursor.ch + 1}`;
+    if (count) count.textContent = `${editor.getValue().length} chars`;
   }
 
   function scheduleCompile() {
@@ -1246,9 +1254,75 @@ hero
     }
   }
 
+  const SETTINGS_KEY = 'mreasy_ide_settings';
+
+  function saveSettings() {
+    try {
+      const wrapInput = document.getElementById('setting-wrap');
+      const acInput = document.getElementById('setting-autocompile');
+      const settings = {
+        fontSize: fontSize,
+        wordWrap: wrapInput ? wrapInput.checked : false,
+        autoCompile: acInput ? acInput.checked : true,
+        isDarkTheme: isDarkTheme
+      };
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (e) {
+      console.warn('Failed to save IDE settings', e);
+    }
+  }
+
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (!raw) return;
+      const settings = JSON.parse(raw);
+      if (settings.fontSize && typeof settings.fontSize === 'number') {
+        fontSize = settings.fontSize;
+        setFontSize(fontSize);
+      }
+      if (typeof settings.wordWrap === 'boolean') {
+        const wrapInput = document.getElementById('setting-wrap');
+        if (wrapInput) wrapInput.checked = settings.wordWrap;
+        if (editor) editor.setOption('lineWrapping', settings.wordWrap);
+      }
+      if (typeof settings.autoCompile === 'boolean') {
+        const acInput = document.getElementById('setting-autocompile');
+        if (acInput) acInput.checked = settings.autoCompile;
+        autoCompileEnabled = settings.autoCompile;
+      }
+      if (typeof settings.isDarkTheme === 'boolean') {
+        isDarkTheme = settings.isDarkTheme;
+        const icon = document.getElementById('theme-icon');
+        if (icon) icon.className = isDarkTheme ? 'fa fa-moon' : 'fa fa-sun';
+        const wrapper = document.getElementById('preview-wrapper');
+        if (wrapper) wrapper.classList.toggle('light', !isDarkTheme);
+      }
+    } catch (e) {
+      console.warn('Failed to load IDE settings', e);
+    }
+  }
+
   function copySource() { copyText(getSourceCode(), '📋 MR.easy source copied to clipboard!'); }
 
-  function copyHTML() { copyText(browserCompile(getSourceCode(), { isDarkTheme }), '📋 HTML copied to clipboard!'); }
+  function copyCompiledHtml() { copyText(browserCompile(getSourceCode(), { isDarkTheme }), '📋 Compiled HTML copied to clipboard!'); }
+  function copyHTML() { copyCompiledHtml(); }
+
+  function shareCode() {
+    const code = getSourceCode();
+    if (!code.trim()) {
+      showToast('⚠️ Editor is empty');
+      return;
+    }
+    try {
+      const b64 = btoa(unescape(encodeURIComponent(code)));
+      const url = window.location.protocol + '//' + window.location.host + window.location.pathname + '#code=' + encodeURIComponent(b64);
+      window.history.replaceState(null, '', url);
+      copyText(url, '🔗 Shareable link copied to clipboard!');
+    } catch (e) {
+      showToast('⚠️ Failed to generate share link');
+    }
+  }
 
   function exportZip() {
     try {
@@ -1279,6 +1353,7 @@ hero
     const settingsLabel = document.getElementById('settings-font-label');
     if (settingsLabel) settingsLabel.textContent = `${fontSize}px`;
     if (editor) editor.refresh();
+    saveSettings();
   }
 
   // Search inside CodeMirror
@@ -1302,16 +1377,18 @@ hero
       return `<div class="search-result-item" data-line="${m.line}"><span class="search-result-line">Ln ${m.line + 1}</span><span class="search-result-text">${highlighted}</span></div>`;
     }).join('');
     results.querySelectorAll('.search-result-item').forEach(item => item.addEventListener('click', () => jumpToLine(Number(item.dataset.line))));
-    showToast(`\u{1F50D} ${matches.length} result${matches.length !== 1 ? 's' : ''} found`);
+    showToast(`🔍 ${matches.length} result${matches.length !== 1 ? 's' : ''} found`);
   }
 
   function toggleWrap(enabled) {
     if (editor) editor.setOption('lineWrapping', enabled);
+    saveSettings();
     showToast(enabled ? 'Word wrap enabled' : 'Word wrap disabled');
   }
 
   function toggleAutoCompile(enabled) {
     autoCompileEnabled = enabled;
+    saveSettings();
     showToast(enabled ? 'Auto-compile on' : 'Auto-compile paused');
   }
 
@@ -1519,8 +1596,58 @@ hero
     schedulePreviewScale();
   }
 
+  let historySnapshots = [];
+  let historyIndex = -1;
+
+  function recordHistorySnapshot(source, html) {
+    if (historySnapshots.length > 30) historySnapshots.shift();
+    historySnapshots.push({
+      timestamp: new Date().toLocaleTimeString(),
+      source,
+      html
+    });
+    historyIndex = historySnapshots.length - 1;
+    updateHistoryTimelineUI();
+  }
+
+  function updateHistoryTimelineUI() {
+    const bar = document.getElementById('history-timeline-bar');
+    if (!bar) return;
+    bar.innerHTML = historySnapshots.map((snap, idx) => `
+      <button class="history-dot ${idx === historyIndex ? 'active' : ''}" title="Version ${idx + 1} (${snap.timestamp})" onclick="restoreHistorySnapshot(${idx})">${idx + 1}</button>
+    `).join('');
+  }
+
+  function restoreHistorySnapshot(idx) {
+    if (historySnapshots[idx]) {
+      historyIndex = idx;
+      setSourceCode(historySnapshots[idx].source);
+      showToast(`⏪ Restored Version ${idx + 1} (${historySnapshots[idx].timestamp})`);
+      compileAndPreview();
+    }
+  }
+
+  function handleTwoWayElementEdit(oldText, type) {
+    if (!oldText || !editor) return;
+    const newText = root.prompt(`Edit ${type} text directly in MR.easy source:`, oldText);
+    if (newText !== null && newText !== oldText) {
+      const currentCode = editor.getValue();
+      const replaced = currentCode.replace(oldText, newText);
+      if (replaced !== currentCode) {
+        editor.setValue(replaced);
+        compileAndPreview();
+        showToast(`✨ Updated ${type}: "${newText}"`);
+      } else {
+        showToast(`⚠️ Could not find exact text "${oldText}" in source code.`);
+      }
+    }
+  }
+
   root.addEventListener('message', event => {
     if (event.data?.type === 'JUMP_TO_LINE') jumpToLine(event.data.line);
+    if (event.data?.type === 'PREVIEW_ELEMENT_EDIT') {
+      handleTwoWayElementEdit(event.data.elementText, event.data.elementType);
+    }
   });
 
   function showGuide() { openGuideModal('ref'); }
@@ -1546,15 +1673,54 @@ hero
     searchInput?.addEventListener('keydown', event => { if (event.key === 'Enter') runSearch(); });
   }
 
+  function checkUrlOrSavedSource() {
+    const hash = root.location.hash;
+    const searchParams = new URLSearchParams(root.location.search);
+    const templateKey = searchParams.get('template');
+
+    if (hash && hash.includes('code=')) {
+      try {
+        const b64 = decodeURIComponent(hash.slice(hash.indexOf('code=') + 5));
+        const code = decodeURIComponent(escape(atob(b64)));
+        if (code && code.trim()) {
+          setSourceCode(code);
+          showToast('✨ Loaded shared snippet');
+          compileAndPreview();
+          return;
+        }
+      } catch (e) {
+        console.warn('Failed to decode share URL', e);
+      }
+    }
+
+    if (templateKey) {
+      const found = EXAMPLES.find(ex => ex.key === templateKey);
+      if (found) {
+        setSourceCode(found.code);
+        showToast(`✨ Loaded template: ${found.label}`);
+        compileAndPreview();
+        return;
+      }
+    }
+
+    const saved = readStoredSource();
+    if (saved && saved.trim()) {
+      setSourceCode(saved);
+    } else {
+      setSourceCode(STARTER);
+      showToast('🚀 Starter template auto-loaded');
+    }
+    compileAndPreview();
+  }
+
   root.addEventListener('DOMContentLoaded', () => {
     initEditor();
     buildSidebar();
     installKeyboardHandlers();
     installAiHandlers();
     setViewMode('split');
-    const saved = readStoredSource();
-    if (saved.trim()) setSourceCode(saved);
-    else setTimeout(compileAndPreview, 100);
+    loadSettings();
+    checkUrlOrSavedSource();
     const wrapper = document.getElementById('preview-wrapper');
     if (wrapper && root.ResizeObserver) new root.ResizeObserver(schedulePreviewScale).observe(wrapper);
     root.addEventListener('resize', schedulePreviewScale);
@@ -1562,18 +1728,18 @@ hero
     setZoom(100);
   });
 
-
   Object.assign(root, {
     KEYWORDS, STYLE_WORDS, COLOR_MAP, ICON_MAP, SIZE_MAP,
     browserCompile, compileAndPreview, switchTab, setViewMode, activateRail, setViewport, setDevicePreset, setZoom,
     togglePreviewTheme, insertSnippet, loadExample, runCode, refreshPreview,
-    openInNewTab, downloadHTML, downloadSource, copySource, copyHTML, exportZip,
+    openInNewTab, downloadHTML, downloadSource, copySource, copyHTML, copyCompiledHtml, shareCode, exportZip,
     clearCode, formatCode, increaseFontSize, decreaseFontSize, openGuideModal,
     closeGuideModal, showGuide, showCheatsheet, closeModal, openTemplateModal,
     openCliModal, toggleAiPanel, closeAiPanel, clearAiConversation, sendAiMessage, stopAiRequest, undoAiEdit,
     parseAiEnvelope, validateAiAction, applyAiActions, connectAiProvider,
     requestOpenAi, requestAnthropic, requestGemini, requestOpenAiCompatible, formatProviderError,
     markUnsaved, markSaved, showToast, startResize, doResize, stopResize,
-    runSearch, toggleWrap, toggleAutoCompile, dismissErrorNotice, jumpToFirstError
+    runSearch, toggleWrap, toggleAutoCompile, dismissErrorNotice, jumpToFirstError,
+    loadSettings, saveSettings
   });
 })(window);

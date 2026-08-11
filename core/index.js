@@ -6,31 +6,95 @@
 const { Lexer }    = require('./lexer');
 const { Parser }   = require('./parser');
 const { Compiler } = require('./compiler');
+const { buildSemanticIR } = require('./ir');
+const { WebCompilerTarget } = require('./targets/web-compiler');
+const { WhatsAppCompilerTarget } = require('./targets/whatsapp-compiler');
+const { PDFCompilerTarget } = require('./targets/pdf-compiler');
+const { SMSCompilerTarget } = require('./targets/sms-compiler');
+const { ContentTranslator } = require('./translator');
+const { auditUX } = require('./ux-critique');
+const { calculatePageHealth } = require('./health-meter');
+const { estimateHostingCost } = require('./cost-estimator');
+const { ChangelogEngine } = require('./changelog');
 
 /**
- * Compile MR.easy source code to HTML.
- * @param {string} source  - Raw .mreasy file content
- * @returns {{ html: string, errors: string[], warnings: string[] }}
+ * Compile MR.easy source code with multi-target, bilingual, and intelligence features.
+ * @param {string} source - Raw .mreasy file content
+ * @param {object} [options] - { target: 'web'|'whatsapp'|'pdf'|'sms', lang: 'en'|'am'|'both' }
  */
-function compile(source) {
+function compile(source, options = {}) {
+  const target = options.target || 'web';
+  const lang   = options.lang || 'en';
+
   try {
-    // 1. Tokenize
     const lexer  = new Lexer(source);
     const tokens = lexer.tokenize();
+    const parser = new Parser(tokens, source);
+    const { ast, errors, diagnostics } = parser.parse();
 
-    // 2. Parse
-    const parser         = new Parser(tokens);
-    const { ast, errors } = parser.parse();
+    const ir = buildSemanticIR(ast);
+    const translator = new ContentTranslator();
 
-    // 3. Compile
-    const compiler = new Compiler();
-    const { html, warnings } = compiler.compile(ast);
+    // 1. Target Selection
+    let targetOutput = '';
+    let warnings = [];
 
-    return { html, errors, warnings: warnings || [] };
+    if (target === 'whatsapp') {
+      const translatedIR = lang === 'am' ? translator.translateIR(ir, 'am') : ir;
+      const targetCompiler = new WhatsAppCompilerTarget();
+      const res = targetCompiler.compileIR(translatedIR);
+      targetOutput = res.output;
+    } else if (target === 'sms') {
+      const translatedIR = lang === 'am' ? translator.translateIR(ir, 'am') : ir;
+      const targetCompiler = new SMSCompilerTarget();
+      const res = targetCompiler.compileIR(translatedIR);
+      targetOutput = res.output;
+      warnings = res.warnings || [];
+    } else if (target === 'pdf') {
+      const targetCompiler = new PDFCompilerTarget();
+      const res = targetCompiler.compileIR(ir, ast);
+      targetOutput = res.output;
+    } else {
+      // Default: Web
+      const targetCompiler = new WebCompilerTarget();
+      const res = targetCompiler.compileIR(ir, ast);
+      targetOutput = res.output;
+
+      if (lang === 'am') {
+        const amharicIR = translator.translateIR(ir, 'am');
+        targetOutput = translator.translateString(targetOutput, 'am');
+      } else if (lang === 'both') {
+        const amharicIR = translator.translateIR(ir, 'am');
+        const amharicWeb = new WebCompilerTarget().compileIR(amharicIR, ast).output;
+        targetOutput = translator.injectBilingualSwitcher(targetOutput, amharicWeb);
+      }
+    }
+
+    // 2. Intelligence Analysis
+    const uxSuggestions = auditUX(ir);
+    const health = calculatePageHealth(targetOutput, ir);
+    const costEstimate = estimateHostingCost(health);
+
+    return {
+      html: targetOutput,
+      output: targetOutput,
+      target,
+      lang,
+      ir,
+      errors,
+      diagnostics: diagnostics || [],
+      warnings: [...(warnings || []), ...uxSuggestions.map(u => u.format())],
+      uxSuggestions,
+      health,
+      costEstimate
+    };
   } catch (err) {
     return {
       html: buildErrorPage(err.message),
+      output: err.message,
+      target,
       errors: [err.message],
+      diagnostics: [],
       warnings: []
     };
   }

@@ -7,7 +7,8 @@
  *   <elements...>
  */
 
-const { TOKEN_TYPES } = require('./lexer');
+const { TOKEN_TYPES, KEYWORDS } = require('./lexer');
+const { Diagnostic, DIAGNOSTIC_LEVELS, suggestKeyword } = require('./diagnostics');
 
 // Keywords that start a new statement — collectProps() must stop before these
 const STATEMENT_KEYWORDS = new Set([
@@ -38,13 +39,16 @@ class ASTNode {
 }
 
 class Parser {
-  constructor(tokens) {
+  constructor(tokens, source = '') {
+    this.source = source;
     // Strip NEWLINE tokens for easier parsing
     this.tokens = tokens.filter(t =>
       t.type !== TOKEN_TYPES.NEWLINE
     );
-    this.pos    = 0;
+    this.pos = 0;
     this.errors = [];
+    this.diagnostics = [];
+    this.knownComponents = new Set();
   }
 
   get current() { return this.tokens[this.pos]; }
@@ -67,6 +71,12 @@ class Parser {
       this.current.value === v;
   }
 
+  addDiagnostic(level, message, line = 1, col = 1, suggestion = null) {
+    const diag = new Diagnostic(level, message, line, col, this.source, suggestion);
+    this.diagnostics.push(diag);
+    this.errors.push(diag.formatCaret());
+  }
+
   parse() {
     const program = new ASTNode('Program', { title: '', body: [] });
 
@@ -83,7 +93,7 @@ class Parser {
       if (node) program.body.push(node);
     }
 
-    return { ast: program, errors: this.errors };
+    return { ast: program, errors: this.errors, diagnostics: this.diagnostics };
   }
 
   parseStatement() {
@@ -93,7 +103,21 @@ class Parser {
       this.consume();
       return null;
     }
+
+    // Check if it's a component call (e.g. Pricing("Basic", "$9") or Pricing)
+    if (t.type === TOKEN_TYPES.WORD || t.type === TOKEN_TYPES.KEYWORD) {
+      if (this.knownComponents.has(t.value) || /^[A-Z]/.test(t.value)) {
+        return this.parseComponentCall();
+      }
+    }
+
     if (t.type !== TOKEN_TYPES.KEYWORD && t.type !== TOKEN_TYPES.WORD) {
+      this.addDiagnostic(
+        DIAGNOSTIC_LEVELS.ERROR,
+        `Unexpected token '${t.value}'`,
+        t.line,
+        t.col
+      );
       this.consume();
       return null;
     }
@@ -112,8 +136,8 @@ class Parser {
       case 'box':       return this.parseBlock('box');
       case 'list':      return this.parseBlock('list');
       case 'form':      return this.parseBlock('form');
-      case 'component': return this.parseBlock('component');
-      case 'function':  return this.parseBlock('function');
+      case 'component': return this.parseComponentDef();
+      case 'function':  return this.parseComponentDef();
       case 'define':    return this.parseDefine();
       case 'if':        return this.parseIf();
       case 'repeat':    return this.parseRepeat();
@@ -184,19 +208,19 @@ class Parser {
       case 'td':        return this.parseInline('td');
 
       default:
-        // Only warn for truly unknown tokens, not bare words that might be values
-        if (t.type === TOKEN_TYPES.KEYWORD) {
-          this.errors.push(`Unknown keyword "${t.value}" at line ${t.line}`);
-        }
+        // Fuzzy match suggestion using Levenshtein distance
+        const suggestion = suggestKeyword(t.value, KEYWORDS);
+        let msg = `Unknown keyword "${t.value}" at line ${t.line}, col ${t.col}`;
+        if (suggestion) msg += `. Did you mean "${suggestion}"?`;
+        this.addDiagnostic(DIAGNOSTIC_LEVELS.ERROR, msg, t.line, t.col, suggestion);
         this.consume();
-        return null;
+        return new ASTNode('ErrorBlock', { message: msg, line: t.line, col: t.col, suggestion });
     }
   }
 
   /** Collect inline tokens on the same logical line (until INDENT, DEDENT, EOF, or next statement keyword) */
   collectProps() {
     const props    = { modifiers: [] };
-    const children = [];
 
     while (
       this.current &&
@@ -214,6 +238,10 @@ class Parser {
 
       if (t.type === TOKEN_TYPES.STRING) {
         if (!props.label) props.label = t.value;
+        else {
+          if (!props.args) props.args = [];
+          props.args.push(t.value);
+        }
         this.consume();
       } else if (t.type === TOKEN_TYPES.PROPERTY) {
         props[t.value.key] = t.value.value;
@@ -293,9 +321,6 @@ class Parser {
 
   parseFor() {
     this.consume(); // 'for'
-    // for i = 1 to 10
-    // for item in list
-    // for key in object
     const varName = this.current?.value; this.consume();
     if (this.check(TOKEN_TYPES.EQUALS)) this.consume();
     const start = this.current?.value; this.consume();
@@ -318,7 +343,6 @@ class Parser {
 
   parseEach() {
     this.consume(); // 'each'
-    // each item in list
     const varName = this.current?.value; this.consume();
     const isIn = this.check(TOKEN_TYPES.KEYWORD, 'in') || this.check(TOKEN_TYPES.KEYWORD, 'of');
     if (isIn) this.consume();
@@ -330,17 +354,65 @@ class Parser {
 
   parseRepeat() {
     this.consume(); // 'repeat'
-    const count = this.current?.value; this.consume();
-    if (this.current?.value === 'times') this.consume();
+    let itemVar = null;
+    let listVar = null;
+
+    // Check for repeat item in items
+    const firstWord = this.current?.value;
+    this.consume();
+
+    if (this.check(TOKEN_TYPES.KEYWORD, 'in') || this.check(TOKEN_TYPES.KEYWORD, 'of')) {
+      this.consume(); // 'in'
+      itemVar = firstWord;
+      listVar = this.current?.value;
+      this.consume();
+    } else {
+      listVar = firstWord;
+      if (this.check(TOKEN_TYPES.KEYWORD, 'times')) this.consume();
+    }
+
     const children = this.collectChildren();
     this.consumeEnd();
-    return new ASTNode('repeat', { props: { count }, children });
+    return new ASTNode('repeat', { props: { count: listVar, itemVar, listVar }, children });
+  }
+
+  parseComponentDef() {
+    this.consume(); // 'component'
+    const nameToken = this.current;
+    const name = nameToken?.value;
+    this.consume();
+    if (name) this.knownComponents.add(name);
+
+    // Consume parameter names on definition line (e.g. component Pricing title price)
+    const params = [];
+    while (
+      this.current &&
+      this.current.type !== TOKEN_TYPES.INDENT &&
+      this.current.type !== TOKEN_TYPES.DEDENT &&
+      this.current.type !== TOKEN_TYPES.EOF
+    ) {
+      if (this.current.type === TOKEN_TYPES.WORD || this.current.type === TOKEN_TYPES.KEYWORD) {
+        params.push(this.current.value);
+      }
+      this.consume();
+    }
+
+    const children = this.collectChildren();
+    this.consumeEnd();
+    return new ASTNode('component', { props: { label: name, name, params }, children });
+  }
+
+  parseComponentCall() {
+    const t = this.current;
+    const componentName = t.value;
+    this.consume(); // component name
+    const props = this.collectProps();
+    return new ASTNode('use', { props: { componentName, ...props } });
   }
 
   parseImport() {
     this.consume(); // 'import'
     const label = this.current?.value; this.consume();
-    // import "path" or import "path" from "filename"
     const from = this.current?.value; this.consume();
     const source = this.current?.value; this.consume();
     return new ASTNode('import', { props: { label, from, source } });
@@ -351,7 +423,6 @@ class Parser {
     const props = this.collectProps();
     const children = this.collectChildren();
     this.consumeEnd();
-    // Store params from modifiers
     const params = props.modifiers || [];
     return new ASTNode('define', { props: { ...props, params }, children });
   }
@@ -401,19 +472,16 @@ class Parser {
     this.consume(); // 'set'
     const name = this.current?.value; this.consume();
     if (this.check(TOKEN_TYPES.EQUALS)) this.consume();
-    // Handle array literal: [1, 2, 3]
+    // Handle array literal: [1, 2, 3] or ["a", "b"]
     if (this.check(TOKEN_TYPES.LBRACKET)) {
       this.consume(); // '['
       const items = [];
       while (this.current && !this.check(TOKEN_TYPES.RBRACKET)) {
-        if (this.current.type === TOKEN_TYPES.NUMBER) {
-          items.push(this.consume().value);
-        } else if (this.current.type === TOKEN_TYPES.STRING) {
+        if (this.current.type === TOKEN_TYPES.NUMBER || this.current.type === TOKEN_TYPES.STRING) {
           items.push(this.consume().value);
         } else if (this.check(TOKEN_TYPES.COMMA)) {
           this.consume(); // skip comma
         } else {
-          // Try to resolve as variable or just take value
           const v = this.current?.value;
           if (v !== undefined) { items.push(v); this.consume(); }
           else break;

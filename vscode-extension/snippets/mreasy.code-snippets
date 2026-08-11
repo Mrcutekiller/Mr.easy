@@ -4,46 +4,112 @@
     "body": [
       "Mr.easy \"${1:My Page Title}\"",
       "",
-      "# IG @mrcute_killer",
+      "# Built in Ethiopia 🇪🇹",
       "",
       "nav",
-      "  logo \"${2:LogoName}\"",
-      "  links Home About Contact",
+      "  logo \"${2:MyBrand}\"",
+      "  links Services Features Pricing Contact",
       "",
       "hero",
       "  title \"${3:Build Websites Fast}\" big glow",
-      "  subtitle \"${4:Simple and beautiful}\"",
+      "  subtitle \"${4:Simple, expressive web language}\"",
       "  button \"${5:Get Started}\" blue big",
       "",
       "footer",
-      "  text \"Made with Mr.easy 🇪🇹\""
+      "  text \"Made with MR.easy 🇪🇹\""
     ],
-    "description": "Create a new MR.easy file header"
+    "description": "Create a new MR.easy page starter"
   },
   "Hero Section": {
     "prefix": "hero",
     "body": [
       "hero",
-      "  title \"${1:Headline}\" big glow",
-      "  subtitle \"${2:Subtitle text}\"",
-      "  button \"${3:Action}\" blue big"
+      "  badge \"${1:NEW FEATURE}\" purple",
+      "  title \"${2:Headline}\" big glow",
+      "  subtitle \"${3:Subtitle text}\"",
+      "  row center",
+      "    button \"${4:Get Started}\" blue big",
+      "    button \"${5:Learn More}\" outline big"
     ],
-    "description": "Insert hero block"
+    "description": "Insert full hero section"
   },
   "3-Column Grid": {
     "prefix": "grid",
     "body": [
-      "grid cols:3",
+      "grid cols:${1:3}",
       "  card shadow",
-      "    title \"${1:Card 1}\" small",
-      "    text \"${2:Description}\"",
+      "    icon rocket",
+      "    title \"${2:Feature 1}\" small",
+      "    text \"${3:Description text}\"",
       "  card shadow",
-      "    title \"${3:Card 2}\" small",
-      "    text \"${4:Description}\"",
+      "    icon bolt",
+      "    title \"${4:Feature 2}\" small",
+      "    text \"${5:Description text}\"",
       "  card shadow",
-      "    title \"${5:Card 3}\" small",
-      "    text \"${6:Description}\""
+      "    icon star",
+      "    title \"${6:Feature 3}\" small",
+      "    text \"${7:Description text}\""
     ],
-    "description": "Insert 3-column grid"
+    "description": "Insert responsive card grid"
+  },
+  "Accordion": {
+    "prefix": "accordion",
+    "body": [
+      "accordion \"${1:What is MR.easy?}\"",
+      "  text \"${2:A human-readable language for fast web building.}\""
+    ],
+    "description": "Insert accordion item"
+  },
+  "Tabs": {
+    "prefix": "tabs",
+    "body": [
+      "tabs",
+      "  tab \"${1:Overview}\"",
+      "    text \"${2:Tab 1 content}\"",
+      "  tab \"${3:Details}\"",
+      "    text \"${4:Tab 2 content}\""
+    ],
+    "description": "Insert tabs container"
+  },
+  "Alert Banner": {
+    "prefix": "alert",
+    "body": [
+      "alert \"${1:Success! Your settings have been saved.}\" ${2|success,info,warning,error|}"
+    ],
+    "description": "Insert alert banner"
+  },
+  "Stat Box": {
+    "prefix": "stat",
+    "body": [
+      "stat value:\"${1:100+}\" label:\"${2:Projects Shipped}\""
+    ],
+    "description": "Insert stat display block"
+  },
+  "Progress Bar": {
+    "prefix": "progress",
+    "body": [
+      "progress value:${1:75} label:\"${2:Completion Status}\""
+    ],
+    "description": "Insert progress bar"
+  },
+  "Form": {
+    "prefix": "form",
+    "body": [
+      "form",
+      "  label \"Name\" for:name",
+      "  input placeholder:\"Your name\" id:name",
+      "  label \"Email\" for:email",
+      "  input type:email placeholder:\"Your email\" id:email",
+      "  button \"Submit\" blue"
+    ],
+    "description": "Insert input form"
+  },
+  "Testimonial": {
+    "prefix": "testimonial",
+    "body": [
+      "testimonial author:\"${1:Biruk}\" role:\"${2:Creator of MR.easy}\"",
+      "  text \"${3:Building websites should feel like speaking plain words.}\""
+    ],
+    "description": "Insert quote testimonial block"
   }
 }

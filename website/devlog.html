@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why I Built MR.easy — Devlog by Biruk 🇪🇹</title>
+  <meta name="description" content="A personal devlog by Biruk on why MR.easy was created in Addis Ababa, the Adwa 1896 inspiration, technical challenges, and the future of web building.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink-0: #080706;
+      --ink-1: #0f0d0b;
+      --ink-2: #141210;
+      --parchment: #f2ead8;
+      --muted: #a69a86;
+      --dim: #62584a;
+      --brass: #c8963a;
+      --brass-bright: #e8b45a;
+      --hairline: rgba(242, 234, 216, .13);
+      --hairline-brass: rgba(200, 150, 58, .3);
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Inter', Arial, sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--ink-0); color: var(--parchment); font-family: var(--font-sans); line-height: 1.9; -webkit-font-smoothing: antialiased; }
+    a { color: var(--brass-bright); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { width: min(800px, calc(100% - 48px)); margin-inline: auto; }
+    .heritage-rule { height: 2px; background: linear-gradient(90deg, #4a7a2e 0 34%, var(--brass) 34% 68%, #8b2020 68%); }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 36px; border-bottom: 1px solid var(--hairline); background: rgba(8,7,6,.85); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 100; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid var(--hairline-brass); background: transparent; color: var(--parchment); font-size: .8rem; cursor: pointer; border-radius: 4px; }
+    .btn:hover { border-color: var(--brass); color: var(--brass-bright); }
+    
+    header.article-header { padding: 80px 0 40px; border-bottom: 1px solid var(--hairline); }
+    .eyebrow { color: var(--brass-bright); font: 500 .7rem var(--font-mono); letter-spacing: .15em; text-transform: uppercase; margin-bottom: 14px; }
+    h1 { font: 500 clamp(2.5rem, 5.5vw, 4.2rem)/1.08 var(--font-display); margin: 0 0 20px; letter-spacing: -.04em; }
+    h1 em { color: var(--brass-bright); font-style: italic; }
+    .meta { display: flex; align-items: center; gap: 16px; color: var(--dim); font: .72rem var(--font-mono); }
+
+    article.content { padding: 50px 0 90px; font-size: 1.02rem; color: var(--muted); }
+    article.content h2 { font: 500 1.8rem/1.2 var(--font-display); color: var(--parchment); margin: 44px 0 16px; }
+    article.content p { margin: 0 0 24px; }
+    article.content strong { color: var(--parchment); font-weight: 600; }
+    blockquote { margin: 36px 0; padding: 24px 28px; border-left: 3px solid var(--brass); background: var(--ink-1); color: var(--parchment); font: italic 500 1.3rem/1.5 var(--font-display); }
+    code { background: var(--ink-2); border: 1px solid var(--hairline); padding: 2px 7px; color: var(--brass-bright); font-family: var(--font-mono); font-size: .88em; border-radius: 3px; }
+    .signature-block { margin-top: 60px; padding: 28px; border: 1px solid var(--hairline-brass); background: var(--ink-1); border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="heritage-rule"></div>
+  <nav class="nav">
+    <a href="index.html" style="font-weight:600">Mr.<span style="color:var(--brass-bright);font-style:italic;">easy</span> / Devlog</a>
+    <a href="index.html" class="btn">← Back to Main Site</a>
+  </nav>
+
+  <div class="container">
+    <header class="article-header">
+      <div class="eyebrow">Devlog / Addis Ababa / 2026</div>
+      <h1>Why I Built <em>MR.easy</em></h1>
+      <div class="meta">
+        <span>By Biruk (@mrcute_killer)</span>
+        <span>•</span>
+        <span>August 11, 2026</span>
+        <span>•</span>
+        <span>6 min read</span>
+      </div>
+    </header>
+
+    <article class="content">
+      <p>I still remember the frustration of watching a beginner try to build their very first webpage. They didn't start with their idea — they started with an avalanche of syntax noise. HTML closing tags, nested <code>&lt;div&gt;</code> elements, class names, CSS specificity rules, npm installations, and build tool configurations before a single title appeared on the screen.</p>
+
+      <p>By the time the environment was set up, the initial creative spark was gone. I asked myself a simple question: <strong>What if building a website felt like explaining your idea to a friend?</strong></p>
+
+      <h2>The Problem: Syntax Wall vs. Creative Signal</h2>
+      <p>Modern web development has become heavily over-engineered for simple ideas. Beginners are taught to manage complex toolchains before they understand basic structure. Plain human language should be enough to describe a hero section, a card grid, or a button.</p>
+
+      <blockquote>
+        “When syntax gets out of the way, your mind shifts from fighting tags to refining ideas.”
+      </blockquote>
+
+      <p>That is why I created <strong>MR.easy</strong>. Every file starts with <code>Mr.easy "Title"</code>. There are no brackets, no closing tags, and no semicolons. Indentation defines structure, and familiar english words describe the UI elements.</p>
+
+      <h2>The Heritage: The Spirit of Adwa 1896</h2>
+      <p>Building MR.easy in <strong>Addis Ababa, Ethiopia</strong> gave the project a core identity. Ethiopia has a proud history defined by self-reliance and independence — most famously remembered in the <strong>1896 Battle of Adwa</strong>, where resourcefulness and determination prevailed over overwhelming external force.</p>
+
+      <p>MR.easy embodies that exact spirit for modern web creators: <strong>building our own independent tools from first principles without relying on bloated external dependencies.</strong> You don't need a 50MB node_modules folder or a complex framework to build a gorgeous, responsive website.</p>
+
+      <h2>What Was Hardest to Build</h2>
+      <p>Creating a readable, zero-dependency language in JavaScript was an incredible engineering challenge. The three toughest parts were:</p>
+
+      <ol style="padding-left: 20px; margin-bottom: 28px;">
+        <li style="margin-bottom: 12px;"><strong>Indentation-based Parsing:</strong> Tracking nesting levels without explicit brackets required writing a custom lexer and AST parser that could cleanly process block indentation while remaining fast.</li>
+        <li style="margin-bottom: 12px;"><strong>Browser Native Compiler:</strong> Bringing the compiler directly into the browser IDE so compilation happens in under 5ms as you type, without calling any external server API.</li>
+        <li style="margin-bottom: 12px;"><strong>Instant Visual Feedback:</strong> Keeping live iframe previews synced seamlessly with line-number error reporting and CodeMirror editor highlights.</li>
+      </ol>
+
+      <h2>What's Coming Next</h2>
+      <p>MR.easy is growing rapidly into a complete ecosystem for beginner and rapid web prototyping. Over the next few months, we are launching:</p>
+
+      <ul>
+        <li style="margin-bottom: 8px;"><strong>VS Code Extension:</strong> Native syntax highlighting and autocomplete snippet suggestions directly in VS Code.</li>
+        <li style="margin-bottom: 8px;"><strong>Component Marketplace:</strong> Reusable user-submitted UI blocks that can be inserted into any project with one click.</li>
+        <li style="margin-bottom: 8px;"><strong>Build-time Themes:</strong> Output custom CSS color themes (`mreasy build --theme=adwa`) on production builds.</li>
+      </ul>
+
+      <div class="signature-block">
+        <h3 style="margin:0 0 6px;font:500 1.2rem var(--font-display);color:var(--brass-bright);">Written by Biruk</h3>
+        <p style="margin:0;font-size:.84rem;color:var(--muted);">Creator of MR.easy • Addis Ababa, Ethiopia • Instagram: <a href="https://instagram.com/mrcute_killer" target="_blank">@mrcute_killer</a></p>
+      </div>
+    </article>
+  </div>
+</body>
+</html>

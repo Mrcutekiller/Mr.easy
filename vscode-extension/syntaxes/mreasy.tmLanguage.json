@@ -49,7 +49,7 @@
     },
     "modifiers": {
       "name": "entity.other.attribute-name.mreasy",
-      "match": "\\b(big|medium|small|tiny|glow|shadow|rounded|outline|bold|italic|dark|light|gradient|glass|center|left|right|blue|red|green|purple|orange|pink|yellow|white|black|gray|cyan|on|off|float|autoplay|required|ordered|done|checked|success|warning|error|info|inline)\\b"
+      "match": "\\b(big|medium|small|tiny|glow|shadow|rounded|outline|bold|italic|dark|light|gradient|glass|center|left|right|blue|red|green|purple|orange|pink|yellow|white|black|gray|cyan|on|off|float|autoplay|required|ordered|done|checked|success|warning|error|info|inline|fade-in|slide-up|pulse|bounce|email-format)\\b"
     },
     "properties": {
       "name": "variable.parameter.mreasy",

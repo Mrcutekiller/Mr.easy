@@ -23,6 +23,9 @@ try { chalk = require('chalk'); } catch { chalk = { green: s=>s, red: s=>s, cyan
 
 const { compile, compileFile } = require('../core/index');
 const { startServer }          = require('./server');
+const { startREPL }            = require('./repl');
+const { startTUI }             = require('./tui');
+const { startTerminalImagePreview } = require('./image-preview');
 
 // ── Parse flags ────────────────────────────────────────────────────────────────
 function parseFlags(args) {
@@ -31,6 +34,8 @@ function parseFlags(args) {
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--port' && args[i + 1]) { flags.port = parseInt(args[++i]); }
     else if (args[i] === '--minify') { flags.minify = true; }
+    else if (args[i] === '--tui') { flags.tui = true; }
+    else if (args[i] === '--terminal-image') { flags.terminalImage = true; }
     else if (args[i] === '--help' || args[i] === '-h') { flags.help = true; }
     else if (args[i] === '--version' || args[i] === '-v') { flags.version = true; }
     else { positional.push(args[i]); }
@@ -49,7 +54,7 @@ function banner() {
   console.log(chalk.cyan('  ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝   ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝  '));
   console.log('');
   console.log(chalk.white('  The simple, beautiful web programming language'));
-  console.log(chalk.gray('  v1.1.0  •  by Biruk\n'));
+  console.log(chalk.gray('  v1.2.0  •  by Biruk\n'));
 }
 
 // ── Help ───────────────────────────────────────────────────────────────────────
@@ -58,12 +63,11 @@ function help() {
   console.log(chalk.yellow('  Commands:\n'));
   console.log(chalk.green('  mreasy new <name>') + '       Create a new project');
   console.log(chalk.green('  mreasy run') + '             Start live preview server');
+  console.log(chalk.green('  mreasy run --tui') + '       Start live split-pane TUI wireframe preview');
+  console.log(chalk.green('  mreasy run --terminal-image') + ' Live image preview (Kitty/iTerm2)');
   console.log(chalk.green('  mreasy build') + '            Build project to HTML');
   console.log(chalk.green('  mreasy compile <file>') + '   Compile a single .mreasy file');
   console.log(chalk.green('  mreasy validate <file>') + '  Validate a .mreasy file');
-  console.log(chalk.green('  mreasy export') + '           Export for deployment');
-  console.log(chalk.green('  mreasy init') + '             Initialize project in current dir');
-  console.log(chalk.green('  mreasy doctor') + '           Check environment health');
   console.log(chalk.green('  mreasy repl') + '             Start interactive REPL');
   console.log(chalk.green('  mreasy help') + '             Show this help\n');
   console.log(chalk.yellow('  Flags:\n'));
@@ -358,12 +362,105 @@ function startREPL() {
         if (errors.length) {
           errors.forEach(e => console.log(chalk.red(`  ✗ ${e}`)));
         } else {
-          // Write to temp file and open
-          const tmpFile = path.join(require('os').tmpdir(), 'mreasy-repl.html');
-          fs.writeFileSync(tmpFile, html);
-          console.log(chalk.green(`  ✓ Compiled! Output: ${tmpFile}`));
-          // Try to open in browser
-          try { require('open')(tmpFile); } catch {}
+     // ── Build ──────────────────────────────────────────────────────────────────────
+function build(flags) {
+  const cwd     = process.cwd();
+  const rcFile  = path.join(cwd, '.mreasyrc');
+  const rc      = fs.existsSync(rcFile) ? JSON.parse(fs.readFileSync(rcFile)) : {};
+  const entry   = rc.entry || 'index.mreasy';
+  const distDir = rc.dist  || 'dist';
+  const target  = flags.target || 'web';
+  const lang    = flags.lang || 'en';
+
+  let srcFile = path.join(cwd, entry);
+  if (!fs.existsSync(srcFile)) {
+    console.log(chalk.yellow(`  ⚠ File not found: ${entry}`));
+    return;
+  }
+
+  fs.mkdirSync(path.join(cwd, distDir), { recursive: true });
+  const source = fs.readFileSync(srcFile, 'utf-8');
+
+  const { output, errors, warnings, costEstimate, health } = compile(source, { target, lang });
+
+  const ext = target === 'whatsapp' || target === 'sms' ? 'txt' : 'html';
+  const outFile = path.join(cwd, distDir, `index.${ext}`);
+  fs.writeFileSync(outFile, output);
+
+  if (errors.length) errors.forEach(e => console.log(chalk.red(`  ✗ ${e}`)));
+  if (warnings.length) warnings.forEach(w => console.log(chalk.yellow(`  ${w}`)));
+
+  const size = Buffer.byteLength(output, 'utf-8');
+  const kb = (size / 1024).toFixed(1);
+  console.log(chalk.green(`  ✓ Built Target [${target.toUpperCase()}] → ${path.relative(cwd, outFile)} (${kb} KB)`));
+
+  if (costEstimate) {
+    console.log(chalk.cyan(`  💰 ${costEstimate.summaryText}`));
+  }
+  if (health) {
+    console.log(chalk.gray(`  ⚡ Est. Load: ${health.loadTimeSec}s | ♿ A11y: ${health.a11yScore}/100 | 💡 ${health.beginnerAdvice}`));
+  }
+}
+
+// ── Health Monitoring ────────────────────────────────────────────────────────
+async function runHealthCheck(url) {
+  const { checkWebsiteHealth } = require('./health');
+  console.log(chalk.cyan(`  🔍 Monitoring website health for ${url || 'local site'}...`));
+  const res = await checkWebsiteHealth(url || 'http://localhost:3000');
+  if (res.isOnline) {
+    console.log(chalk.green(`  ✓ Website is ONLINE (${res.responseTimeMs}ms response time)`));
+    console.log(chalk.green(`  ✓ SSL Status: ${res.sslValid ? 'Valid SSL' : 'HTTP Only'}`));
+    if (res.staleNotice) console.log(chalk.yellow(`  ⚠ ${res.staleNotice}`));
+  } else {
+    console.log(chalk.red(`  ✗ Website OFFLINE or Unreachable: ${res.error || 'HTTP ' + res.statusCode}`));
+  }
+}
+
+// ── Starter Pack Command ─────────────────────────────────────────────────────
+function runStarter(query) {
+  const { matchStarterPack } = require('../core/starter-packs');
+  const pack = matchStarterPack(query);
+  console.log(chalk.green(`  📦 Matched Starter Pack: ${pack.name}`));
+  console.log(chalk.gray(`  Category: ${pack.category} — ${pack.description}\n`));
+  console.log(chalk.cyan('--- MR.easy Source ---'));
+  console.log(pack.source);
+}
+
+// ── History Command ──────────────────────────────────────────────────────────
+function runHistory() {
+  console.log(chalk.cyan('  📜 Time-Travel Page History Snapshot Engine:'));
+  console.log(chalk.white('  • Track semantic diffs automatically during compilation.'));
+  console.log(chalk.white('  • Visual timeline active in Web IDE (`mreasy run`).'));
+}
+
+// ── Main ───────────────────────────────────────────────────────────────────────
+const [,, cmd, ...rest] = process.argv;
+const { flags, positional } = parseFlags(rest);
+
+if (flags.version) {
+  console.log('mreasy v1.1.0');
+  process.exit(0);
+}
+
+switch (cmd) {
+  case 'new':       banner(); newProject(positional[0]);                     break;
+  case 'run':       banner(); startServer(process.cwd(), flags.port);        break;
+  case 'build':     banner(); build(flags);                                  break;
+  case 'compile':   banner(); compileSingle(positional[0], flags);           break;
+  case 'validate':  banner(); validate(positional[0]);                       break;
+  case 'export':    banner(); exportProject();                               break;
+  case 'init':      banner(); initProject();                                 break;
+  case 'doctor':    banner(); doctor();                                      break;
+  case 'repl':      startREPL();                                             break;
+  case 'health':    banner(); runHealthCheck(positional[0]);                 break;
+  case 'starter':   banner(); runStarter(positional.join(' '));              break;
+  case 'history':
+  case 'changes':   banner(); runHistory();                                  break;
+  case 'help':
+  case '--help':
+  case '-h':        help();                                                  break;
+  default:          help();                                                  break;
+}
         }
       } catch (err) {
         console.log(chalk.red(`  ✗ ${err.message}`));

@@ -200,9 +200,16 @@ ${js}
     return s ? `style="${s}"` : '';
   }
 
-  /** Resolve {varname} in text */
-  vars_(text) {
-    return String(text || '').replace(/\{([a-zA-Z_]+)\}/g, (_, n) => this.vars[n] ?? `{${n}}`);
+  /** Resolve {varname} or bare variable reference in text */
+  vars_(text, node) {
+    let val = text;
+    if ((val === undefined || val === null || val === '') && node && node.props && node.props.modifiers && node.props.modifiers.length) {
+      val = node.props.modifiers[0];
+    }
+    if (typeof val === 'string' && this.vars[val] !== undefined) {
+      return this.vars[val];
+    }
+    return String(val || '').replace(/\{([a-zA-Z_]+)\}/g, (_, n) => this.vars[n] ?? `{${n}}`);
   }
 
   /** HTML escape */
@@ -367,7 +374,7 @@ ${js}
       'text-align': m.includes('center') ? 'center' : align
     });
     const cls = this.cls('mr-title', node);
-    return `<${tag} class="${cls}" ${s}>${this.vars_(label)}</${tag}>`;
+    return `<${tag} class="${cls}" ${s}>${this.vars_(label, node)}</${tag}>`;
   }
 
   Subtitle(node) {
@@ -379,7 +386,7 @@ ${js}
       'font-size': sizeVal,
       'text-align': m.includes('center') ? 'center' : align
     });
-    return `<p class="mr-subtitle" ${s}>${this.vars_(label)}</p>`;
+    return `<p class="mr-subtitle" ${s}>${this.vars_(label, node)}</p>`;
   }
 
   Text(node) {
@@ -392,17 +399,17 @@ ${js}
       'font-size': sizeVal,
       'font-weight': m.includes('bold') ? '700' : weight
     });
-    return `<p class="mr-text" ${s}>${this.vars_(label)}</p>`;
+    return `<p class="mr-text" ${s}>${this.vars_(label, node)}</p>`;
   }
 
   Label(node) {
     const { label, for: f } = node.props || {};
-    return `<label class="mr-label" for="${f || ''}">${this.vars_(label)}</label>`;
+    return `<label class="mr-label" for="${f || ''}">${this.vars_(label, node)}</label>`;
   }
 
   Item(node) {
     const { label } = node.props || {};
-    return `<li class="mr-item">${this.vars_(label)}</li>`;
+    return `<li class="mr-item">${this.vars_(label, node)}</li>`;
   }
 
   // ── INTERACTIVE ────────────────────────────────────────────────────────────
@@ -411,13 +418,13 @@ ${js}
     const { label, action, id } = node.props || {};
     const cls     = this.cls('mr-button', node);
     const onClick = action ? `onclick="${this.esc(this.resolveAction(action))}"` : '';
-    return `<button class="${cls}" ${onClick} id="${this.esc(id || '')}">${this.esc(this.vars_(label || 'Button'))}</button>`;
+    return `<button class="${cls}" ${onClick} id="${this.esc(id || '')}">${this.esc(this.vars_(label, node) || 'Button')}</button>`;
   }
 
   Link(node) {
     const { label, url, target, color: clr } = node.props || {};
     const s = this.style({ color: this.color(clr) });
-    return `<a class="mr-link" href="${this.esc(this.vars_(url || '#'))}" target="${target || '_self'}" ${s}>${this.esc(this.vars_(label || url || 'Link'))}</a>`;
+    return `<a class="mr-link" href="${this.esc(this.vars_(url || '#'))}" target="${target || '_self'}" ${s}>${this.esc(this.vars_(label, node) || url || 'Link')}</a>`;
   }
 
   Image(node) {
@@ -442,9 +449,13 @@ ${js}
   }
 
   Input(node) {
-    const { type, placeholder, id, name, value } = node.props || {};
+    const { type, placeholder, id, name, value, minlength } = node.props || {};
     const m = this.mods(node);
-    return `<input class="mr-input" type="${this.esc(type || 'text')}" placeholder="${this.esc(this.vars_(placeholder || ''))}" id="${this.esc(id || '')}" name="${this.esc(name || id || '')}" ${m.includes('required') ? 'required' : ''} value="${this.esc(this.vars_(value || ''))}">`;
+    const labelVal = node.props?.label || '';
+    const inputType = type || (m.includes('email-format') || labelVal === 'email' ? 'email' : 'text');
+    const patternAttr = m.includes('email-format') ? 'pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$"' : '';
+    const minLengthAttr = minlength ? `minlength="${minlength}"` : '';
+    return `<input class="mr-input" type="${this.esc(inputType)}" ${patternAttr} ${minLengthAttr} placeholder="${this.esc(this.vars_(placeholder || labelVal))}" id="${this.esc(id || '')}" name="${this.esc(name || id || '')}" ${m.includes('required') ? 'required' : ''} value="${this.esc(this.vars_(value || ''))}">`;
   }
 
   Spacer(node) {
@@ -503,22 +514,26 @@ ${js}
   }
 
   Repeat(node) {
-    let count = node.props?.count || 1;
-    // Resolve variable name if it's a string
+    const listName = node.props?.listVar || node.props?.count;
+    const itemVarName = node.props?.itemVar || 'item';
+
+    let count = listName;
     if (typeof count === 'string' && this.vars[count] !== undefined) {
       count = this.vars[count];
     }
-    // If count is an array, iterate over it
+
     if (Array.isArray(count)) {
       let out = '';
       for (let i = 0; i < count.length; i++) {
         this.vars['index']  = i + 1;
         this.vars['index0'] = i;
-        this.vars['item']  = count[i];
+        this.vars['item']   = count[i];
+        if (itemVarName) this.vars[itemVarName] = count[i];
         out += this.compileChildren(node.children);
       }
       return out;
     }
+
     count = parseInt(count);
     if (isNaN(count) || count < 0) {
       this.warnings.push('repeat count is invalid or NaN');
@@ -623,44 +638,48 @@ ${js}
     const label = node.props?.label || m[0];
     if (label) {
       this.components[label] = node.children;
-      // Store parameter names from remaining modifiers (skip the name)
-      this.componentParams[label] = m.slice(1);
+      this.componentParams[label] = node.props?.params?.length ? node.props.params : m.slice(1);
     }
     return '';
   }
 
   Use(node) {
     const m = this.mods(node);
-    const label = node.props?.label || m[0];
-    if (!label || !this.components[label]) return `<!-- component "${label || ''}" not found -->`;
+    const label = node.props?.componentName || node.props?.label || m[0];
+    if (!label || !this.components[label]) {
+      const msg = `Unknown component '${label || ''}' — did you forget to import it?`;
+      this.warnings.push(msg);
+      return `<div class="mr-error-box"><div class="mr-error-box-header">⚠️ MR.easy Component Error</div>${this.esc(msg)}</div>`;
+    }
 
-    // Get the component's template nodes and parameter list
     const templateNodes = this.components[label];
     const paramNames = this.componentParams[label] || [];
 
-    // Build a mapping of param values from node props
+    // Map positional arguments: first positional value is in props.label (if present), followed by props.args, then mods
+    const positionalValues = [];
+    if (node.props?.label) positionalValues.push(node.props.label);
+    if (node.props?.args) positionalValues.push(...node.props.args);
+    positionalValues.push(...m);
+
     const paramValues = {};
+    for (let i = 0; i < paramNames.length && i < positionalValues.length; i++) {
+      paramValues[paramNames[i]] = positionalValues[i];
+    }
+
+    // Explicit key:value props override positional args
     const nodeProps = node.props || {};
     for (const key of Object.keys(nodeProps)) {
-      if (key !== 'label' && key !== 'modifiers') {
+      if (key !== 'label' && key !== 'modifiers' && key !== 'args') {
         paramValues[key] = nodeProps[key];
       }
     }
-    // Also map positional params from modifiers
-    const mods = this.mods(node);
-    for (let i = 0; i < paramNames.length && i < mods.length; i++) {
-      if (!paramValues[paramNames[i]]) paramValues[paramNames[i]] = mods[i];
-    }
 
-    // Temporarily set params as variables for interpolation
     const savedVars = { ...this.vars };
     for (const [k, v] of Object.entries(paramValues)) {
       this.vars[k] = v;
     }
 
     const result = this.compileChildren(templateNodes);
-
-    // Restore original vars
     this.vars = savedVars;
     return result;
   }
