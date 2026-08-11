@@ -41,7 +41,7 @@
     },
     "keywords": {
       "name": "keyword.control.mreasy",
-      "match": "\\b(nav|hero|section|header|footer|row|column|col|grid|card|box|list|form|title|subtitle|text|label|item|button|link|image|img|video|icon|input|logo|links|menu|divider|spacer|animate|component|use|function|call|define|import|from|accordion|tabs|tab|table|thead|tbody|tr|th|td|badge|tag|alert|progress|avatar|quote|code|stat|select|checkbox|toggle|embed|rating|countdown|steps|step|testimonial|page|sidebar|modal|dropdown|head|meta)\\b"
+      "match": "\\b(nav|hero|section|header|footer|row|column|col|grid|card|box|list|form|title|subtitle|text|label|item|button|link|image|img|video|icon|input|logo|links|menu|divider|spacer|animate|component|use|function|call|define|import|from|accordion|tabs|tab|table|thead|tbody|tr|th|td|badge|tag|alert|progress|avatar|quote|code|stat|select|checkbox|toggle|embed|rating|countdown|steps|step|testimonial|page|sidebar|modal|dropdown|head|meta|theme-toggle|theme_toggle|toast|whatsapp-buy|whatsapp_buy|pricing-table|pricing_table|plan)\\b"
     },
     "logic": {
       "name": "keyword.other.logic.mreasy",

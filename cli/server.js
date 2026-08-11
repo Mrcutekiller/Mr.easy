@@ -8,7 +8,20 @@
 const http    = require('http');
 const fs      = require('fs');
 const path    = require('path');
+const os      = require('os');
 const { WebSocketServer } = require('ws');
+
+function getLocalIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return '127.0.0.1';
+}
 
 let chalk;
 try { chalk = require('chalk'); } catch { chalk = { green: s=>s, cyan: s=>s, yellow: s=>s, gray: s=>s }; }
@@ -126,12 +139,15 @@ function startServer(cwd, customPort) {
     res.writeHead(404); res.end('Not found');
   });
 
+  const localIp = getLocalIp();
+
   server.listen(PORT, () => {
     console.log(chalk.green(`  ✓ MR.easy live server running!\n`));
-    console.log(chalk.cyan(`  🌐 Preview:  http://localhost:${PORT}`));
+    console.log(chalk.cyan(`  🌐 Local:   http://localhost:${PORT}`));
+    console.log(chalk.cyan(`  📱 Mobile:  http://${localIp}:${PORT}`));
     console.log(chalk.gray(`  🔄 Watching: ${entry}`));
     console.log(chalk.gray(`  ⚡ Hot reload active\n`));
-    console.log(chalk.yellow(`  Press Ctrl+C to stop\n`));
+    console.log(chalk.yellow(`  💡 Scan/open http://${localIp}:${PORT} on your phone connected to the same Wi-Fi!\n`));
 
     // Auto-open browser
     if (openPkg) {

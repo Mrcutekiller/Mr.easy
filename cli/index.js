@@ -68,6 +68,8 @@ function help() {
   console.log(chalk.green('  mreasy build') + '            Build project to HTML');
   console.log(chalk.green('  mreasy compile <file>') + '   Compile a single .mreasy file');
   console.log(chalk.green('  mreasy validate <file>') + '  Validate a .mreasy file');
+  console.log(chalk.green('  mreasy deploy [--target vercel|netlify|gh-pages]') + ' Deploy project bundle');
+  console.log(chalk.green('  mreasy ai "<prompt>"') + '    Generate .mreasy page from prompt');
   console.log(chalk.green('  mreasy repl') + '             Start interactive REPL');
   console.log(chalk.green('  mreasy help') + '             Show this help\n');
   console.log(chalk.yellow('  Flags:\n'));
@@ -541,8 +543,149 @@ switch (cmd) {
   case 'init':      banner(); initProject();                                 break;
   case 'doctor':    banner(); doctor();                                      break;
   case 'repl':      startREPL();                                             break;
+  case 'deploy':     banner(); deployProject(positional[0] || 'vercel');       break;
+  case 'ai':         banner(); aiGenerator(positional.join(' '));              break;
   case 'help':
   case '--help':
   case '-h':        help();                                                  break;
   default:          help();                                                  break;
+}
+
+// ── Deploy Command ────────────────────────────────────────────────────────────
+function deployProject(target = 'vercel') {
+  console.log(chalk.cyan(`  📦 Building project for 1-click deployment (${target})...`));
+  const distDir = path.join(process.cwd(), 'dist');
+  if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
+
+  const entryFile = path.join(process.cwd(), 'index.mreasy');
+  if (fs.existsSync(entryFile)) {
+    const { html } = compileFile(entryFile);
+    fs.writeFileSync(path.join(distDir, 'index.html'), minifyHTML(html), 'utf-8');
+  }
+
+  if (target === 'vercel') {
+    const vercelConfig = { version: 2, builds: [{ src: "dist/**", use: "@vercel/static" }] };
+    fs.writeFileSync(path.join(process.cwd(), 'vercel.json'), JSON.stringify(vercelConfig, null, 2), 'utf-8');
+    console.log(chalk.green(`  ✓ Generated vercel.json configuration`));
+    console.log(chalk.cyan(`  🚀 Ready! Run 'npx vercel' or push to GitHub to deploy on Vercel.\n`));
+  } else if (target === 'netlify') {
+    fs.writeFileSync(path.join(process.cwd(), 'netlify.toml'), '[build]\n  publish = "dist"\n', 'utf-8');
+    console.log(chalk.green(`  ✓ Generated netlify.toml configuration`));
+    console.log(chalk.cyan(`  🚀 Ready! Run 'npx netlify-cli deploy --prod' to deploy on Netlify.\n`));
+  } else {
+    console.log(chalk.green(`  ✓ Static site bundle built in ./dist/index.html`));
+    console.log(chalk.cyan(`  🚀 Ready for static web hosting!\n`));
+  }
+}
+
+// ── AI Generator Command ──────────────────────────────────────────────────────
+function aiGenerator(promptStr) {
+  if (!promptStr || !promptStr.trim()) {
+    console.log(chalk.red('  ✗ Please provide a prompt: mreasy ai "a modern coffee shop landing page"'));
+    return;
+  }
+
+  console.log(chalk.cyan(`  🤖 Generating MR.easy site for: "${promptStr}"...`));
+  const p = promptStr.toLowerCase();
+
+  let code = `Mr.easy "${promptStr.charAt(0).toUpperCase() + promptStr.slice(1)}"\n\n`;
+
+  if (p.includes('coffee') || p.includes('restaurant') || p.includes('cafe') || p.includes('food')) {
+    code += `nav
+  logo "Artisan Cafe"
+  links Home Menu Story Contact
+  theme-toggle
+
+hero
+  title "Craft Coffee & Fresh Pastries" big glow
+  subtitle "Handcrafted with passion every single day in Addis Ababa"
+  button "View Menu" blue big
+  whatsapp-buy phone:"+251911000000" item:"Specialty Coffee Bundle" price:"$15"
+
+section "menu"
+  title "Popular Favorites" center
+  grid cols:3
+    card shadow
+      icon coffee
+      title "Espresso" small
+      text "Rich double shot from Yirgacheffe beans"
+    card shadow
+      icon heart
+      title "Cappuccino" small
+      text "Creamy milk foam with dark roast espresso"
+    card shadow
+      icon star
+      title "Croissant" small
+      text "Freshly baked butter croissant"
+
+footer
+  text "Made with ❤️ using MR.easy"
+`;
+  } else if (p.includes('portfolio') || p.includes('developer') || p.includes('designer')) {
+    code += `nav
+  logo "DevPortfolio"
+  links About Projects Skills Contact
+  theme-toggle
+
+hero
+  title "Full-Stack Engineer & Creator" big glow
+  subtitle "Building simple, fast, and beautiful web products"
+  button "View Work" blue big open-modal:contactModal
+
+section "projects"
+  title "Featured Projects" center
+  grid cols:2
+    card shadow glass
+      icon rocket
+      title "MR.easy Language" small
+      text "The simplest web programming language"
+      button "Live Preview" outline toast:"Opening project..."
+    card shadow glass
+      icon bolt
+      title "AI Web Assistant" small
+      text "Smart site generator powered by LLMs"
+      button "Live Preview" outline toast:"Opening project..."
+
+modal id:contactModal title:"Let's Work Together"
+  input type:text placeholder:"Your Name"
+  input type:email placeholder:"Your Email"
+  button "Send Message" blue
+
+footer
+  text "© 2026 Developer Portfolio • Built with MR.easy"
+`;
+  } else {
+    code += `nav
+  logo "My App"
+  links Features Pricing About Contact
+  theme-toggle
+
+hero
+  title "Build Websites Faster Than Ever" big glow
+  subtitle "The simple web programming language for everyone"
+  button "Get Started" blue big open-modal:signupModal
+
+pricing-table
+  plan title:"Starter" price:"$0/mo" button:"Get Started"
+    item "1 Project"
+    item "Community Support"
+  plan title:"Pro" price:"$19/mo" badge:"Popular" button:"Go Pro" featured:true
+    item "Unlimited Projects"
+    item "Custom Domain"
+    item "Priority Support"
+
+modal id:signupModal title:"Create Your Account"
+  input type:text placeholder:"Full Name"
+  input type:email placeholder:"Email Address"
+  button "Sign Up Free" green
+
+footer
+  text "Made with ❤️ using MR.easy"
+`;
+  }
+
+  const filename = 'ai-generated.mreasy';
+  fs.writeFileSync(path.join(process.cwd(), filename), code, 'utf-8');
+  console.log(chalk.green(`  ✓ Created ${filename}!`));
+  console.log(chalk.cyan(`  💡 Run 'mreasy run' to preview your new website live!\n`));
 }

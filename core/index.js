@@ -59,6 +59,7 @@ function compile(source, options = {}) {
       const targetCompiler = new WebCompilerTarget();
       const res = targetCompiler.compileIR(ir, ast);
       targetOutput = res.output;
+      warnings = res.warnings || [];
 
       if (lang === 'am') {
         const amharicIR = translator.translateIR(ir, 'am');

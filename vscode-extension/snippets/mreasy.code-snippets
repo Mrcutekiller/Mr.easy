@@ -111,5 +111,46 @@
       "  text \"${3:Building websites should feel like speaking plain words.}\""
     ],
     "description": "Insert quote testimonial block"
+  },
+  "Theme Toggle": {
+    "prefix": "theme-toggle",
+    "body": [
+      "theme-toggle"
+    ],
+    "description": "Insert light/dark mode theme toggle switch"
+  },
+  "Toast Notification": {
+    "prefix": "toast",
+    "body": [
+      "toast \"${1:Notification message}\""
+    ],
+    "description": "Trigger floating toast notification"
+  },
+  "WhatsApp Buy Button": {
+    "prefix": "whatsapp-buy",
+    "body": [
+      "whatsapp-buy phone:\"${1:+251911000000}\" item:\"${2:Specialty Coffee}\" price:\"${3:$15}\""
+    ],
+    "description": "Insert WhatsApp direct order button"
+  },
+  "Pricing Table": {
+    "prefix": "pricing-table",
+    "body": [
+      "pricing-table",
+      "  plan title:\"${1:Starter}\" price:\"${2:$0/mo}\" button:\"Get Started\"",
+      "    item \"${3:1 Project}\"",
+      "    item \"${4:Community Support}\"",
+      "  plan title:\"${5:Pro}\" price:\"${6:$19/mo}\" badge:\"Popular\" button:\"Go Pro\" featured:true",
+      "    item \"${7:Unlimited Projects}\"",
+      "    item \"${8:Priority Support}\""
+    ],
+    "description": "Insert responsive pricing cards table"
+  },
+  "Import Component": {
+    "prefix": "import",
+    "body": [
+      "import \"${1:./components/header.mreasy}\""
+    ],
+    "description": "Import external .mreasy component file"
   }
 }

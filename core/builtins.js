@@ -76,6 +76,34 @@ const builtinAnimations = `
       const icon = btn.querySelector('.mr-accordion-icon');
       if (icon) icon.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
     }
+  // Toast notification helper
+  window.mrShowToast = function(msg) {
+    let container = document.querySelector('.mr-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'mr-toast-container';
+      document.body.appendChild(container);
+    }
+    const t = document.createElement('div');
+    t.className = 'mr-toast';
+    t.innerHTML = msg;
+    container.appendChild(t);
+    setTimeout(() => { t.classList.add('show'); }, 10);
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 300);
+    }, 3000);
+  };
+
+  // Theme toggle helper
+  window.mrToggleTheme = function() {
+    const isLight = document.body.classList.toggle('mr-light-mode');
+    localStorage.setItem('mreasy_theme', isLight ? 'light' : 'dark');
+  };
+  if (localStorage.getItem('mreasy_theme') === 'light') {
+    document.body.classList.add('mr-light-mode');
+  }
+
   // Two-Way Live Preview Editing Event Listener
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-mreasy-text], .mr-title, .mr-text, .mr-button, .mr-card, .mr-subtitle');
@@ -616,6 +644,33 @@ const builtinStyles = `
   @keyframes mrSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes mrPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
   @keyframes mrBounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-12px); } 60% { transform: translateY(-6px); } }
+
+  /* ── THEME TOGGLE ── */
+  .mr-theme-toggle { background:var(--mr-glass); border:1px solid var(--mr-border); border-radius:999px; padding:6px 14px; color:var(--mr-text); cursor:pointer; font-family:var(--mr-font); font-size:0.85rem; font-weight:600; display:inline-flex; align-items:center; gap:8px; transition:all 0.2s; }
+  .mr-theme-toggle:hover { border-color:var(--mr-primary); transform:translateY(-1px); }
+  body.mr-light-mode { background:#f8fafc !important; color:#0f172a !important; }
+  body.mr-light-mode .mr-nav { background:rgba(248,250,252,0.9); }
+  body.mr-light-mode .mr-card, body.mr-light-mode .mr-pricing-card { background:white; border-color:rgba(0,0,0,0.1); color:#0f172a; box-shadow:0 10px 30px rgba(0,0,0,0.05); }
+  body.mr-light-mode .mr-text, body.mr-light-mode .mr-muted { color:#475569; }
+  body.mr-light-mode .mr-subtitle { color:#334155; }
+  body.mr-light-mode .mr-title { color:#0f172a; }
+
+  /* ── TOAST NOTIFICATIONS ── */
+  .mr-toast-container { position:fixed; bottom:24px; right:24px; z-index:10000; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+  .mr-toast { background:var(--mr-dark2); color:var(--mr-text); border:1px solid var(--mr-primary); border-radius:12px; padding:12px 20px; font-size:0.9rem; font-weight:600; box-shadow:0 10px 30px rgba(0,0,0,0.4); opacity:0; transform:translateY(20px); transition:all 0.3s ease; pointer-events:auto; }
+  .mr-toast.show { opacity:1; transform:translateY(0); }
+
+  /* ── WHATSAPP BUY BUTTON ── */
+  .mr-whatsapp-btn { background:#25d366 !important; color:white !important; border:none; display:inline-flex; align-items:center; gap:10px; font-weight:700; text-decoration:none; padding:12px 24px; border-radius:12px; transition:transform 0.2s, box-shadow 0.2s; box-shadow:0 4px 14px rgba(37,211,102,0.3); }
+  .mr-whatsapp-btn:hover { transform:scale(1.03); box-shadow:0 6px 20px rgba(37,211,102,0.4); }
+
+  /* ── PRICING TABLE & CARDS ── */
+  .mr-pricing-table { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px; margin:30px 0; }
+  .mr-pricing-card { background:var(--mr-dark2); border:1px solid var(--mr-border); border-radius:20px; padding:32px; display:flex; flex-direction:column; justify-content:space-between; position:relative; transition:all 0.3s ease; }
+  .mr-pricing-card:hover { border-color:var(--mr-primary); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3); }
+  .mr-pricing-card.featured { border-color:var(--mr-primary); background:linear-gradient(180deg, rgba(99,102,241,0.1), var(--mr-dark2)); }
+  .mr-pricing-price { font-size:2.5rem; font-weight:800; color:var(--mr-text); margin:16px 0; }
+  .mr-pricing-badge { position:absolute; top:-12px; right:24px; background:var(--mr-primary); color:white; font-size:0.75rem; font-weight:700; text-transform:uppercase; padding:4px 12px; border-radius:999px; }
 
   /* ── NON-FATAL COMPILATION ERROR BOX ── */
   .mr-error-box {

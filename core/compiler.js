@@ -149,6 +149,11 @@ ${js}
       case 'sidebar':     return this.Sidebar(node);
       case 'modal':       return this.Modal(node);
       case 'dropdown':    return this.Dropdown(node);
+      case 'themetoggle': return this.ThemeToggle(node);
+      case 'toast':       return this.Toast(node);
+      case 'whatsappbuy': return this.WhatsAppBuy(node);
+      case 'pricingtable': return this.PricingTable(node);
+      case 'plan':         return this.Plan(node);
       default:
         if (node.type && node.type !== 'Program' && node.type !== 'elif') {
           this.warnings.push(`Unknown element "${node.type}" — skipped`);
@@ -415,16 +420,25 @@ ${js}
   // ── INTERACTIVE ────────────────────────────────────────────────────────────
 
   Button(node) {
-    const { label, action, id } = node.props || {};
+    const { label, action, id, modal, openModal, toast } = node.props || {};
+    const openMod = node.props?.['open-modal'] || openModal || modal;
     const cls     = this.cls('mr-button', node);
-    const onClick = action ? `onclick="${this.esc(this.resolveAction(action))}"` : '';
+    let clickJs   = action ? this.resolveAction(action) : '';
+    if (openMod)  clickJs += (clickJs ? ';' : '') + `mrOpenModal('${this.esc(openMod)}')`;
+    if (toast)    clickJs += (clickJs ? ';' : '') + `mrShowToast('${this.esc(toast)}')`;
+    const onClick = clickJs ? `onclick="${this.esc(clickJs)}"` : '';
     return `<button class="${cls}" ${onClick} id="${this.esc(id || '')}">${this.esc(this.vars_(label, node) || 'Button')}</button>`;
   }
 
   Link(node) {
-    const { label, url, target, color: clr } = node.props || {};
+    const { label, url, target, color: clr, modal, openModal, toast } = node.props || {};
+    const openMod = node.props?.['open-modal'] || openModal || modal;
     const s = this.style({ color: this.color(clr) });
-    return `<a class="mr-link" href="${this.esc(this.vars_(url || '#'))}" target="${target || '_self'}" ${s}>${this.esc(this.vars_(label, node) || url || 'Link')}</a>`;
+    let clickJs = '';
+    if (openMod) clickJs += `mrOpenModal('${this.esc(openMod)}')`;
+    if (toast)   clickJs += (clickJs ? ';' : '') + `mrShowToast('${this.esc(toast)}')`;
+    const onClick = clickJs ? `onclick="${this.esc(clickJs)}"` : '';
+    return `<a class="mr-link" href="${this.esc(this.vars_(url || '#'))}" target="${target || '_self'}" ${onClick} ${s}>${this.esc(this.vars_(label, node) || url || 'Link')}</a>`;
   }
 
   Image(node) {
@@ -735,7 +749,7 @@ ${js}
   }
 
   While(node) {
-    const rawCond = node.props?.label || node.props?.condition || '';
+    const rawCond = node.props?.label || node.props?.condition || (node.props?.modifiers && node.props.modifiers[0]) || '';
     const body = this.compileChildren(node.children);
     const condJS = this.jsCondition(rawCond);
     this.warnings.push('while loop compiles to runtime JS (max 1000 iterations)');
@@ -791,19 +805,19 @@ ${js}
     const { label: filePath, from, source } = node.props || {};
     const fs = require('fs');
     const pathMod = require('path');
-    // import "filename.mreasy" or import header from "header.mreasy"
     const targetFile = source || filePath;
     if (!targetFile) return '<!-- import: no file specified -->';
     try {
-      // Resolve relative to current working directory
       const resolved = pathMod.resolve(process.cwd(), targetFile);
       if (!fs.existsSync(resolved)) {
         return `<!-- import: file "${targetFile}" not found -->`;
       }
-      const fileSource = fs.readFileSync(resolved, 'utf-8');
+      let fileSource = fs.readFileSync(resolved, 'utf-8').trim();
+      if (!fileSource.startsWith('Mr.easy')) {
+        fileSource = `Mr.easy "Imported Component"\n` + fileSource;
+      }
       const { compile: compileSrc } = require('./index');
       const { html } = compileSrc(fileSource);
-      // Extract just the body content
       const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
       return bodyMatch ? bodyMatch[1] : html;
     } catch (err) {
@@ -1067,6 +1081,50 @@ document.querySelectorAll('${selector}').forEach(function(el) {
   });
 })();`);
     return `<div class="mr-dropdown" id="${did}"><button class="mr-dropdown-btn">${this.esc(label||'Options')} ▾</button><div class="mr-dropdown-menu">${body}</div></div>`;
+  }
+
+  ThemeToggle(node) {
+    const { label } = node.props || {};
+    return `<button class="mr-theme-toggle" onclick="mrToggleTheme()"><i class="fa fa-moon"></i> <span>${this.esc(label || 'Toggle Theme')}</span></button>`;
+  }
+
+  Toast(node) {
+    const { label, message } = node.props || {};
+    const msg = message || label || 'Notification';
+    this.extraJS.push(`setTimeout(function(){ mrShowToast('${this.esc(msg)}'); }, 500);`);
+    return '';
+  }
+
+  WhatsAppBuy(node) {
+    const { phone, item, price, label } = node.props || {};
+    const ph = (phone || '').replace(/[^0-9]/g, '');
+    const txt = encodeURIComponent(`Hi! I want to order ${item || 'your product'}${price ? ' for ' + price : ''}.`);
+    const link = `https://wa.me/${ph}?text=${txt}`;
+    return `<a href="${this.esc(link)}" target="_blank" class="mr-whatsapp-btn"><i class="fa-brands fa-whatsapp" style="font-size:1.2rem"></i> ${this.esc(label || `Order via WhatsApp ${price ? '(' + price + ')' : ''}`)}</a>`;
+  }
+
+  PricingTable(node) {
+    const children = this.compileChildren(node.children);
+    return `<div class="mr-pricing-table">${children}</div>`;
+  }
+
+  Plan(node) {
+    const { title, label, price, badge, button, buttonUrl, link } = node.props || {};
+    const m = this.mods(node);
+    const planTitle = title || label || 'Plan';
+    const isFeatured = m.includes('featured') || badge;
+    const body = this.compileChildren(node.children);
+    const btnText = button || 'Choose Plan';
+    const href = buttonUrl || link || '#';
+    return `<div class="mr-pricing-card${isFeatured ? ' featured' : ''}">
+  ${badge ? `<div class="mr-pricing-badge">${this.esc(badge)}</div>` : ''}
+  <div>
+    <h3 class="mr-title small">${this.esc(planTitle)}</h3>
+    ${price ? `<div class="mr-pricing-price">${this.esc(price)}</div>` : ''}
+    <div class="mr-pricing-body">${body}</div>
+  </div>
+  <a href="${this.esc(href)}" class="mr-button ${isFeatured ? 'blue' : 'outline'}" style="margin-top:24px;text-align:center;">${this.esc(btnText)}</a>
+</div>`;
   }
 
   resolveAction(action) {

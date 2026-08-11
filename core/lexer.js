@@ -37,7 +37,9 @@ const KEYWORDS = new Set([
   'button', 'link', 'image', 'img', 'video', 'icon',
   'list', 'form', 'input', 'divider', 'spacer',
   // Special
-  'logo', 'links', 'menu',
+  'logo', 'links', 'menu', 'theme-toggle', 'theme_toggle', 'toast',
+  // E-commerce & Interactive
+  'whatsapp-buy', 'whatsapp_buy', 'pricing-table', 'pricing_table', 'plan',
   // Logic
   'set', 'repeat', 'times', 'if', 'else', 'end',
   'show', 'hide', 'animate',

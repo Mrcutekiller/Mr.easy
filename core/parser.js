@@ -29,6 +29,8 @@ const STATEMENT_KEYWORDS = new Set([
   'badge', 'tag', 'alert', 'progress', 'avatar',
   'quote', 'code', 'stat', 'select', 'checkbox',
   'toggle', 'embed', 'rating', 'countdown',
+  'theme-toggle', 'theme_toggle', 'toast',
+  'whatsapp-buy', 'whatsapp_buy', 'pricing-table', 'pricing_table', 'plan',
 ]);
 
 class ASTNode {
@@ -206,6 +208,14 @@ class Parser {
       case 'countdown': return this.parseInline('countdown');
       case 'th':        return this.parseInline('th');
       case 'td':        return this.parseInline('td');
+      case 'theme-toggle':
+      case 'theme_toggle': return this.parseInline('themetoggle');
+      case 'toast':        return this.parseInline('toast');
+      case 'whatsapp-buy':
+      case 'whatsapp_buy': return this.parseInline('whatsappbuy');
+      case 'pricing-table':
+      case 'pricing_table': return this.parseBlock('pricingtable');
+      case 'plan':          return this.parseBlock('plan');
 
       default:
         // Fuzzy match suggestion using Levenshtein distance
