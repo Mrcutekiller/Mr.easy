@@ -1859,11 +1859,21 @@ hero
     clearTourHighlights();
     const popover = document.getElementById('tour-popover-box');
     if (popover) popover.style.display = 'none';
+    try {
+      root.sessionStorage.setItem('mreasy_tour_dismissed', 'true');
+      root.localStorage.setItem('mreasy_tour_dismissed', 'true');
+    } catch (e) {}
   }
 
   function checkFirstTimeTour() {
-    // Automatically show Welcome Guided Tour when opening the Web IDE
-    setTimeout(startGuidedTour, 400);
+    try {
+      const sessionDismissed = root.sessionStorage?.getItem('mreasy_tour_dismissed');
+      const localDismissed = root.localStorage?.getItem('mreasy_tour_dismissed');
+      if (sessionDismissed === 'true' || localDismissed === 'true') {
+        return; // Don't auto-show tour if user previously closed or skipped it!
+      }
+      setTimeout(startGuidedTour, 450);
+    } catch (e) {}
   }
 
   root.addEventListener('DOMContentLoaded', () => {
