@@ -84,7 +84,11 @@
     .docs-header h1 em { color: var(--brass-bright); font-style: italic; }
     .docs-header p { color: var(--muted); font-size: 1.1rem; line-height: 1.7; margin: 0; }
     
-    .docs-section { margin-bottom: 56px; scroll-margin-top: 90px; }
+    .docs-section {
+      margin-bottom: 56px; scroll-margin-top: 90px;
+      content-visibility: auto; contain-intrinsic-size: 1px 600px;
+    }
+    #overview { content-visibility: visible !important; }
     .docs-section h2 { font: 500 1.8rem var(--font-display); color: var(--parchment); border-bottom: 1px solid var(--hairline); padding-bottom: 10px; margin-bottom: 20px; }
     .docs-section h3 { font: 600 1.2rem var(--font-sans); color: var(--brass-bright); margin-top: 28px; margin-bottom: 12px; }
     .docs-section p { color: var(--muted); line-height: 1.8; font-size: .96rem; }
