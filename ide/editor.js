@@ -1201,34 +1201,53 @@ hero
 
   function formatCode() {
     const source = getSourceCode();
+    if (!source.trim()) {
+      showToast('⚠️ Editor is empty');
+      return;
+    }
     const lines = source.split('\n');
     let currentIndent = 0;
-    const blockKeywords = ['nav', 'hero', 'section', 'grid', 'card', 'box', 'list', 'form', 'accordion', 'tabs', 'tab', 'table', 'thead', 'tbody', 'tr', 'repeat'];
+    const blockStartKeywords = ['nav', 'hero', 'section', 'grid', 'card', 'box', 'list', 'form', 'accordion', 'tabs', 'tab', 'table', 'thead', 'tbody', 'tr', 'repeat', 'row', 'col'];
+    const blockEndKeywords = ['end'];
 
-    const formattedLines = lines.map(rawLine => {
+    const formattedLines = [];
+    lines.forEach(rawLine => {
       const trimmed = rawLine.trim();
-      if (!trimmed) return '';
-      if (trimmed.startsWith('#')) return '  '.repeat(currentIndent) + trimmed;
+      if (!trimmed) {
+        formattedLines.push('');
+        return;
+      }
 
       if (trimmed.startsWith('Mr.easy')) {
         currentIndent = 0;
-        return trimmed;
+        formattedLines.push(trimmed);
+        return;
+      }
+
+      if (trimmed.startsWith('#')) {
+        formattedLines.push('  '.repeat(currentIndent) + trimmed);
+        return;
       }
 
       const firstWord = trimmed.split(/\s+/)[0].toLowerCase();
-      const lineIndent = '  '.repeat(currentIndent);
 
-      if (blockKeywords.includes(firstWord)) {
-        const result = lineIndent + trimmed;
-        currentIndent += 1;
-        return result;
+      if (blockEndKeywords.includes(firstWord)) {
+        currentIndent = Math.max(0, currentIndent - 1);
+        formattedLines.push('  '.repeat(currentIndent) + trimmed);
+        return;
       }
 
-      return lineIndent + trimmed;
+      formattedLines.push('  '.repeat(currentIndent) + trimmed);
+
+      if (blockStartKeywords.includes(firstWord)) {
+        currentIndent++;
+      }
     });
 
-    setSourceCode(formattedLines.join('\n'));
-    showToast('✨ Code auto-formatted!');
+    const newSource = formattedLines.join('\n');
+    setSourceCode(newSource);
+    compileAndPreview();
+    showToast('✨ Code auto-formatted cleanly!');
   }
 
   function downloadBlob(content, filename, type) {
@@ -1349,18 +1368,31 @@ hero
     }
   }
 
-  function formatCode() { showToast('✨ Code formatted'); }
   function increaseFontSize() { setFontSize(Math.min(fontSize + 2, 28)); }
   function decreaseFontSize() { setFontSize(Math.max(fontSize - 2, 10)); }
   function setFontSize(size) {
     fontSize = size;
-    document.querySelectorAll('.CodeMirror, #code-textarea').forEach(element => { element.style.fontSize = `${fontSize}px`; });
+    const lineHeight = Math.round(fontSize * 1.5);
+    if (editor) {
+      const wrapper = editor.getWrapperElement();
+      if (wrapper) {
+        wrapper.style.fontSize = `${fontSize}px`;
+        wrapper.style.lineHeight = `${lineHeight}px`;
+      }
+    }
+    document.querySelectorAll('.CodeMirror, .CodeMirror-lines, .CodeMirror pre.CodeMirror-line, .CodeMirror-linenumber, #code-textarea').forEach(element => {
+      element.style.fontSize = `${fontSize}px`;
+      element.style.lineHeight = `${lineHeight}px`;
+    });
     const label = document.getElementById('font-size-label');
     if (label) label.textContent = `${fontSize}px`;
     const settingsLabel = document.getElementById('settings-font-label');
     if (settingsLabel) settingsLabel.textContent = `${fontSize}px`;
-    if (editor) editor.refresh();
+    if (editor) {
+      setTimeout(() => editor.refresh(), 20);
+    }
     saveSettings();
+    showToast(`🔤 Font size: ${fontSize}px`);
   }
 
   // Search inside CodeMirror
