@@ -80,6 +80,73 @@
     .section-heading h2 em { color: var(--brass-bright); }
     .section-heading p { max-width: 560px; margin: 0; color: var(--muted); font-size: .96rem; line-height: 1.85; }
 
+    /* Optimized Hardware Acceleration */
+    .mascot-hero, .floating-code-card, .bento-cell, .ticker-move {
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    /* Money Site Blueprint Hero Switcher */
+    .hero-blueprint-switcher {
+      width: 100%; border: 1px solid var(--hairline-brass); background: var(--ink-1);
+      border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-focus);
+    }
+    .blueprint-tabs {
+      display: flex; background: var(--ink-2); border-bottom: 1px solid var(--hairline); overflow-x: auto;
+    }
+    .blueprint-tab {
+      padding: 10px 16px; font: 500 .73rem var(--font-mono); color: var(--muted); background: transparent;
+      border: 0; border-right: 1px solid var(--hairline); cursor: pointer; white-space: nowrap; transition: all .2s;
+    }
+    .blueprint-tab:hover, .blueprint-tab.active {
+      color: var(--brass-bright); background: var(--ink-1); border-bottom: 2px solid var(--brass);
+    }
+    .blueprint-split {
+      display: grid; grid-template-columns: 1fr 1fr; min-height: 380px;
+    }
+    .blueprint-code-pane {
+      padding: 18px; font: .73rem/1.8 var(--font-mono); background: var(--ink-1); color: var(--muted);
+      border-right: 1px solid var(--hairline); overflow-y: auto; max-height: 380px; text-align: left;
+    }
+    .blueprint-preview-pane {
+      padding: 0; background: var(--ink-0); display: grid; place-items: center; max-height: 380px; overflow: hidden;
+    }
+    .blueprint-preview-frame {
+      width: 100%; height: 380px; border: 0; background: var(--ink-2);
+    }
+
+    /* Money Site Video Cards */
+    .video-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-top: 36px;
+    }
+    .video-card {
+      border: 1px solid var(--hairline-brass); background: var(--ink-1); border-radius: 12px;
+      overflow: hidden; box-shadow: var(--shadow-focus); transition: transform .3s ease;
+    }
+    .video-card:hover { transform: translateY(-4px); }
+    .video-player-container {
+      position: relative; aspect-ratio: 16/9; background: #080706; display: flex; align-items: center; justify-content: center;
+      background-size: cover; background-position: center; border-bottom: 1px solid var(--hairline);
+    }
+    .video-play-btn {
+      width: 60px; height: 60px; border-radius: 50%; background: rgba(200,150,58,.9); color: var(--ink-0);
+      display: grid; place-items: center; font-size: 1.5rem; cursor: pointer; border: 0; transition: transform .2s, background .2s;
+    }
+    .video-play-btn:hover { transform: scale(1.1); background: var(--brass-bright); }
+    .video-badge {
+      position: absolute; top: 12px; left: 12px; padding: 4px 10px; background: rgba(0,0,0,.75);
+      color: var(--brass-bright); font: 600 .68rem var(--font-mono); border-radius: 4px; border: 1px solid var(--hairline-brass);
+    }
+    .video-duration {
+      position: absolute; bottom: 12px; right: 12px; padding: 4px 8px; background: rgba(0,0,0,.85);
+      color: var(--parchment); font: .68rem var(--font-mono); border-radius: 4px;
+    }
+    .video-info { padding: 22px; }
+    .video-info h3 { margin: 0 0 8px; font: 500 1.4rem var(--font-display); color: var(--parchment); }
+    .video-info p { margin: 0 0 16px; color: var(--muted); font-size: .84rem; line-height: 1.6; }
+    .video-steps { font: .72rem var(--font-mono); color: var(--dim); margin-bottom: 16px; display: grid; gap: 4px; }
+    .video-steps span { color: var(--brass-bright); }
+
     /* Navigation */
     .heritage-nav {
       position: sticky; top: 0; z-index: 100; min-height: 72px;
@@ -99,12 +166,12 @@
     .nav-cta::after { content: '↗'; font-size: .95rem; }
 
     /* Hero */
-    .hero { position: relative; min-height: 700px; padding: 112px 0 126px; border-bottom: 1px solid var(--hairline); }
-    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr); gap: 48px; align-items: center; }
+    .hero { position: relative; min-height: 700px; padding: 100px 0 110px; border-bottom: 1px solid var(--hairline); }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, 1.1fr); gap: 48px; align-items: center; }
     .hero-copy { position: relative; z-index: 2; }
-    .hero-copy h1 { max-width: 720px; margin: 0 0 24px; font: 500 clamp(3.7rem, 7.8vw, 7.6rem)/.93 var(--font-display); letter-spacing: -.065em; }
+    .hero-copy h1 { max-width: 720px; margin: 0 0 24px; font: 500 clamp(3.2rem, 6.8vw, 6.4rem)/.95 var(--font-display); letter-spacing: -.05em; }
     .hero-copy h1 em { display: block; color: var(--brass-bright); font-style: italic; }
-    .hero-copy .hero-lede { max-width: 480px; margin: 0 0 32px; color: var(--muted); font-size: 1rem; line-height: 1.85; }
+    .hero-copy .hero-lede { max-width: 500px; margin: 0 0 32px; color: var(--muted); font-size: 1rem; line-height: 1.85; }
     .hero-copy code { color: var(--brass-bright); font-family: var(--font-mono); font-size: .88em; }
     .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 38px; }
     .button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 45px; padding: 0 18px; border: 1px solid transparent; border-radius: 2px; cursor: pointer; text-decoration: none; font-size: .8rem; transition: transform .25s var(--ease-heritage), background .25s, border-color .25s, color .25s; }
@@ -291,14 +358,15 @@
   <div class="site-shell">
     <div class="heritage-rule"></div>
     <nav class="heritage-nav" aria-label="Primary navigation">
-      <a href="#top" class="brand-lockup"><span class="brand-mr">Mr</span><span class="brand-dot">.</span><span class="brand-easy">easy</span><span class="brand-origin">ADDIS ABABA / 2026</sp      <ul class="nav-links">
+      <a href="#top" class="brand-lockup"><span class="brand-mr">Mr</span><span class="brand-dot">.</span><span class="brand-easy">easy</span><span class="brand-origin">ADDIS ABABA / 2026</span></a>
+      <ul class="nav-links">
+        <li><a href="#money-site-videos">Video Demos 📹</a></li>
+        <li><a href="docs.html" target="_blank" style="color:var(--brass-bright);font-weight:600;">Docs Manual 📖</a></li>
         <li><a href="#guide">Guide</a></li>
         <li><a href="#live-demo">Preview</a></li>
         <li><a href="#comparison">MR.easy vs HTML</a></li>
-        <li><a href="#examples">Examples</a></li>
-        <li><a href="#roadmap">Roadmap</a></li>
-        <li><a href="#about">Origin</a></li>
-        <li><a href="https://github.com/Mrcutekiller/Mr.easy" target="_blank" rel="noreferrer" class="nav-cta" style="background:var(--ink-2);color:var(--parchment)!important;border:1px solid var(--hairline-brass);">★ GitHub Repo</a></li>
+        <li><a href="#examples">Blueprints</a></li>
+        <li><a href="https://github.com/Mrcutekiller/Mr.easy" target="_blank" rel="noreferrer" class="nav-cta" style="background:var(--ink-2);color:var(--parchment)!important;border:1px solid var(--hairline-brass);">★ GitHub</a></li>
         <li><a href="ide/" target="_blank" rel="noreferrer" class="nav-cta">Open IDE</a></li>
       </ul>
     </nav>
@@ -308,22 +376,47 @@
         <span class="geez-watermark" aria-hidden="true">፨</span>
         <div class="container hero-grid">
           <div class="hero-copy">
-            <div class="eyebrow">Adwa heritage / browser native</div>
-            <h1>Write words.<em>Render worlds.</em></h1>
-            <p class="hero-lede">MR.easy is a small, expressive language born in Ethiopia. Describe a page like you would explain it to a person — and get a living website in return.</p>
+            <div class="eyebrow">💰 Instant Money Site Creator</div>
+            <h1>Build Money Sites <em>in Minutes.</em></h1>
+            <p class="hero-lede">MR.easy helps you turn plain words into high-converting sales pages, digital storefronts, affiliate review hubs, and lead funnels — <strong>no HTML/CSS bloat, zero build setup.</strong></p>
             <div class="hero-actions">
-              <a class="button button-brass" href="ide/" target="_blank" rel="noreferrer">Open the web IDE <span>↗</span></a>
-              <a class="button button-quiet" href="#live-demo">See it compile <span>↓</span></a>
+              <a class="button button-brass" href="ide/" target="_blank" rel="noreferrer">🚀 Launch Web IDE <span>↗</span></a>
+              <a class="button button-quiet" href="docs.html" target="_blank">📖 Open Docs Manual</a>
+              <a class="button button-quiet" href="#money-site-videos">📹 Watch Video Demos</a>
             </div>
             <div class="terminal-block" aria-label="MR.easy command">
               <div class="terminal-bar"><span class="terminal-dots"><i></i><i></i><i></i></span><span>new-project / terminal</span><button class="terminal-copy" onclick="copyText(this, 'mreasy new mywebsite')" title="Copy command">⎘ Copy</button></div>
-              <div class="terminal-line"><span class="terminal-prompt">$</span><span class="terminal-command">mreasy new mywebsite</span></div>
+              <div class="terminal-line"><span class="terminal-prompt">$</span><span class="terminal-command">mreasy new my-money-site</span></div>
             </div>
-            <div class="hero-meta"><span><strong>01</strong> / less ceremony</span><span><strong>02</strong> / live output</span><span><strong>03</strong> / free forever</span></div>
+            <div class="hero-meta"><span><strong>01</strong> / 5-min launch</span><span><strong>02</strong> / instant buy buttons</span><span><strong>03</strong> / 100% free</span></div>
           </div>
-          <div class="hero-visual">
-            <img class="mascot-hero" src="assets/ethiopian_scholar.png" alt="Ethiopian historical scholar with parchment scroll and traditional brass shield">
-            <div class="floating-code-card" aria-label="MR.easy code sample"><span class="comment"># a whole page, in plain words</span><br><b>hero</b><br>&nbsp;&nbsp;<span class="green">title</span> <b>"Make room for ideas"</b><br>&nbsp;&nbsp;<span class="green">button</span> <b>"Begin"</b> <span class="comment">big</span></div>
+          <div class="hero-visual" style="min-height:420px;display:block;">
+            <div class="hero-blueprint-switcher">
+              <div class="blueprint-tabs">
+                <button class="blueprint-tab active" onclick="switchHeroBlueprint('saas', this)">🚀 SaaS ($5k/mo)</button>
+                <button class="blueprint-tab" onclick="switchHeroBlueprint('digital', this)">📦 E-Book Store</button>
+                <button class="blueprint-tab" onclick="switchHeroBlueprint('affiliate', this)">💰 Affiliate Hub</button>
+                <button class="blueprint-tab" onclick="switchHeroBlueprint('agency', this)">⚡ Agency Leads</button>
+              </div>
+              <div class="blueprint-split">
+                <div class="blueprint-code-pane" id="hero-blueprint-code">
+                  <span class="decl">Mr.easy</span> <span class="string">"FlowCraft SaaS — $49/mo Plan"</span><br><br>
+                  <span class="keyword">hero</span> bg:#0f0d0b padding:60<br>
+                  &nbsp;&nbsp;<span class="keyword">badge</span> <span class="string">"50% OFF"</span> <span class="comment">purple</span><br>
+                  &nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Automate Workflows"</span> <span class="comment">big glow</span><br>
+                  &nbsp;&nbsp;<span class="keyword">subtitle</span> <span class="string">"Save 15+ hours every week"</span><br>
+                  &nbsp;&nbsp;<span class="keyword">button</span> <span class="string">"Start Free Trial"</span> <span class="comment">blue big</span><br><br>
+                  <span class="keyword">section</span> <span class="string">"pricing"</span> bg:#141210<br>
+                  &nbsp;&nbsp;<span class="keyword">grid</span> cols:2<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">card</span> shadow<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">title</span> <span class="string">"Pro — $49/mo"</span> small<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">button</span> <span class="string">"Subscribe"</span> <span class="comment">green</span>
+                </div>
+                <div class="blueprint-preview-pane">
+                  <iframe id="hero-blueprint-iframe" class="blueprint-preview-frame" title="Hero Money Site Preview"></iframe>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -333,6 +426,181 @@
           <span class="ticker-item">Built in Ethiopia</span><span class="ticker-item">Free for everyone</span><span class="ticker-item">No HTML required</span><span class="ticker-item">Live browser output</span><span class="ticker-item">Adwa Heritage</span><span class="ticker-item">Zero Build Ceremony</span><span class="ticker-item">Human Readable</span><span class="ticker-item">Open Source</span>
         </div>
       </div>
+
+      <!-- VIDEO TUTORIALS & DEMONSTRATIONS -->
+      <section class="section" id="money-site-videos" style="background:var(--ink-1);">
+        <div class="container">
+          <div class="section-heading">
+            <div class="eyebrow">📹 Step-by-Step Video Masterclasses</div>
+            <h2>Learn How to <em>Install, Code & Save</em></h2>
+            <p>Watch these short video walkthroughs showing how to install MR.easy, write code, save compiled HTML, and build high-converting money sites.</p>
+          </div>
+
+          <!-- CORE HOW-TO VIDEOS -->
+          <div class="video-grid" style="margin-bottom:48px;">
+            <!-- Core Video 1: How to Install -->
+            <div class="video-card">
+              <div class="video-player-container" style="background-image:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), radial-gradient(circle, rgba(200,150,58,.25) 0%, rgba(8,7,6,1) 80%);">
+                <span class="video-badge">⚙️ INSTALLATION GUIDE</span>
+                <button class="video-play-btn" onclick="playSimulatedVideo(this, 'install')" title="Play Installation Video">▶</button>
+                <span class="video-duration">01:15</span>
+              </div>
+              <div class="video-info">
+                <h3>How to Install MR.easy (Windows & Web)</h3>
+                <p>Step-by-step walkthrough of running the 1-line PowerShell installer, batch file installer, or accessing the zero-install Web IDE.</p>
+                <div class="video-steps">
+                  <div><span>0:00</span> — Open PowerShell / run installer\install.ps1</div>
+                  <div><span>0:35</span> — Testing CLI command: <code>mreasy new mywebsite</code></div>
+                  <div><span>1:00</span> — Using Web IDE in browser without installation</div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <button class="button button-brass" onclick="loadVideoTemplate('install')" style="min-height:36px;padding:0 12px;font-size:.73rem;">⚡ Test Install Demo in IDE</button>
+                  <a href="docs.html#installation" target="_blank" class="button button-quiet" style="min-height:36px;padding:0 12px;font-size:.73rem;">📖 Read Install Manual</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Core Video 2: How to Code -->
+            <div class="video-card">
+              <div class="video-player-container" style="background-image:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), radial-gradient(circle, rgba(34,197,94,.25) 0%, rgba(8,7,6,1) 80%);">
+                <span class="video-badge">💻 CODING TUTORIAL</span>
+                <button class="video-play-btn" onclick="playSimulatedVideo(this, 'code')" title="Play Coding Video">▶</button>
+                <span class="video-duration">01:45</span>
+              </div>
+              <div class="video-info">
+                <h3>How to Code Websites in MR.easy</h3>
+                <p>Master writing readable words, declaration line, indentation hierarchy, custom colors, font sizes, and live real-time preview output.</p>
+                <div class="video-steps">
+                  <div><span>0:00</span> — Declaration line: <code>Mr.easy "Title"</code></div>
+                  <div><span>0:40</span> — Adding layout elements: <code>nav</code>, <code>hero</code>, <code>grid</code>, <code>card</code></div>
+                  <div><span>1:15</span> — Adding custom styles: <code>bg:#hex</code>, <code>color:#hex</code>, <code>glow</code></div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <button class="button button-brass" onclick="loadVideoTemplate('code')" style="min-height:36px;padding:0 12px;font-size:.73rem;">🚀 Open Code Editor in IDE</button>
+                  <a href="docs.html#syntax-rules" target="_blank" class="button button-quiet" style="min-height:36px;padding:0 12px;font-size:.73rem;">📖 Read Syntax Guide</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Core Video 3: How to Save & Export -->
+            <div class="video-card" style="grid-column: span 2;">
+              <div class="video-player-container" style="background-image:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), radial-gradient(circle, rgba(59,130,246,.25) 0%, rgba(8,7,6,1) 80%);">
+                <span class="video-badge">💾 SAVE & EXPORT GUIDE</span>
+                <button class="video-play-btn" onclick="playSimulatedVideo(this, 'save')" title="Play Save Video">▶</button>
+                <span class="video-duration">01:30</span>
+              </div>
+              <div class="video-info">
+                <h3>How to Save, Compile & Export Production Websites</h3>
+                <p>Learn how to save your files, run <code>mreasy build</code> in your terminal to generate clean production HTML, or click <strong>Download ZIP</strong> in the Web IDE for 1-click hosting on Vercel or Netlify.</p>
+                <div class="video-steps" style="grid-template-columns: repeat(3, 1fr);">
+                  <div><span>0:00</span> — Running <code>mreasy compile page.mreasy</code></div>
+                  <div><span>0:45</span> — Running <code>mreasy build</code> for dist/ bundle</div>
+                  <div><span>1:10</span> — Clicking 1-click Download ZIP in Web IDE</div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <button class="button button-brass" onclick="loadVideoTemplate('save')" style="min-height:36px;padding:0 12px;font-size:.73rem;">📦 Test Export in Web IDE</button>
+                  <a href="docs.html#cli-guide" target="_blank" class="button button-quiet" style="min-height:36px;padding:0 12px;font-size:.73rem;">📖 Read CLI Build Docs</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MONEY SITE BLUEPRINT VIDEOS -->
+          <div class="section-heading" style="margin-top:40px;">
+            <div class="eyebrow">💰 Money-Site Video Templates</div>
+            <h3>Build Profitable Websites in 5 Minutes</h3>
+          </div>
+          <div class="video-grid">
+            <!-- Video 4: SaaS -->
+            <div class="video-card">
+              <div class="video-player-container" style="background-image:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), radial-gradient(circle, rgba(200,150,58,.2) 0%, rgba(8,7,6,1) 80%);">
+                <span class="video-badge">🚀 SAAS BLUEPRINT</span>
+                <button class="video-play-btn" onclick="playSimulatedVideo(this, 'saas')" title="Play Video">▶</button>
+                <span class="video-duration">02:15</span>
+              </div>
+              <div class="video-info">
+                <h3>Building a $5k/mo SaaS Landing & Pricing Page</h3>
+                <p>Learn how to build a subscription software landing page with hero badges, 3-tier pricing cards, and high-converting CTA buttons.</p>
+                <div class="video-steps">
+                  <div><span>0:00</span> — Setting up Mr.easy declaration</div>
+                  <div><span>0:45</span> — Adding hero section & feature grids</div>
+                  <div><span>1:30</span> — Creating 3-tier pricing table & CTA buttons</div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <button class="button button-brass" onclick="loadVideoTemplate('saas')" style="min-height:36px;padding:0 12px;font-size:.73rem;">🚀 Open Code in IDE</button>
+                  <a href="docs.html#blueprint-saas" target="_blank" class="button button-quiet" style="min-height:36px;padding:0 12px;font-size:.73rem;">📖 View Manual Docs</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Video 5: Ebook -->
+            <div class="video-card">
+              <div class="video-player-container" style="background-image:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), radial-gradient(circle, rgba(34,197,94,.2) 0%, rgba(8,7,6,1) 80%);">
+                <span class="video-badge">📦 E-BOOK STORE</span>
+                <button class="video-play-btn" onclick="playSimulatedVideo(this, 'digital')" title="Play Video">▶</button>
+                <span class="video-duration">01:45</span>
+              </div>
+              <div class="video-info">
+                <h3>Digital Product & E-Book Sales Storefront</h3>
+                <p>Turn plain text into an automated digital product download page with bestseller tags and instant buy buttons.</p>
+                <div class="video-steps">
+                  <div><span>0:00</span> — Crafting ebook title & headline</div>
+                  <div><span>0:40</span> — Adding product features & deliverable list</div>
+                  <div><span>1:15</span> — Adding Stripe checkout buy button</div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <button class="button button-brass" onclick="loadVideoTemplate('digital')" style="min-height:36px;padding:0 12px;font-size:.73rem;">🚀 Open Code in IDE</button>
+                  <a href="docs.html#blueprint-digital" target="_blank" class="button button-quiet" style="min-height:36px;padding:0 12px;font-size:.73rem;">📖 View Manual Docs</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Video 6: Affiliate -->
+            <div class="video-card">
+              <div class="video-player-container" style="background-image:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), radial-gradient(circle, rgba(59,130,246,.2) 0%, rgba(8,7,6,1) 80%);">
+                <span class="video-badge">💰 AFFILIATE HUB</span>
+                <button class="video-play-btn" onclick="playSimulatedVideo(this, 'affiliate')" title="Play Video">▶</button>
+                <span class="video-duration">02:00</span>
+              </div>
+              <div class="video-info">
+                <h3>High-Commission Affiliate Review Hub</h3>
+                <p>Create high-ranking product comparison cards, rating badges, and affiliate link buttons that maximize click-through rate.</p>
+                <div class="video-steps">
+                  <div><span>0:00</span> — Structuring review site header</div>
+                  <div><span>0:50</span> — Adding rating badges (9.8/10) & review cards</div>
+                  <div><span>1:40</span> — Linking affiliate partner CTA buttons</div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <button class="button button-brass" onclick="loadVideoTemplate('affiliate')" style="min-height:36px;padding:0 12px;font-size:.73rem;">🚀 Open Code in IDE</button>
+                  <a href="docs.html" target="_blank" class="button button-quiet" style="min-height:36px;padding:0 12px;font-size:.73rem;">📖 View Manual Docs</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Video 7: Agency -->
+            <div class="video-card">
+              <div class="video-player-container" style="background-image:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), radial-gradient(circle, rgba(139,92,246,.2) 0%, rgba(8,7,6,1) 80%);">
+                <span class="video-badge">⚡ AGENCY LEADS</span>
+                <button class="video-play-btn" onclick="playSimulatedVideo(this, 'agency')" title="Play Video">▶</button>
+                <span class="video-duration">02:30</span>
+              </div>
+              <div class="video-info">
+                <h3>Local Agency & Client Lead Generation Page</h3>
+                <p>Build a local business service page complete with service grid cards, strategy call buttons, and embedded lead forms.</p>
+                <div class="video-steps">
+                  <div><span>0:00</span> — Creating agency header & call button</div>
+                  <div><span>1:00</span> — Adding 3-column service package grid</div>
+                  <div><span>1:50</span> — Embedding customer audit lead form</div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <button class="button button-brass" onclick="loadVideoTemplate('agency')" style="min-height:36px;padding:0 12px;font-size:.73rem;">🚀 Open Code in IDE</button>
+                  <a href="docs.html" target="_blank" class="button button-quiet" style="min-height:36px;padding:0 12px;font-size:.73rem;">📖 View Manual Docs</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section class="section" id="live-demo">
         <div class="container">
@@ -653,7 +921,7 @@ grid cols:2
         <div class="footer-grid">
           <div class="footer-brand"><a href="#top" class="brand-lockup"><span class="brand-mr">Mr</span><span class="brand-dot">.</span><span class="brand-easy">easy</span></a><p>A small programming language born in Ethiopia. Simple enough to start. Capable enough to keep.</p></div>
           <div class="footer-column"><h4>Explore</h4><ul><li><a href="#live-demo">Live preview</a></li><li><a href="#how">How it works</a></li><li><a href="#syntax">Syntax playground</a></li><li><a href="#examples">Examples</a></li></ul></div>
-          <div class="footer-column"><h4>Build</h4><ul><li><a href="ide/" target="_blank" rel="noreferrer">Web IDE ↗</a></li><li><a href="#guide">Installation Guide</a></li><li><a href="README.md">Read the docs</a></li></ul></div>
+          <div class="footer-column"><h4>Build & Learn</h4><ul><li><a href="ide/" target="_blank" rel="noreferrer">Web IDE ↗</a></li><li><a href="docs.html" target="_blank">Documentation Manual 📖</a></li><li><a href="MANUAL.md" target="_blank">Raw MANUAL.md</a></li><li><a href="#money-site-videos">Video Tutorials 📹</a></li></ul></div>
           <div class="footer-column"><h4>Origin & Community</h4><ul><li><a href="#about">The story</a></li><li><a href="devlog.html">Biruk's Devlog ↗</a></li><li><a href="showcase.html">Showcase Gallery ↗</a></li><li><a href="https://instagram.com/mrcute_killer" target="_blank" rel="noreferrer">@mrcute_killer ↗</a></li><li><a href="https://github.com/Mrcutekiller/Mr.easy" target="_blank" rel="noreferrer">GitHub Repo ↗</a></li></ul></div>
         </div>
         <div class="footer-bottom"><span>© 2026 MR.easy / Created by Biruk</span><span>Made in Ethiopia · ፨</span></div>
@@ -663,11 +931,12 @@ grid cols:2
 
   <script src="ide/compiler.js"></script>
   <script>
+    /* Performance Optimized Background Canvas Loop */
     (function initHeritageCanvas() {
       if (!window.THREE) return;
       const canvas = document.getElementById('bg-canvas');
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.4));
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "low-power" });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2));
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, .1, 100);
       camera.position.z = 5;
@@ -679,30 +948,212 @@ grid cols:2
         group.add(mesh);
       });
       scene.add(group);
+
       function resize() { renderer.setSize(window.innerWidth, window.innerHeight); camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); }
       resize(); window.addEventListener('resize', resize);
+
       let mx = 0, my = 0, clock = 0;
-      window.addEventListener('pointermove', event => { mx = event.clientX / window.innerWidth - .5; my = event.clientY / window.innerHeight - .5; });
-      function tick() { requestAnimationFrame(tick); clock += .01; group.children.forEach(mesh => { mesh.rotation.x += mesh.userData.rx; mesh.rotation.y += mesh.userData.ry; mesh.position.y = mesh.userData.baseY + Math.sin(clock) * .08; }); group.rotation.y += (mx * .16 - group.rotation.y) * .02; group.rotation.x += (-my * .08 - group.rotation.x) * .02; renderer.render(scene, camera); }
+      let isCanvasVisible = true, animFrameId = null;
+
+      const observer = new IntersectionObserver((entries) => {
+        isCanvasVisible = entries[0].isIntersecting;
+        if (isCanvasVisible && !document.hidden && !animFrameId) tick();
+      }, { threshold: 0.05 });
+      observer.observe(canvas);
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && animFrameId) {
+          cancelAnimationFrame(animFrameId);
+          animFrameId = null;
+        } else if (!document.hidden && isCanvasVisible && !animFrameId) {
+          tick();
+        }
+      });
+
+      let moveScheduled = false;
+      window.addEventListener('pointermove', event => {
+        if (!moveScheduled) {
+          moveScheduled = true;
+          requestAnimationFrame(() => {
+            mx = event.clientX / window.innerWidth - .5;
+            my = event.clientY / window.innerHeight - .5;
+            moveScheduled = false;
+          });
+        }
+      }, { passive: true });
+
+      function tick() {
+        if (!isCanvasVisible || document.hidden) {
+          animFrameId = null;
+          return;
+        }
+        animFrameId = requestAnimationFrame(tick);
+        clock += .01;
+        group.children.forEach(mesh => {
+          mesh.rotation.x += mesh.userData.rx;
+          mesh.rotation.y += mesh.userData.ry;
+          mesh.position.y = mesh.userData.baseY + Math.sin(clock) * .08;
+        });
+        group.rotation.y += (mx * .16 - group.rotation.y) * .02;
+        group.rotation.x += (-my * .08 - group.rotation.x) * .02;
+        renderer.render(scene, camera);
+      }
       tick();
     })();
 
-    const phrases = ['Render worlds.', 'Without brackets.', 'Without semicolons.', 'From Addis Ababa.'];
-    let phraseIdx = 0, charIdx = 0, isDeleting = false;
-    function typeLoop() {
-      const target = document.querySelector('.hero-copy h1 em');
-      if (!target) return;
-      const phrase = phrases[phraseIdx];
-      charIdx += isDeleting ? -1 : 1;
-      target.textContent = phrase.substring(0, charIdx);
-      let delay = isDeleting ? 42 : 82;
-      if (!isDeleting && charIdx === phrase.length) { delay = 1900; isDeleting = true; }
-      if (isDeleting && charIdx === 0) { isDeleting = false; phraseIdx = (phraseIdx + 1) % phrases.length; delay = 350; }
-      setTimeout(typeLoop, delay);
-    }
-    typeLoop();
+    /* Hero Money Site Blueprint Switcher & Video Demos */
+    const BLUEPRINTS = {
+      install: `Mr.easy "Installation & Quick Start"
 
-    function copyInstall(button) { copyText(button, 'mreasy new mywebsite'); }
+# Step 1: Run installer in PowerShell:
+# powershell -ExecutionPolicy Bypass -File installer/install.ps1
+
+# Step 2: Create a new project:
+# mreasy new mywebsite
+
+hero bg:#080706 padding:50
+  badge "INSTALLED IN 30 SECONDS" green
+  title "MR.easy CLI Ready" size:42 color:#f2ead8 glow
+  subtitle "Type 'mreasy run' in your terminal to open live server." color:#a69a86
+  button "Server Active: http://localhost:3000" bg:#c8963a color:#080706 medium`,
+
+      code: `Mr.easy "How to Code in MR.easy"
+
+# Write keywords, add modifiers, watch live preview!
+
+nav bg:#0f0d0b
+  logo "MyWebsite" color:#e8b45a
+  links Home Features Pricing
+
+hero bg:#080706 padding:60
+  badge "NO BRACKETS NEEDED" purple
+  title "Coding is Plain Words" size:48 color:#f2ead8 glow
+  subtitle "Add modifiers like glow, shadow, big, blue, or custom bg:#hex" color:#a69a86
+  spacer size:16
+  button "Get Started" bg:#c8963a color:#080706 big
+
+section "features" bg:#141210 padding:40
+  grid cols:3 gap:20
+    card bg:#1d1915 radius:12 shadow
+      icon rocket color:#e8b45a size:32
+      title "Fast Syntax" size:20 color:#f2ead8
+    card bg:#1d1915 radius:12 shadow
+      icon bolt color:#22c55e size:32
+      title "Live Output" size:20 color:#f2ead8
+    card bg:#1d1915 radius:12 shadow
+      icon star color:#3b82f6 size:32
+      title "Beautiful UI" size:20 color:#f2ead8`,
+
+      save: `Mr.easy "How to Save & Export Website"
+
+# Method 1 (Terminal): Run 'mreasy build' -> generates dist/index.html
+# Method 2 (Web IDE): Click 'Download ZIP' -> downloads ready website
+
+hero bg:#0f0d0b padding:60
+  badge "DEPLOYMENT READY" green
+  title "Export Static HTML" size:44 color:#f2ead8 glow
+  subtitle "1-click export. Host for free on Vercel, Netlify, or GitHub Pages." color:#a69a86
+  spacer size:20
+  row center gap:16
+    button "Download ZIP Bundle" bg:#c8963a color:#080706 big
+    button "Copy Compiled HTML" outline big`,
+
+      saas: `Mr.easy "FlowCraft SaaS — $49/mo Plan"
+
+hero bg:#0f0d0b padding:60
+  badge "50% OFF" purple
+  title "Automate Workflows" big glow
+  subtitle "Save 15+ hours every week"
+  button "Start Free Trial" blue big
+
+section "pricing" bg:#141210
+  grid cols:2
+    card shadow
+      title "Pro — $49/mo" small
+      button "Subscribe" green`,
+
+      digital: `Mr.easy "AI Freedom Playbook — $27"
+
+hero bg:#080706 padding:60
+  badge "BESTSELLER E-BOOK" gold
+  title "AI Prompting Playbook" bg:#080706 glow
+  subtitle "Download 150+ copy-paste marketing prompts."
+  button "Download E-Book — $27" green big`,
+
+      affiliate: `Mr.easy "TechRadar — Best AI Tools 2026"
+
+hero bg:#0f0d0b padding:50
+  title "Top 3 AI Writers" size:32 color:#f2ead8
+  subtitle "Unbiased reviews & promo codes."
+
+grid cols:2
+  card shadow
+    badge "9.8/10 RATING" green
+    title "Jasper AI" small
+    button "Claim 20% Off ↗" blue
+  card shadow
+    badge "9.5/10 RATING" green
+    title "Synthesia Video" small
+    button "Try Free Trial ↗" green`,
+
+      agency: `Mr.easy "Apex Web Design & SEO Agency"
+
+hero bg:#080706 padding:60
+  badge "ADDIS ABABA" green
+  title "We Build Customer Sites" big glow
+  subtitle "High-converting web design & SEO."
+  button "Book Strategy Call" blue big
+
+section "contact" bg:#141210
+  form
+    input placeholder:"Your Email"
+    button "Request Free Audit" green`
+    };
+
+    function compileMREasy(code) {
+      const c = window.MrEasyCompiler || window.MREasyCompiler;
+      if (!c) return '';
+      if (typeof c.browserCompile === 'function') return c.browserCompile(code);
+      if (typeof c.compile === 'function') {
+        const res = c.compile(code);
+        return typeof res === 'string' ? res : (res ? res.html || '' : '');
+      }
+      return '';
+    }
+
+    function renderBlueprint(code) {
+      const frame = document.getElementById('hero-blueprint-iframe');
+      if (!frame) return;
+      frame.srcdoc = compileMREasy(code);
+    }
+
+    function switchHeroBlueprint(type, btn) {
+      document.querySelectorAll('.blueprint-tab').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      const code = BLUEPRINTS[type] || BLUEPRINTS.saas;
+      const codeEl = document.getElementById('hero-blueprint-code');
+      if (codeEl) {
+        codeEl.innerHTML = code.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>').replace(/ /g, '&nbsp;');
+      }
+      renderBlueprint(code);
+    }
+    // Initialize hero blueprint
+    setTimeout(() => { switchHeroBlueprint('saas'); }, 300);
+
+    /* Video Player & Template Loading */
+    function playSimulatedVideo(btn, type) {
+      const container = btn.closest('.video-player-container');
+      const code = BLUEPRINTS[type] || BLUEPRINTS.saas;
+      const html = compileMREasy(code).replace(/"/g, '&quot;');
+      container.innerHTML = `<iframe style="width:100%;height:100%;border:0;" srcdoc="${html}"></iframe>`;
+    }
+
+    function loadVideoTemplate(type) {
+      const code = BLUEPRINTS[type] || BLUEPRINTS.saas;
+      sessionStorage.setItem('mreasy_load_code', code);
+      window.open('ide/', '_blank');
+    }
+
     function copyText(button, text) {
       if (!navigator.clipboard) return;
       navigator.clipboard.writeText(text).then(() => { const original = button.textContent; button.textContent = '✓'; setTimeout(() => { button.textContent = original; }, 1500); });
@@ -714,10 +1165,7 @@ grid cols:2
       if (!codeEl || !frameEl) return;
 
       function compileHome() {
-        if (window.MREasyCompiler && typeof window.MREasyCompiler.compile === 'function') {
-          const res = window.MREasyCompiler.compile(codeEl.value);
-          frameEl.srcdoc = res.html || '';
-        }
+        frameEl.srcdoc = compileMREasy(codeEl.value);
       }
 
       codeEl.addEventListener('input', compileHome);

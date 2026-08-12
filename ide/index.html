@@ -36,6 +36,8 @@
   </div>
 
   <div class="topbar-right">
+    <button class="btn-icon" type="button" onclick="startGuidedTour()" title="Start step-by-step beginner guide" style="color:var(--brass-bright);border:1px solid var(--hairline-brass);"><i class="fa fa-compass" aria-hidden="true"></i><span>Guided Tour 🧭</span></button>
+    <a href="../docs.html" target="_blank" class="btn-icon" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;" title="Open full documentation manual"><i class="fa fa-book-open" aria-hidden="true"></i><span>Docs Manual</span></a>
     <button class="btn-icon" type="button" onclick="openTemplateModal()" title="Choose a starter template"><i class="fa fa-cubes" aria-hidden="true"></i><span>Templates</span></button>
     <button class="btn-icon" type="button" onclick="openCliModal()" title="CLI commands reference"><i class="fa fa-terminal" aria-hidden="true"></i><span>CLI Guide</span></button>
     <button class="btn-icon" type="button" onclick="clearCode()" title="Start fresh from zero"><i class="fa fa-trash-can" aria-hidden="true"></i><span>Clear</span></button>
@@ -46,6 +48,26 @@
     <button class="btn-icon btn-play" type="button" onclick="runCode()" title="Run and refresh preview (Ctrl+Enter)"><i class="fa fa-play" aria-hidden="true"></i><span>Run</span></button>
   </div>
 </header>
+
+<!-- ── FIRST-TIME GUIDED TOUR FLOATING POPOVER & ARROW POINTER ───────────── -->
+<div id="tour-popover-box" class="tour-popover-box" style="display:none;" aria-label="Beginner Guided Tour">
+  <div class="tour-arrow-pointer" id="tour-arrow-pointer"></div>
+  <div class="tour-popover-header">
+    <span class="tour-step-badge" id="tour-badge">STEP 1 OF 5</span>
+    <button class="tour-skip-link" onclick="skipTour()" title="Skip guided tour">Skip ⏩</button>
+  </div>
+  <div class="tour-popover-body">
+    <h4 id="tour-title">1. Declaration Line — Mr.easy "Title"</h4>
+    <p id="tour-text">Every document MUST start with Mr.easy "Your Page Title". This sets your website title and declares your document.</p>
+  </div>
+  <div class="tour-popover-footer">
+    <button class="tour-btn" id="tour-prev-btn" onclick="prevTourStep()">⏮ Back</button>
+    <div style="display:flex;gap:6px;">
+      <button class="tour-btn tour-btn-secondary" onclick="skipTour()">Skip ⏩</button>
+      <button class="tour-btn tour-btn-primary" id="tour-next-btn" onclick="nextTourStep()">Next ➔</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── WORKSPACE ────────────────────────────────────────────────────────── -->
 <div class="workspace" id="workspace">

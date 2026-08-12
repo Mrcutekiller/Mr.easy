@@ -274,7 +274,14 @@ hero
   ];
 
   function readStoredSource() {
-    try { return root.localStorage.getItem('mreasy_code') || ''; }
+    try {
+      const sessionCode = root.sessionStorage.getItem('mreasy_load_code');
+      if (sessionCode) {
+        root.sessionStorage.removeItem('mreasy_load_code');
+        return sessionCode;
+      }
+      return root.localStorage.getItem('mreasy_code') || '';
+    }
     catch (error) { return ''; }
   }
 
@@ -1713,6 +1720,152 @@ hero
     compileAndPreview();
   }
 
+  /* FIRST-TIME GUIDED TOUR SYSTEM WITH DYNAMIC ARROW POINTERS & SPOTLIGHT */
+  const TOUR_STEPS = [
+    {
+      badge: 'WELCOME TO MR.EASY 🚀',
+      title: 'Welcome to MR.easy Web IDE!',
+      text: 'Build high-converting, money-making websites using plain human words — zero HTML/CSS bloat, zero build setup required. Let\'s take a quick 1-minute guided tour to show you around!',
+      targetSelector: null,
+      arrowClass: 'arrow-none',
+      position: { top: '160px', left: 'calc(50% - 170px)', right: 'auto' }
+    },
+    {
+      badge: 'STEP 1 OF 5',
+      title: '1. Declaration Line — Mr.easy "Title"',
+      text: 'Every document MUST start with Mr.easy "Your Page Title". This defines your website title and tells MR.easy to compile the page.',
+      targetSelector: '.CodeMirror',
+      arrowClass: 'arrow-left',
+      position: { top: '130px', left: '330px', right: 'auto' }
+    },
+    {
+      badge: 'STEP 2 OF 5',
+      title: '2. Navigation Bar — nav',
+      text: 'Write nav to create a sticky header. Add logo "Brand" and links Home Features Pricing underneath with simple indentation.',
+      targetSelector: '#panel-explorer',
+      arrowClass: 'arrow-left',
+      position: { top: '190px', left: '330px', right: 'auto' }
+    },
+    {
+      badge: 'STEP 3 OF 5',
+      title: '3. Hero Section & Style Modifiers',
+      text: 'Write hero for landing banners. Add style modifiers like glow, shadow, big, blue, or custom text color:#e8b45a to style elements.',
+      targetSelector: '.CodeMirror-scroll',
+      arrowClass: 'arrow-left',
+      position: { top: '270px', left: '330px', right: 'auto' }
+    },
+    {
+      badge: 'STEP 4 OF 5',
+      title: '4. Instant Real-Time Live Preview',
+      text: 'Watch the right panel! Every word you type compiles instantly into a responsive live website in real time.',
+      targetSelector: '#preview-panel',
+      arrowClass: 'arrow-right',
+      position: { top: '140px', left: 'calc(50% - 370px)', right: 'auto' }
+    },
+    {
+      badge: 'STEP 5 OF 5',
+      title: '5. Exporting & Publishing Your Site',
+      text: 'When ready to publish, click "Copy as HTML" or click "Download ZIP" at the top right to download your production website ready to host!',
+      targetSelector: '.topbar-right',
+      arrowClass: 'arrow-up',
+      position: { top: '75px', right: '35px', left: 'auto' }
+    }
+  ];
+
+  let currentTourStep = 0;
+
+  function clearTourHighlights() {
+    document.querySelectorAll('.tour-target-highlight').forEach(el => el.classList.remove('tour-target-highlight'));
+  }
+
+  function renderTourStep() {
+    clearTourHighlights();
+    const popover = document.getElementById('tour-popover-box');
+    const arrow = document.getElementById('tour-arrow-pointer');
+    if (!popover) return;
+
+    const step = TOUR_STEPS[currentTourStep];
+    if (!step) return;
+
+    document.getElementById('tour-badge').textContent = step.badge;
+    document.getElementById('tour-title').textContent = step.title;
+    document.getElementById('tour-text').textContent = step.text;
+
+    // Set position
+    popover.style.top = step.position.top || '120px';
+    popover.style.left = step.position.left || 'auto';
+    popover.style.right = step.position.right || 'auto';
+
+    // Set Arrow class
+    if (arrow) {
+      arrow.className = 'tour-arrow-pointer ' + (step.arrowClass || 'arrow-none');
+    }
+
+    // Highlight target element if present
+    if (step.targetSelector) {
+      const targetEl = document.querySelector(step.targetSelector);
+      if (targetEl) targetEl.classList.add('tour-target-highlight');
+    }
+
+    // Buttons visibility & text
+    const prevBtn = document.getElementById('tour-prev-btn');
+    const nextBtn = document.getElementById('tour-next-btn');
+
+    if (prevBtn) prevBtn.style.opacity = currentTourStep === 0 ? '0.4' : '1';
+    if (prevBtn) prevBtn.disabled = currentTourStep === 0;
+
+    if (nextBtn) {
+      if (currentTourStep === 0) {
+        nextBtn.textContent = 'Start Guided Tour ➔';
+      } else if (currentTourStep === TOUR_STEPS.length - 1) {
+        nextBtn.textContent = 'Finish Tour 🎉';
+      } else {
+        nextBtn.textContent = 'Next ➔';
+      }
+    }
+
+    popover.style.display = 'block';
+  }
+
+  function startGuidedTour() {
+    currentTourStep = 0;
+    renderTourStep();
+    showToast('🧭 Welcome to MR.easy Web IDE!');
+  }
+
+  function nextTourStep() {
+    if (currentTourStep < TOUR_STEPS.length - 1) {
+      currentTourStep++;
+      renderTourStep();
+    } else {
+      closeTour();
+      showToast('🎉 Tour completed! Enjoy building with MR.easy');
+    }
+  }
+
+  function prevTourStep() {
+    if (currentTourStep > 0) {
+      currentTourStep--;
+      renderTourStep();
+    }
+  }
+
+  function skipTour() {
+    closeTour();
+    showToast('⏩ Tour skipped. Click Guided Tour 🧭 anytime!');
+  }
+
+  function closeTour() {
+    clearTourHighlights();
+    const popover = document.getElementById('tour-popover-box');
+    if (popover) popover.style.display = 'none';
+  }
+
+  function checkFirstTimeTour() {
+    // Automatically show Welcome Guided Tour when opening the Web IDE
+    setTimeout(startGuidedTour, 400);
+  }
+
   root.addEventListener('DOMContentLoaded', () => {
     initEditor();
     buildSidebar();
@@ -1726,6 +1879,7 @@ hero
     root.addEventListener('resize', schedulePreviewScale);
     setViewport('desktop');
     setZoom(100);
+    checkFirstTimeTour();
   });
 
   Object.assign(root, {
@@ -1737,6 +1891,7 @@ hero
     closeGuideModal, showGuide, showCheatsheet, closeModal, openTemplateModal,
     openCliModal, toggleAiPanel, closeAiPanel, clearAiConversation, sendAiMessage, stopAiRequest, undoAiEdit,
     parseAiEnvelope, validateAiAction, applyAiActions, connectAiProvider,
+    startGuidedTour, nextTourStep, prevTourStep, skipTour, closeTour,
     requestOpenAi, requestAnthropic, requestGemini, requestOpenAiCompatible, formatProviderError,
     markUnsaved, markSaved, showToast, startResize, doResize, stopResize,
     runSearch, toggleWrap, toggleAutoCompile, dismissErrorNotice, jumpToFirstError,
